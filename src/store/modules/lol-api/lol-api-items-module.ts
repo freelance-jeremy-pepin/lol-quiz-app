@@ -1,6 +1,5 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import axios, { AxiosResponse } from 'axios';
 import { Item } from 'src/models/item';
 import ItemRepository from 'src/repositories/itemRepository';
 
@@ -31,7 +30,7 @@ class LolApiItemsModule extends VuexModule {
     @Action
     public fetchItems(lang = 'en_US') {
         new ItemRepository().getAll(lang)
-            .then((items) => {
+            .then((items: Item[]) => {
                 this.setItems(items);
             })
             .catch(() => {

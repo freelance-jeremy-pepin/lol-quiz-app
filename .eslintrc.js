@@ -68,6 +68,8 @@ module.exports = {
 
     // add your custom rules here
     rules: {
+        'strictPropertyInitialization': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-inferrable-types': 'off',
         'prefer-destructuring': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',

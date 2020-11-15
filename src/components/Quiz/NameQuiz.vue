@@ -1,5 +1,9 @@
 <template>
-    <q-card class="column q-pa-md q-gutter-y-md items-center" style="max-width: 300px; width: 100%;" @keydown.shift="onPickItem">
+    <q-card
+        class="column q-pa-md q-gutter-y-md items-center"
+        style="max-width: 300px; width: 100%;"
+        @keydown.shift="onPickItem"
+    >
         <q-img
             v-if="item"
             :src="imageUrl"
@@ -7,7 +11,10 @@
         >
         </q-img>
 
-        <span v-if="false || (state === 'answerGiven' || state === 'right')" class="text-bold">{{ item.name }}</span>
+        <span
+            v-if="false || (state === 'answerGiven' || state === 'right')"
+            class="text-bold"
+        >{{ item.name }}</span>
 
         <q-input
             v-if="state !== 'answerGiven' && state !== 'right'"
@@ -20,7 +27,12 @@
             @keydown.enter.stop="onVerifyAnswer"
         ></q-input>
 
-        <q-btn v-if="state !== 'answerGiven' && state !== 'right'" :color="state === 'wrong' ? 'negative' : 'primary'" class="full-width" @click="onVerifyAnswer">
+        <q-btn
+            v-if="state !== 'answerGiven' && state !== 'right'"
+            :color="state === 'wrong' ? 'negative' : 'primary'"
+            class="full-width"
+            @click="onVerifyAnswer"
+        >
             {{ state === 'wrong' ? 'Wrong' : 'Verify' }}
         </q-btn>
 
@@ -50,7 +62,7 @@ enum State {
 export default class NameQuiz extends Vue {
     // region Props
 
-    @Prop({ required: true }) items: Item[];
+    @Prop({ required: true }) items!: Item[];
 
     // endregion
 
@@ -67,7 +79,11 @@ export default class NameQuiz extends Vue {
     // region Computed properties
 
     private get imageUrl(): string {
-        return new ItemRepository().getImageUrl(this.item.id);
+        if (this.item) {
+            return new ItemRepository().getImageUrl(this.item.id);
+        }
+
+        return '';
     }
 
     // endregion
@@ -111,10 +127,14 @@ export default class NameQuiz extends Vue {
     // region Methods
 
     private verifyAnswer(): boolean {
-        const itemName = this.item.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
-        const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
+        if (this.item) {
+            const itemName = this.item.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
-        return itemName === answer;
+            return itemName === answer;
+        }
+
+        return false;
     }
 
     private giveAnswer() {
@@ -124,7 +144,10 @@ export default class NameQuiz extends Vue {
     private pickItem() {
         this.item = this.items[Math.floor(Math.random() * this.items.length)];
         this.state = State.idle;
-        console.log(`%c ${this.item.name}`, 'color: #bada55');
+
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`%c ${this.item.name}`, 'color: #bada55');
+        }
     }
 
     // endregion
