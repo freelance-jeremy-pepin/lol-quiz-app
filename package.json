@@ -8,6 +8,7 @@
     "scripts": {
         "lint": "eslint --ext .js,.ts,.vue ./",
         "quasar dev": "quasar dev",
+        "quasar build": "quasar build",
         "test": "echo \"No test specified\" && exit 0"
     },
     "dependencies": {
@@ -17,7 +18,10 @@
         "quasar": "^1.0.0",
         "vue-class-component": "^7.2.2",
         "vue-i18n": "^8.0.0",
-        "vue-property-decorator": "^8.3.0"
+        "vue-property-decorator": "^8.3.0",
+        "vuex": "^3.5.1",
+        "vuex-class": "^0.3.2",
+        "vuex-module-decorators": "^1.0.1"
     },
     "devDependencies": {
         "@quasar/app": "^2.0.0",

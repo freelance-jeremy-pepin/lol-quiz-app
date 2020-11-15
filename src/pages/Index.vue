@@ -1,48 +1,30 @@
 <template>
-    <q-page class="row items-center justify-evenly">
-        <example-component
-            :meta="meta"
-            :todos="todos"
-            active
-            title="Example component"
-        ></example-component>
+    <q-page class="q-pa-md row items-center justify-evenly">
+        <name-quiz v-if="items" :items="items"></name-quiz>
     </q-page>
 </template>
 
 <script lang="ts">
-import ExampleComponent from 'components/ClassComponent.vue';
-import { Meta, Todo } from 'components/models';
 import { Component, Vue } from 'vue-property-decorator';
+import NameQuiz from 'components/Quiz/NameQuiz.vue';
+import LolApiVersionModule from 'src/store/modules/lol-api/lol-api-version-module';
+import LolApiItemsModule from 'src/store/modules/lol-api/lol-api-items-module';
+import { Item } from 'src/models/item';
 
 @Component({
-    components: { ExampleComponent },
+    components: { NameQuiz },
 })
 export default class PageIndex extends Vue {
-    todos: Todo[] = [
-        {
-            id: 1,
-            content: 'ct1',
-        },
-        {
-            id: 2,
-            content: 'ct2',
-        },
-        {
-            id: 3,
-            content: 'ct3',
-        },
-        {
-            id: 4,
-            content: 'ct4',
-        },
-        {
-            id: 5,
-            content: 'ct5',
-        },
-    ];
+    // region Computed properties
 
-    meta: Meta = {
-        totalCount: 1200,
-    };
+    private get version(): string | undefined {
+        return LolApiVersionModule.version;
+    }
+
+    private get items(): Item[] | undefined {
+        return LolApiItemsModule.items;
+    }
+
+    // endregion
 }
 </script>

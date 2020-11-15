@@ -1,33 +1,19 @@
-import { store } from 'quasar/wrappers';
-import Vuex from 'vuex';
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+import createLogger from 'src/plugins/logger';
 
-// import example from './module-example';
-// import { ExampleStateInterface } from './module-example/state';
-
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation
- */
-
-export interface StateInterface {
-    // Define your own store structure, using submodules if needed
-    // example: ExampleStateInterface;
-    // Declared as unknown to avoid linting issue. Best to strongly type as per the line above.
-    example: unknown;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface StoreInterface {
 }
 
-export default store(({ Vue }) => {
-    Vue.use(Vuex);
+Vue.use(Vuex);
 
-    const Store = new Vuex.Store<StateInterface>({
-        modules: {
-            // example
-        },
+const debug = !!process.env.DEV;
 
-        // enable strict mode (adds overhead!)
-        // for dev mode only
-        strict: !!process.env.DEBUGGING,
-    });
-
-    return Store;
+const store: Store<StoreInterface> = new Store<StoreInterface>({
+    state: {},
+    strict: debug,
+    plugins: debug ? [createLogger()] : [],
 });
+
+export default store;
