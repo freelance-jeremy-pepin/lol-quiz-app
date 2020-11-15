@@ -1,44 +1,14 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
+    <q-layout style="background-color: #EEEEEE" view="lHh Lpr lFf">
         <q-header elevated>
             <q-toolbar>
-                <q-btn
-                    aria-label="Menu"
-                    dense
-                    flat
-                    icon="menu"
-                    round
-                    @click="leftDrawerOpen = !leftDrawerOpen"
-                />
-
                 <q-toolbar-title>
-                    Quasar App
+                    LoL Quiz items
                 </q-toolbar-title>
 
-                <div>Quasar v{{ $q.version }}</div>
+                <div v-if="version">LoL API v. {{ version }}</div>
             </q-toolbar>
         </q-header>
-
-        <q-drawer
-            v-model="leftDrawerOpen"
-            bordered
-            content-class="bg-grey-1"
-            show-if-above
-        >
-            <q-list>
-                <q-item-label
-                    class="text-grey-8"
-                    header
-                >
-                    Essential Links
-                </q-item-label>
-                <EssentialLink
-                    v-for="link in essentialLinks"
-                    :key="link.title"
-                    v-bind="link"
-                />
-            </q-list>
-        </q-drawer>
 
         <q-page-container>
             <router-view />
@@ -47,60 +17,32 @@
 </template>
 
 <script lang="ts">
-import EssentialLink from 'components/EssentialLink.vue';
 import { Component, Vue } from 'vue-property-decorator';
+import LolApiVersionModule from 'src/store/modules/lol-api/lol-api-version-module';
+import LoLApiItemsModule from 'src/store/modules/lol-api/lol-api-items-module';
 
-const linksData = [
-    {
-        title: 'Docs',
-        caption: 'quasar.dev',
-        icon: 'school',
-        link: 'https://quasar.dev',
-    },
-    {
-        title: 'Github',
-        caption: 'github.com/quasarframework',
-        icon: 'code',
-        link: 'https://github.com/quasarframework',
-    },
-    {
-        title: 'Discord Chat Channel',
-        caption: 'chat.quasar.dev',
-        icon: 'chat',
-        link: 'https://chat.quasar.dev',
-    },
-    {
-        title: 'Forum',
-        caption: 'forum.quasar.dev',
-        icon: 'record_voice_over',
-        link: 'https://forum.quasar.dev',
-    },
-    {
-        title: 'Twitter',
-        caption: '@quasarframework',
-        icon: 'rss_feed',
-        link: 'https://twitter.quasar.dev',
-    },
-    {
-        title: 'Facebook',
-        caption: '@QuasarFramework',
-        icon: 'public',
-        link: 'https://facebook.quasar.dev',
-    },
-    {
-        title: 'Quasar Awesome',
-        caption: 'Community Quasar projects',
-        icon: 'favorite',
-        link: 'https://awesome.quasar.dev',
-    },
-];
-
-@Component({
-    components: { EssentialLink },
-})
+@Component
 export default class MainLayout extends Vue {
-    leftDrawerOpen = false;
+    // region Computed properties
 
-    essentialLinks = linksData;
+    private get version(): string | undefined {
+        return LolApiVersionModule.version;
+    }
+
+    // endregion
+
+    // Region Hooks
+
+    private mounted() {
+        LolApiVersionModule.fetchVersion()
+            .then(() => {
+                LoLApiItemsModule.fetchItems();
+            })
+            .catch((e) => {
+                throw new Error(e);
+            });
+    }
+
+    // endregion
 }
 </script>
