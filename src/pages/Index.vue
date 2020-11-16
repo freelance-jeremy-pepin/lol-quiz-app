@@ -7,7 +7,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import NameQuiz from 'components/Quiz/NameQuiz.vue';
-import LolApiVersionModule from 'src/store/modules/lol-api/lol-api-version-module';
 import LolApiItemsModule from 'src/store/modules/lol-api/lol-api-items-module';
 import { Item } from 'src/models/item';
 
@@ -16,10 +15,6 @@ import { Item } from 'src/models/item';
 })
 export default class PageIndex extends Vue {
     // region Computed properties
-
-    private get version(): string | undefined {
-        return LolApiVersionModule.version;
-    }
 
     private get items(): Item[] | undefined {
         return LolApiItemsModule.items;
