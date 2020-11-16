@@ -16,9 +16,13 @@ export default class StopWatch extends Vue {
     // region Data
 
     private minutes: string = '00';
+
     private seconds: string = '00';
+
     private miliseconds: string = '000';
+
     private interval: NodeJS.Timeout | null = null;
+
     private timeBegan: Date = new Date();
 
     // endregion
@@ -49,14 +53,9 @@ export default class StopWatch extends Vue {
         timeElapsed = (timeElapsed - secs) / 60;
         const mins = timeElapsed % 60;
 
-        this.minutes = this.pad(mins);
-        this.seconds = this.pad(secs);
-        this.miliseconds = this.pad(ms, 3);
-    }
-
-    private pad(n: number, z: number = 2) {
-        z = z || 2;
-        return ('00' + n).slice(-z);
+        this.minutes = mins.toString().padStart(2, '0');
+        this.seconds = secs.toString().padStart(2, '0');
+        this.miliseconds = ms.toString().padStart(3, '0');
     }
 
     // endregion

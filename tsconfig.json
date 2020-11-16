@@ -12,6 +12,8 @@
     ],
     "include": [
         "src/**/*",
-        ".eslintrc.js"
+        ".eslintrc.js",
+        "babel.config.js",
+        "quasar.conf.js"
     ]
 }
