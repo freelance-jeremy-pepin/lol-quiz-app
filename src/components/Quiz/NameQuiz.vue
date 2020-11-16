@@ -37,10 +37,13 @@
                 <q-btn
                     v-if="state !== 'answerGiven' && state !== 'right'"
                     :color="state === 'wrong' ? 'negative' : 'primary'"
+                    :disable="state === 'verifyingAnswer'"
                     class="full-width"
                     @click="onVerifyAnswer"
                 >
-                    {{ state === 'wrong' ? 'Wrong' : 'Verify' }}
+                    {{
+                        state === 'wrong' ? 'Wrong' : state === 'verifyingAnswer' ? 'Verifying...' : 'Verify'
+                    }}
                 </q-btn>
 
                 <q-btn v-else class="full-width" color="secondary" @click="onPickItem">
@@ -82,6 +85,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Item } from 'src/models/item';
 import IconItem from 'components/Item/IconItem.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
+import { copyToClipboard } from 'quasar';
 
 enum State {
     loading = 'loading',
@@ -89,6 +93,7 @@ enum State {
     answering = 'answering',
     right = 'right',
     wrong = 'wrong',
+    verifyingAnswer = 'verifyingAnswer',
     answerGiven = 'answerGiven'
 }
 
@@ -116,6 +121,12 @@ export default class NameQuiz extends Vue {
 
     private mounted() {
         this.state = State.beginning;
+
+        window.addEventListener('keydown', this.onEnter);
+    }
+
+    private unmounted() {
+        window.removeEventListener('keydown', this.onEnter);
     }
 
     // endregion
@@ -123,13 +134,21 @@ export default class NameQuiz extends Vue {
     // region Event handlers
 
     private onVerifyAnswer() {
+        if (this.state === State.verifyingAnswer) {
+            return;
+        }
+
+        this.state = State.verifyingAnswer;
+
         if (this.verifyAnswer()) {
             this.state = State.right;
         } else {
             this.state = State.wrong;
 
             setTimeout(() => {
-                this.state = State.answering;
+                if (this.state === State.wrong) {
+                    this.state = State.answering;
+                }
             }, 1000);
         }
     }
@@ -142,6 +161,12 @@ export default class NameQuiz extends Vue {
         this.pickItem();
 
         this.answer = '';
+    }
+
+    private onEnter(e: KeyboardEvent) {
+        if (e.key === 'Enter' && (this.state === State.answerGiven || this.state === State.right)) {
+            this.onPickItem();
+        }
     }
 
     // endregion
@@ -168,6 +193,8 @@ export default class NameQuiz extends Vue {
         this.state = State.answering;
 
         if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            copyToClipboard(this.item.name);
             console.log(`%c ${this.item.name}`, 'color: #bada55');
             console.log(this.item);
         }
