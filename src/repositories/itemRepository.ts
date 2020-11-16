@@ -15,7 +15,7 @@ export default class ItemRepository {
 
                     // eslint-disable-next-line no-restricted-syntax
                     for (const [key, value] of Object.entries(items)) {
-                        value.id = key;
+                        value.id = parseInt(key, 10);
                         itemsFormatted.push(value);
                     }
 

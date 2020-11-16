@@ -1,64 +1,71 @@
 <template>
     <q-card
-        class="column q-pa-md q-gutter-y-md items-center"
         style="max-width: 300px; width: 100%;"
         @keydown.shift="onPickItem"
     >
-        <q-img
-            v-if="item"
-            :src="imageUrl"
-            style="width: 64px; height: auto;"
-        >
-        </q-img>
+        <q-card-section v-if="state === 'loading'" class="column items-center">
+            <q-spinner color="primary" size="3em"></q-spinner>
+        </q-card-section>
 
-        <span
-            v-if="false || (state === 'answerGiven' || state === 'right')"
-            class="text-bold"
-        >{{ item.name }}</span>
+        <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+            <icon-item :item="item" :with-tooltip="state !== 'answering'"></icon-item>
 
-        <q-input
-            v-if="state !== 'answerGiven' && state !== 'right'"
-            v-model="answer"
-            autofocus
-            borderless
-            class="full-width"
-            label="Your answer"
-            outlined
-            @keydown.enter.stop="onVerifyAnswer"
-        ></q-input>
+            <span
+                v-if="state === 'answerGiven' || state === 'right'"
+                class="text-bold"
+            >
+                {{ item.name }}
+            </span>
 
-        <q-btn
-            v-if="state !== 'answerGiven' && state !== 'right'"
-            :color="state === 'wrong' ? 'negative' : 'primary'"
-            class="full-width"
-            @click="onVerifyAnswer"
-        >
-            {{ state === 'wrong' ? 'Wrong' : 'Verify' }}
-        </q-btn>
+            <q-input
+                v-if="state !== 'answerGiven' && state !== 'right'"
+                v-model="answer"
+                autofocus
+                borderless
+                class="full-width"
+                label="Your answer"
+                outlined
+                @keydown.enter.stop="onVerifyAnswer"
+            ></q-input>
 
-        <q-btn v-else class="full-width" color="secondary" @click="onPickItem">Play again</q-btn>
+            <q-btn
+                v-if="state !== 'answerGiven' && state !== 'right'"
+                :color="state === 'wrong' ? 'negative' : 'primary'"
+                class="full-width"
+                @click="onVerifyAnswer"
+            >
+                {{ state === 'wrong' ? 'Wrong' : 'Verify' }}
+            </q-btn>
 
-        <q-btn class="full-width" color="primary" outline @click="onGiveAnswer">Ask answer</q-btn>
+            <q-btn v-else class="full-width" color="secondary" @click="onPickItem">Play again
+            </q-btn>
 
-        <q-page-sticky :offset="[18, 18]" position="bottom-right">
-            <q-btn color="secondary" fab icon="replay" @click="onPickItem"></q-btn>
-        </q-page-sticky>
+            <q-btn class="full-width" color="primary" outline @click="onGiveAnswer">Ask answer
+            </q-btn>
+
+            <q-page-sticky :offset="[18, 18]" position="bottom-right">
+                <q-btn color="secondary" fab icon="replay" @click="onPickItem"></q-btn>
+            </q-page-sticky>
+        </q-card-section>
     </q-card>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Item } from 'src/models/item';
-import ItemRepository from 'src/repositories/itemRepository';
+import IconItem from 'components/Item/IconItem.vue';
 
 enum State {
-    idle = 'idle',
+    loading = 'loading',
+    answering = 'answering',
     right = 'right',
     wrong = 'wrong',
     answerGiven = 'answerGiven'
 }
 
-@Component
+@Component({
+    components: { IconItem },
+})
 export default class NameQuiz extends Vue {
     // region Props
 
@@ -72,19 +79,7 @@ export default class NameQuiz extends Vue {
 
     private answer: string = '';
 
-    private state: State = State.idle;
-
-    // endregion
-
-    // region Computed properties
-
-    private get imageUrl(): string {
-        if (this.item) {
-            return new ItemRepository().getImageUrl(this.item.id);
-        }
-
-        return '';
-    }
+    private state: State = State.loading;
 
     // endregion
 
@@ -99,15 +94,13 @@ export default class NameQuiz extends Vue {
     // region Event handlers
 
     private onVerifyAnswer() {
-        this.state = State.idle;
-
         if (this.verifyAnswer()) {
             this.state = State.right;
         } else {
             this.state = State.wrong;
 
             setTimeout(() => {
-                this.state = State.idle;
+                this.state = State.answering;
             }, 1000);
         }
     }
@@ -143,10 +136,11 @@ export default class NameQuiz extends Vue {
 
     private pickItem() {
         this.item = this.items[Math.floor(Math.random() * this.items.length)];
-        this.state = State.idle;
+        this.state = State.answering;
 
         if (process.env.NODE_ENV === 'development') {
             console.log(`%c ${this.item.name}`, 'color: #bada55');
+            console.log(this.item);
         }
     }
 
