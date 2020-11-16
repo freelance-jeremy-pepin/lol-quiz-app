@@ -18,7 +18,7 @@ import { Item } from 'src/models/item';
 import ItemRepository from 'src/repositories/itemRepository';
 
 @Component
-export default class NameQuiz extends Vue {
+export default class IconItem extends Vue {
     // region Props
 
     @Prop({ required: true }) item!: Item;
