@@ -1,5 +1,5 @@
 <template>
-    <q-page class="q-pa-md row items-center justify-evenly">
+    <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
         <name-quiz v-if="items" :items="items"></name-quiz>
     </q-page>
 </template>
