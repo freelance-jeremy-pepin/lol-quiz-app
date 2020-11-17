@@ -1,6 +1,11 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <name-quiz v-if="items" :items="items" :number-questions="numberQuestions" :with-stop-watch="withStopWatch"></name-quiz>
+        <name-quiz
+            v-if="items"
+            :items="items"
+            :number-questions="numberQuestions"
+            :with-stop-watch="withStopWatch"
+        ></name-quiz>
     </q-page>
 </template>
 
@@ -18,7 +23,7 @@ export default class NameQuizPage extends Vue {
     // region Computed properties
 
     private get items(): Item[] | undefined {
-        return LolApiItemsModule.items;
+        return LolApiItemsModule.itemsFilteredForQuiz;
     }
 
     private get numberQuestions(): number {

@@ -1,4 +1,5 @@
 import { Stats } from 'src/models/stats';
+import { Maps } from 'src/models/maps';
 
 export interface Item {
     id: number;
@@ -31,7 +32,7 @@ export interface Item {
     requiredAlly: string;
     stats: Stats;
     tags: string[];
-    maps: boolean[];
+    maps: Maps;
     image: {
         full: string;
         group: string;

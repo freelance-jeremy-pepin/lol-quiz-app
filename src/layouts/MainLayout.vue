@@ -2,7 +2,7 @@
     <q-layout style="background-color: #EEEEEE" view="lHh Lpr lFf">
         <q-header elevated>
             <q-toolbar>
-                <q-toolbar-title @click="$router.push('/')" class="cursor-pointer">
+                <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
                     LoL Quiz items
                 </q-toolbar-title>
 
