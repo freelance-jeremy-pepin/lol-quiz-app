@@ -1,11 +1,12 @@
 <template>
-    <q-layout style="background-color: #EEEEEE" view="lHh Lpr lFf">
+    <q-layout view="lHh Lpr lFf">
         <q-header elevated>
             <q-toolbar>
                 <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
                     LoL Quiz items
                 </q-toolbar-title>
 
+                <q-btn :icon="$q.dark.isActive ? 'brightness_5' : 'brightness_4'" class="q-mr-md" flat @click="$q.dark.toggle()"></q-btn>
                 <div v-if="version">LoL API v. {{ version }}</div>
             </q-toolbar>
         </q-header>
