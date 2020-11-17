@@ -3,27 +3,36 @@
         class="q-pa-sm bg-secondary text-white"
         style="font-size: 16px; font-family: Consolas,serif;"
     >
-        <span class="text-bold">{{ minutes }}:{{ seconds }}</span>
-        <span class="text-grey-4">:{{ miliseconds }}</span>
+        <span class="text-bold">{{ time.minutes }}:{{ time.seconds }}</span>
+        <span class="text-grey-4">:{{ time.milliseconds }}</span>
     </q-card>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import { Time } from 'src/const';
 
 @Component
 export default class StopWatch extends Vue {
     // region Data
 
-    private minutes: string = '00';
-
-    private seconds: string = '00';
-
-    private miliseconds: string = '000';
+    private time: Time = {
+        minutes: '00',
+        seconds: '00',
+        milliseconds: '000',
+    };
 
     private interval: NodeJS.Timeout | null = null;
 
     private timeBegan: Date = new Date();
+
+    // endregion
+
+    // region Computed properties
+
+    public get getTime(): Time {
+        return this.time;
+    }
 
     // endregion
 
@@ -53,9 +62,9 @@ export default class StopWatch extends Vue {
         timeElapsed = (timeElapsed - secs) / 60;
         const mins = timeElapsed % 60;
 
-        this.minutes = mins.toString().padStart(2, '0');
-        this.seconds = secs.toString().padStart(2, '0');
-        this.miliseconds = ms.toString().padStart(3, '0');
+        this.time.minutes = mins.toString().padStart(2, '0');
+        this.time.seconds = secs.toString().padStart(2, '0');
+        this.time.milliseconds = ms.toString().padStart(3, '0');
     }
 
     // endregion

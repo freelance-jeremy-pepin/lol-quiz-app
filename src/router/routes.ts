@@ -9,6 +9,14 @@ const routes: RouteConfig[] = [
         ],
     },
 
+    {
+        path: '/quiz/name',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/NameQuizPage.vue') },
+        ],
+    },
+
     // Always leave this as last one,
     // but you can also remove it
     {
