@@ -6,6 +6,7 @@
             :score="score"
             :time="time"
             @play-again="onStartNewQuiz"
+            @view-history="historyIsVisible = true"
         ></result-quiz>
 
         <q-card
@@ -87,6 +88,12 @@
         >
             <stop-watch ref="stopWatch"></stop-watch>
         </q-page-sticky>
+
+        <q-page-sticky v-if="!isQuizFinishedState" :offset="[18, 18]" position="bottom-right">
+            <q-btn color="accent" fab icon="history" @click="historyIsVisible = true" />
+        </q-page-sticky>
+
+        <answers-history-list v-model="historyIsVisible" :answers-history="answersHistory"></answers-history-list>
     </div>
 </template>
 
@@ -98,6 +105,8 @@ import StopWatch from 'components/Common/StopWatch.vue';
 import { copyToClipboard } from 'quasar';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import { Time } from 'src/const';
+import { AnswerHistory } from 'src/models/answerHistory';
+import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
 
 enum State {
     loading = 'loading',
@@ -110,7 +119,7 @@ enum State {
 }
 
 @Component({
-    components: { ResultQuiz, StopWatch, IconItem },
+    components: { ResultQuiz, StopWatch, IconItem, AnswersHistoryList },
 })
 export default class NameQuiz extends Vue {
     // region Props
@@ -138,6 +147,10 @@ export default class NameQuiz extends Vue {
     private currentQuestion: number = 0;
 
     private time: Time | null = null;
+
+    private answersHistory: AnswerHistory[] = [];
+
+    private historyIsVisible: boolean = false;
 
     public $refs!: {
         answerInput: any;
@@ -257,7 +270,11 @@ export default class NameQuiz extends Vue {
             const itemName = this.item.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
             const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
-            return itemName === answer;
+            const answerIsRight = itemName === answer;
+
+            this.updateLastAnswer(answerIsRight, false);
+
+            return answerIsRight;
         }
 
         return false;
@@ -280,6 +297,8 @@ export default class NameQuiz extends Vue {
             this.pickRandomItem();
         }
 
+        this.addNewAnswerToHistory();
+
         this.setAnsweringState();
 
         if (process.env.NODE_ENV === 'development' && this.item) {
@@ -300,6 +319,7 @@ export default class NameQuiz extends Vue {
     }
 
     private skipItem() {
+        this.updateLastAnswer(false, true);
         this.onPickItem();
     }
 
@@ -311,9 +331,43 @@ export default class NameQuiz extends Vue {
         this.setAnsweringState();
     }
 
+    private addNewAnswerToHistory() {
+        const lastAnswer = this.answersHistory[this.answersHistory.length - 1];
+
+        if (lastAnswer) {
+            lastAnswer.isAnswering = false;
+        }
+
+        if (this.item) {
+            this.answersHistory.push({
+                id: new Date().getUTCMilliseconds(),
+                item: this.item,
+                found: false,
+                answers: [],
+                isAnswering: true,
+                skipped: false,
+            });
+        }
+    }
+
+    private updateLastAnswer(found: boolean, skipped: boolean) {
+        const lastAnswer = this.answersHistory[this.answersHistory.length - 1];
+        lastAnswer.found = found;
+        lastAnswer.skipped = skipped;
+
+        if (skipped || found) {
+            lastAnswer.isAnswering = false;
+        }
+
+        if (this.answer.trim()) {
+            lastAnswer.answers = [...lastAnswer.answers, { id: new Date().getUTCMilliseconds(), isRight: found, answer: this.answer.trim() }];
+        }
+    }
+
     private resetQuiz() {
         this.currentQuestion = 0;
         this.score = 0;
+        this.answersHistory = [];
         this.itemsToFind = [];
         const itemsToPick = [...this.items];
 

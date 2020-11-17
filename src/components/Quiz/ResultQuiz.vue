@@ -18,8 +18,11 @@
             <span class="text-grey">:{{ time.milliseconds }}</span>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section class="q-gutter-y-md">
             <q-btn class="full-width" color="primary" @click="$emit('play-again')">Play again!
+            </q-btn>
+
+            <q-btn class="full-width" color="accent" @click="$emit('view-history')">View history
             </q-btn>
         </q-card-section>
     </q-card>
