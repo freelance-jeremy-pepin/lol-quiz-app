@@ -113,7 +113,7 @@ module.exports = configure((ctx) => ({
 
         // Quasar plugins
         plugins: [
-            'LocalStorage'
+            'LocalStorage',
         ],
     },
 
