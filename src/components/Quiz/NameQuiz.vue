@@ -1,7 +1,7 @@
 <template>
     <div class="column items-center" style="max-width: 300px; width: 100%;">
         <result-quiz
-            v-if="isQuizFinishedState"
+            v-if="quizStageModule.isQuizFinished"
             :number-questions="numberQuestions"
             :score="score"
             :time="time"
@@ -14,15 +14,15 @@
             style="width: 100%;"
             @keydown.shift="onPickItem"
         >
-            <q-card-section v-if="isLoadingState" class="column items-center">
+            <q-card-section v-if="quizStageModule.isLoading" class="column items-center">
                 <q-spinner color="primary" size="3em"></q-spinner>
             </q-card-section>
 
             <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
-                <icon-item :item="item" :with-tooltip="!isAnsweringState"></icon-item>
+                <icon-item v-if="item" :item="item" :with-tooltip="!quizStageModule.isAnswering"></icon-item>
 
                 <span
-                    v-if="isDisplayAnswer"
+                    v-if="quizStageModule.isDisplayAnswer"
                     class="text-bold"
                 >
                     {{ item.name }}
@@ -32,7 +32,7 @@
                 <div>Score: {{ score }}</div>
 
                 <q-input
-                    v-if="!isDisplayAnswer"
+                    v-if="!quizStageModule.isDisplayAnswer"
                     ref="answerInput"
                     v-model="answer"
                     autofocus
@@ -44,14 +44,14 @@
                 ></q-input>
 
                 <q-btn
-                    v-if="!isDisplayAnswer"
-                    :color="isWrongState ? 'negative' : 'primary'"
-                    :disable="isVerifyingAnswerState"
+                    v-if="!quizStageModule.isDisplayAnswer"
+                    :color="quizStageModule.isWrong ? 'negative' : 'primary'"
+                    :disable="quizStageModule.isVerifyingAnswer"
                     class="full-width"
                     @click="onVerifyAnswer"
                 >
                     {{
-                        isWrongState ? 'Wrong' : isVerifyingAnswerState ? 'Verifying...' : 'Verify'
+                        quizStageModule.isWrong ? 'Wrong' : quizStageModule.isVerifyingAnswer ? 'Verifying...' : 'Verify'
                     }}
                 </q-btn>
 
@@ -60,7 +60,7 @@
                 </q-btn>
 
                 <q-btn
-                    v-if="!numberQuestions && (isAnsweringState || isWrongState)"
+                    v-if="!numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
                     class="full-width"
                     color="primary"
                     outline
@@ -70,11 +70,11 @@
                 </q-btn>
 
                 <q-btn
-                    v-if="numberQuestions && (isAnsweringState || isWrongState)"
+                    v-if="numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
                     class="full-width"
                     color="negative"
                     outline
-                    @click="skipItem"
+                    @click="onSkipItem"
                 >
                     Skip
                 </q-btn>
@@ -82,15 +82,19 @@
         </q-card>
 
         <q-page-sticky
-            v-if="withStopWatch && !isQuizFinishedState && !isLoadingState"
+            v-if="withStopWatch && !quizStageModule.isQuizFinished && !quizStageModule.isLoading"
             :offset="[18, 18]"
             position="top-right"
         >
             <stop-watch ref="stopWatch"></stop-watch>
         </q-page-sticky>
 
-        <q-page-sticky v-if="!isQuizFinishedState" :offset="[18, 18]" position="bottom-right">
+        <q-page-sticky v-if="!quizStageModule.isQuizFinished" :offset="[18, 18]" position="bottom-right">
             <q-btn color="accent" fab icon="history" @click="historyIsVisible = true" />
+        </q-page-sticky>
+
+        <q-page-sticky :offset="[18, 18]" position="bottom-left">
+            <shortcuts-quiz></shortcuts-quiz>
         </q-page-sticky>
 
         <answers-history-list v-model="historyIsVisible" :answers-history="answersHistory"></answers-history-list>
@@ -98,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { Item } from 'src/models/item';
 import IconItem from 'components/Item/IconItem.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
@@ -107,19 +111,12 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import { Time } from 'src/const';
 import { AnswerHistory } from 'src/models/answerHistory';
 import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
-
-enum State {
-    loading = 'loading',
-    answering = 'answering',
-    right = 'right',
-    wrong = 'wrong',
-    verifyingAnswer = 'verifyingAnswer',
-    answerGiven = 'answerGiven',
-    quizFinished = 'quizFinished'
-}
+import { random } from 'src/utils/random';
+import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
+import QuizStageModule from 'src/store/modules/quiz-stage-module';
 
 @Component({
-    components: { ResultQuiz, StopWatch, IconItem, AnswersHistoryList },
+    components: { ShortcutsQuiz, ResultQuiz, StopWatch, IconItem, AnswersHistoryList },
 })
 export default class NameQuiz extends Vue {
     // region Props
@@ -139,8 +136,6 @@ export default class NameQuiz extends Vue {
     private itemsToFind: Item[] | null = null;
 
     private answer: string = '';
-
-    private state: State = State.loading;
 
     private score: number = 0;
 
@@ -165,36 +160,8 @@ export default class NameQuiz extends Vue {
         return this.numberQuestions === 0;
     }
 
-    public get isDisplayAnswer(): boolean {
-        return this.isAnswerGivenState || this.isRightState;
-    }
-
-    private get isLoadingState(): boolean {
-        return this.state === State.loading;
-    }
-
-    private get isAnsweringState(): boolean {
-        return this.state === State.answering;
-    }
-
-    private get isRightState(): boolean {
-        return this.state === State.right;
-    }
-
-    private get isWrongState(): boolean {
-        return this.state === State.wrong;
-    }
-
-    private get isVerifyingAnswerState(): boolean {
-        return this.state === State.verifyingAnswer;
-    }
-
-    private get isAnswerGivenState(): boolean {
-        return this.state === State.answerGiven;
-    }
-
-    private get isQuizFinishedState(): boolean {
-        return this.state === State.quizFinished;
+    public get quizStageModule(): QuizStageModule {
+        return QuizStageModule;
     }
 
     // endregion
@@ -202,13 +169,15 @@ export default class NameQuiz extends Vue {
     // region Hooks
 
     private mounted() {
-        window.addEventListener('keydown', this.onEnter);
+        QuizStageModule.setLoading();
+
+        window.addEventListener('keydown', this.onKeyPress);
 
         this.startNewQuiz();
     }
 
     private unmounted() {
-        window.removeEventListener('keydown', this.onEnter);
+        window.removeEventListener('keydown', this.onKeyPress);
     }
 
     // endregion
@@ -216,22 +185,22 @@ export default class NameQuiz extends Vue {
     // region Event handlers
 
     private onVerifyAnswer() {
-        this.setVerifyingAnswerState();
+        QuizStageModule.setVerifyingAnswer();
 
         if (this.verifyAnswer()) {
             if (!this.quizIsInfinite) {
                 this.onPickItem();
             } else {
-                this.setRightState();
+                QuizStageModule.setRight();
             }
 
             this.score += 1;
         } else {
-            this.setWrongState();
+            QuizStageModule.setWrong();
 
             setTimeout(() => {
-                if (this.state === State.wrong) {
-                    this.setAnsweringState();
+                if (QuizStageModule.isWrong) {
+                    QuizStageModule.setAnswering();
                 }
             }, 1000);
         }
@@ -245,15 +214,39 @@ export default class NameQuiz extends Vue {
         this.pickItem();
 
         this.answer = '';
+
+        this.focusAnswerInput();
     }
 
     private onSkipItem() {
         this.skipItem();
     }
 
-    private onEnter(e: KeyboardEvent) {
-        if (e.key === 'Enter' && (this.isAnswerGivenState || this.isRightState)) {
+    private onKeyPress(e: KeyboardEvent) {
+        if (e.key === 'Enter' && (QuizStageModule.isAnswerGiven || QuizStageModule.isRight)) {
             this.onPickItem();
+        }
+
+        if (QuizStageModule.isAnswering) {
+            if (e.shiftKey && e.key === '/') {
+                this.focusAnswerInput();
+            }
+
+            if (e.key === 'F9') {
+                this.onSkipItem();
+            }
+        }
+
+        if (QuizStageModule.isQuizFinished) {
+            if (e.key === 'h') {
+                this.historyIsVisible = !this.historyIsVisible;
+            }
+
+            if (e.key === 'r') {
+                setTimeout(() => {
+                    this.onStartNewQuiz();
+                }, 20);
+            }
         }
     }
 
@@ -281,12 +274,12 @@ export default class NameQuiz extends Vue {
     }
 
     private giveAnswer() {
-        this.state = State.answerGiven;
+        QuizStageModule.setAnswerGiven();
     }
 
     private pickItem() {
         if (!this.quizIsInfinite && this.currentQuestion >= this.numberQuestions) {
-            this.setQuizFinishedGivenState();
+            QuizStageModule.setQuizFinished();
             return;
         }
 
@@ -299,7 +292,7 @@ export default class NameQuiz extends Vue {
 
         this.addNewAnswerToHistory();
 
-        this.setAnsweringState();
+        QuizStageModule.setAnswering();
 
         if (process.env.NODE_ENV === 'development' && this.item) {
             copyToClipboard(this.item.name);
@@ -315,7 +308,8 @@ export default class NameQuiz extends Vue {
     }
 
     private pickRandomItem() {
-        this.item = this.items[Math.floor(Math.random() * this.items.length)];
+        const randomIndex = random(0, this.items.length - 1);
+        this.item = this.items[randomIndex];
     }
 
     private skipItem() {
@@ -326,9 +320,9 @@ export default class NameQuiz extends Vue {
     private startNewQuiz() {
         this.resetQuiz();
 
-        this.pickItem();
+        this.onPickItem();
 
-        this.setAnsweringState();
+        QuizStageModule.setAnswering();
     }
 
     private addNewAnswerToHistory() {
@@ -369,52 +363,37 @@ export default class NameQuiz extends Vue {
         this.score = 0;
         this.answersHistory = [];
         this.itemsToFind = [];
-        const itemsToPick = [...this.items];
 
         if (!this.quizIsInfinite) {
+            const itemsToPick = [...this.items];
             for (let i = 0; i < this.numberQuestions; i++) {
-                const itemPicked = itemsToPick[Math.floor(Math.random() * itemsToPick.length)];
-                this.itemsToFind.push(itemPicked);
+                const randomIndex = random(0, itemsToPick.length - 1);
+                this.itemsToFind.push(itemsToPick[randomIndex]);
+                itemsToPick.splice(randomIndex, 1);
             }
         }
     }
 
-    private setLoadingState() {
-        this.state = State.loading;
-    }
-
-    private setAnsweringState() {
-        this.state = State.answering;
-
-        if (this.$refs.answerInput) {
-            setTimeout(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    private focusAnswerInput() {
+        setTimeout(() => {
+            if (this.$refs.answerInput) {
                 this.$refs.answerInput.focus();
-            }, 20);
-        }
+            }
+        }, 20);
     }
 
-    private setRightState() {
-        this.state = State.right;
-    }
+    // endregion
 
-    private setWrongState() {
-        this.state = State.wrong;
-    }
+    // region Watchers
 
-    private setVerifyingAnswerState() {
-        this.state = State.verifyingAnswer;
-    }
-
-    private setAnswerGivenState() {
-        this.state = State.answerGiven;
-    }
-
-    private setQuizFinishedGivenState() {
-        this.state = State.quizFinished;
-
-        if (this.withStopWatch && this.$refs.stopWatch) {
-            this.time = { ...this.$refs.stopWatch.getTime };
+    @Watch('quizStageModule.stage', { deep: true })
+    public onQuizStateChanged() {
+        if (QuizStageModule.isAnswering) {
+            this.focusAnswerInput();
+        } else if (QuizStageModule.isQuizFinished) {
+            if (this.withStopWatch && this.$refs.stopWatch) {
+                this.time = { ...this.$refs.stopWatch.getTime };
+            }
         }
     }
 
