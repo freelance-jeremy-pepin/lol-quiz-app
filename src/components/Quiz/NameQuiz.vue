@@ -107,6 +107,7 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import { Time } from 'src/const';
 import { AnswerHistory } from 'src/models/answerHistory';
 import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
+import { random } from 'src/utils';
 
 enum State {
     loading = 'loading',
@@ -202,13 +203,13 @@ export default class NameQuiz extends Vue {
     // region Hooks
 
     private mounted() {
-        window.addEventListener('keydown', this.onEnter);
+        window.addEventListener('keydown', this.onKeyPress);
 
         this.startNewQuiz();
     }
 
     private unmounted() {
-        window.removeEventListener('keydown', this.onEnter);
+        window.removeEventListener('keydown', this.onKeyPress);
     }
 
     // endregion
@@ -251,9 +252,13 @@ export default class NameQuiz extends Vue {
         this.skipItem();
     }
 
-    private onEnter(e: KeyboardEvent) {
+    private onKeyPress(e: KeyboardEvent) {
         if (e.key === 'Enter' && (this.isAnswerGivenState || this.isRightState)) {
             this.onPickItem();
+        }
+
+        if (e.key === 'F9' && this.isAnsweringState) {
+            this.onSkipItem();
         }
     }
 
@@ -315,7 +320,8 @@ export default class NameQuiz extends Vue {
     }
 
     private pickRandomItem() {
-        this.item = this.items[Math.floor(Math.random() * this.items.length)];
+        const randomIndex = random(0, this.items.length - 1);
+        this.item = this.items[randomIndex];
     }
 
     private skipItem() {
@@ -369,12 +375,13 @@ export default class NameQuiz extends Vue {
         this.score = 0;
         this.answersHistory = [];
         this.itemsToFind = [];
-        const itemsToPick = [...this.items];
 
         if (!this.quizIsInfinite) {
+            const itemsToPick = [...this.items];
             for (let i = 0; i < this.numberQuestions; i++) {
-                const itemPicked = itemsToPick[Math.floor(Math.random() * itemsToPick.length)];
-                this.itemsToFind.push(itemPicked);
+                const randomIndex = random(0, itemsToPick.length - 1);
+                this.itemsToFind.push(itemsToPick[randomIndex]);
+                itemsToPick.splice(randomIndex, 1);
             }
         }
     }
