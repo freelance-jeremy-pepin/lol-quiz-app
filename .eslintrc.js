@@ -68,6 +68,7 @@ module.exports = {
 
     // add your custom rules here
     rules: {
+        '@typescript-eslint/no-unsafe-call': 'off',
         'arrow-parens': 'off',
         '@typescript-eslint/no-floating-promises': 'off',
         'no-plusplus': 'off',
