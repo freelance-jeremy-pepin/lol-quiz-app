@@ -6,7 +6,7 @@
                 v-model="internalQuizConfiguration.quiz.internalName"
                 :options="quizList.map(q => ({ label: q.name, value: q.internalName }))"
                 toggle-color="primary"
-                @input="$emit('input', internalQuizConfiguration)"
+                @input="onInput"
             />
         </div>
 
@@ -23,7 +23,7 @@
                     {label: '30', value: 30},
                   ]"
                 toggle-color="primary"
-                @input="$emit('input', internalQuizConfiguration)"
+                @input="onInput"
             />
         </div>
 
@@ -36,7 +36,7 @@
                     {label: 'No', value: false},
                   ]"
                 toggle-color="primary"
-                @input="$emit('input', internalQuizConfiguration)"
+                @input="onInput"
             />
         </div>
     </div>
@@ -54,6 +54,46 @@ export default class FormQuizConfiguration extends Vue {
     private internalQuizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
 
     private quizList: Quiz[] = quizList;
+
+    // endregion
+
+    // region Hooks
+
+    private mounted() {
+        this.restoreFormLocalStorage();
+    }
+
+    // endregion
+
+    // region Events handlers
+
+    private onInput() {
+        this.saveInLocalStorage();
+        this.$emit('input', this.internalQuizConfiguration);
+    }
+
+    // endregion
+
+    // region Methods
+
+    private restoreFormLocalStorage() {
+        const quizConfigurationInLocalStorage = this.$q.localStorage.getItem('quiz-configuration');
+
+        if (quizConfigurationInLocalStorage) {
+            this.$emit('input', quizConfigurationInLocalStorage);
+            this.internalQuizConfiguration = quizConfigurationInLocalStorage;
+        }
+    }
+
+    private saveInLocalStorage() {
+        const quizFound = quizList.find(q => q.internalName === this.internalQuizConfiguration.quiz.internalName);
+
+        if (quizFound) {
+            this.internalQuizConfiguration.quiz = quizFound;
+        }
+
+        this.$q.localStorage.set('quiz-configuration', this.internalQuizConfiguration);
+    }
 
     // endregion
 
