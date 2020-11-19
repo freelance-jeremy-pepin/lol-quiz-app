@@ -54,7 +54,6 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Socket } from 'vue-socket.io-extended';
 
 @Component
 export default class SelectQuiz extends Vue {
