@@ -6,11 +6,11 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import SelectRoomMultiplayer from 'components/Multiplayer/SelectRoomMultiplayer.vue';
+import SelectRoomMultiplayer from 'components/Room/SelectRoom.vue';
 
 @Component({
     components: { SelectRoomMultiplayer },
 })
-export default class NameQuizPage extends Vue {
+export default class SelectRoomMultiplayerPage extends Vue {
 }
 </script>

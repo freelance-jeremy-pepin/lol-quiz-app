@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import QuizStageModule from 'src/store/modules/quiz-stage-module';
+import QuizStageStore from 'src/store/modules/QuizStageStore';
 import SwitchKeyboard from 'components/Common/SwitchKeyboard.vue';
 
 interface Shortcut {
@@ -77,8 +77,8 @@ export default class ShortcutsQuiz extends Vue {
 
     // region Computed properties
 
-    public get quizStageModule(): typeof QuizStageModule {
-        return QuizStageModule;
+    public get quizStageModule(): typeof QuizStageStore {
+        return QuizStageStore;
     }
 
     // endregion

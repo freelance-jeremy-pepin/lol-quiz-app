@@ -103,17 +103,17 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import { Item } from 'src/models/item';
+import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import IconItem from 'components/Item/IconItem.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
 import { copyToClipboard } from 'quasar';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import { Time } from 'src/const';
-import { AnswerHistory } from 'src/models/answerHistory';
+import AnswerHistory from 'src/models/AnswerHistory';
 import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
-import { random } from 'src/utils/random';
+import { number, uniqueID } from 'src/utils/number';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
-import QuizStageModule from 'src/store/modules/quiz-stage-module';
+import QuizStageStore from 'src/store/modules/QuizStageStore';
 
 @Component({
     components: { ShortcutsQuiz, ResultQuiz, StopWatch, IconItem, AnswersHistoryList },
@@ -121,7 +121,7 @@ import QuizStageModule from 'src/store/modules/quiz-stage-module';
 export default class NameQuiz extends Vue {
     // region Props
 
-    @Prop({ required: true }) items!: Item[];
+    @Prop({ required: true }) items!: ItemLolApi[];
 
     @Prop({ required: false, default: false, type: Boolean }) withStopWatch!: boolean;
 
@@ -131,9 +131,9 @@ export default class NameQuiz extends Vue {
 
     // region Data
 
-    private item: Item | null = null;
+    private item: ItemLolApi | null = null;
 
-    private itemsToFind: Item[] | null = null;
+    private itemsToFind: ItemLolApi[] | null = null;
 
     private answer: string = '';
 
@@ -160,8 +160,8 @@ export default class NameQuiz extends Vue {
         return this.numberQuestions === 0;
     }
 
-    public get quizStageModule(): typeof QuizStageModule {
-        return QuizStageModule;
+    public get quizStageModule(): typeof QuizStageStore {
+        return QuizStageStore;
     }
 
     // endregion
@@ -169,7 +169,7 @@ export default class NameQuiz extends Vue {
     // region Hooks
 
     private mounted() {
-        QuizStageModule.setLoading();
+        QuizStageStore.setLoading();
 
         window.addEventListener('keydown', this.onKeyPress);
 
@@ -185,22 +185,22 @@ export default class NameQuiz extends Vue {
     // region Event handlers
 
     private onVerifyAnswer() {
-        QuizStageModule.setVerifyingAnswer();
+        QuizStageStore.setVerifyingAnswer();
 
         if (this.verifyAnswer()) {
             if (!this.quizIsInfinite) {
                 this.onPickItem();
             } else {
-                QuizStageModule.setRight();
+                QuizStageStore.setRight();
             }
 
             this.score += 1;
         } else {
-            QuizStageModule.setWrong();
+            QuizStageStore.setWrong();
 
             setTimeout(() => {
-                if (QuizStageModule.isWrong) {
-                    QuizStageModule.setAnswering();
+                if (QuizStageStore.isWrong) {
+                    QuizStageStore.setAnswering();
                 }
             }, 1000);
         }
@@ -223,11 +223,11 @@ export default class NameQuiz extends Vue {
     }
 
     private onKeyPress(e: KeyboardEvent) {
-        if (e.key === 'Enter' && (QuizStageModule.isAnswerGiven || QuizStageModule.isRight)) {
+        if (e.key === 'Enter' && (QuizStageStore.isAnswerGiven || QuizStageStore.isRight)) {
             this.onPickItem();
         }
 
-        if (QuizStageModule.isAnswering) {
+        if (QuizStageStore.isAnswering) {
             if (e.shiftKey && e.key === '/') {
                 this.focusAnswerInput();
             }
@@ -237,7 +237,7 @@ export default class NameQuiz extends Vue {
             }
         }
 
-        if (QuizStageModule.isQuizFinished) {
+        if (QuizStageStore.isQuizFinished) {
             if (e.key === 'h') {
                 this.historyIsVisible = !this.historyIsVisible;
             }
@@ -259,7 +259,7 @@ export default class NameQuiz extends Vue {
     // region Methods
 
     private verifyAnswer(): boolean {
-        if (this.item) {
+        if (this.item?.name) {
             const itemName = this.item.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
             const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
@@ -274,12 +274,12 @@ export default class NameQuiz extends Vue {
     }
 
     private giveAnswer() {
-        QuizStageModule.setAnswerGiven();
+        QuizStageStore.setAnswerGiven();
     }
 
     private pickItem() {
         if (!this.quizIsInfinite && this.currentQuestion >= this.numberQuestions) {
-            QuizStageModule.setQuizFinished();
+            QuizStageStore.setQuizFinished();
             return;
         }
 
@@ -292,9 +292,9 @@ export default class NameQuiz extends Vue {
 
         this.addNewAnswerToHistory();
 
-        QuizStageModule.setAnswering();
+        QuizStageStore.setAnswering();
 
-        if (process.env.NODE_ENV === 'development' && this.item) {
+        if (process.env.NODE_ENV === 'development' && this.item?.name) {
             copyToClipboard(this.item.name);
             console.log(`%c ${this.item.name}`, 'color: #bada55');
             console.log(this.item);
@@ -308,7 +308,7 @@ export default class NameQuiz extends Vue {
     }
 
     private pickRandomItem() {
-        const randomIndex = random(0, this.items.length - 1);
+        const randomIndex = number(0, this.items.length - 1);
         this.item = this.items[randomIndex];
     }
 
@@ -322,7 +322,7 @@ export default class NameQuiz extends Vue {
 
         this.onPickItem();
 
-        QuizStageModule.setAnswering();
+        QuizStageStore.setAnswering();
     }
 
     private addNewAnswerToHistory() {
@@ -334,7 +334,7 @@ export default class NameQuiz extends Vue {
 
         if (this.item) {
             this.answersHistory.push({
-                id: new Date().getUTCMilliseconds(),
+                id: uniqueID(),
                 item: this.item,
                 found: false,
                 answers: [],
@@ -367,7 +367,7 @@ export default class NameQuiz extends Vue {
         if (!this.quizIsInfinite) {
             const itemsToPick = [...this.items];
             for (let i = 0; i < this.numberQuestions; i++) {
-                const randomIndex = random(0, itemsToPick.length - 1);
+                const randomIndex = number(0, itemsToPick.length - 1);
                 this.itemsToFind.push(itemsToPick[randomIndex]);
                 itemsToPick.splice(randomIndex, 1);
             }
@@ -388,9 +388,9 @@ export default class NameQuiz extends Vue {
 
     @Watch('quizStageModule.stage', { deep: true })
     public onQuizStateChanged() {
-        if (QuizStageModule.isAnswering) {
+        if (QuizStageStore.isAnswering) {
             this.focusAnswerInput();
-        } else if (QuizStageModule.isQuizFinished) {
+        } else if (QuizStageStore.isQuizFinished) {
             if (this.withStopWatch && this.$refs.stopWatch) {
                 this.time = { ...this.$refs.stopWatch.getTime };
             }

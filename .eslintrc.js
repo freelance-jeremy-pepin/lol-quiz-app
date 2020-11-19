@@ -68,6 +68,8 @@ module.exports = {
 
     // add your custom rules here
     rules: {
+        "semi": "off",
+        "@typescript-eslint/semi": ["error"],
         '@typescript-eslint/no-unsafe-call': 'off',
         'arrow-parens': 'off',
         '@typescript-eslint/no-floating-promises': 'off',

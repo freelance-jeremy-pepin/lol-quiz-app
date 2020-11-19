@@ -12,8 +12,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import NameQuiz from 'components/Quiz/NameQuiz.vue';
-import LolApiItemsModule from 'src/store/modules/lol-api/lol-api-items-module';
-import { Item } from 'src/models/item';
+import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
+import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 
 @Component({
@@ -22,24 +22,16 @@ import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 export default class NameQuizPage extends Vue {
     // region Computed properties
 
-    private get items(): Item[] | undefined {
-        return LolApiItemsModule.itemsFilteredForQuiz;
+    private get items(): ItemLolApi[] | undefined {
+        return ItemLolApiStore.itemsFilteredForQuiz;
     }
 
     private get numberQuestions(): number {
-        if (typeof this.$route.query.numberQuestions === 'string') {
-            return parseInt(this.$route.query.numberQuestions, 10);
-        }
-
-        return 0;
+        return this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 0;
     }
 
     private get withStopWatch(): boolean {
-        if (typeof this.$route.query.withStopWatch === 'string') {
-            return this.$route.query.withStopWatch === '1';
-        }
-
-        return false;
+        return this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false;
     }
 
     // endregion

@@ -5,23 +5,24 @@ const routes: RouteConfig[] = [
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Index.vue') },
+            { path: '', component: () => import('pages/IndexPage.vue') },
         ],
     },
 
     {
-        path: '/quiz/name',
+        path: '/quiz/name-quiz',
         component: () => import('layouts/MainLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/NameQuizPage.vue') },
         ],
+        props: true,
     },
 
     {
-        path: '/multiplayer/room',
+        path: '/rooms',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/SelectRoomMultiplayerPage.vue') },
+            { path: '', component: () => import('pages/RoomsPage.vue') },
         ],
     },
 
@@ -29,7 +30,7 @@ const routes: RouteConfig[] = [
     // but you can also remove it
     {
         path: '*',
-        component: () => import('pages/Error404.vue'),
+        component: () => import('pages/Error404Page.vue'),
     },
 ];
 

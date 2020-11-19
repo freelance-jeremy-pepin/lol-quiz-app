@@ -14,14 +14,14 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Item } from 'src/models/item';
+import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import ItemRepository from 'src/repositories/itemRepository';
 
 @Component
 export default class IconItem extends Vue {
     // region Props
 
-    @Prop({ required: true }) item!: Item;
+    @Prop({ required: true }) item!: ItemLolApi;
 
     @Prop({ required: false, default: true, type: Boolean }) withTooltip!: boolean;
 
@@ -30,7 +30,7 @@ export default class IconItem extends Vue {
     // region Computed properties
 
     private get imageUrl(): string {
-        if (this.item) {
+        if (this.item.id) {
             return new ItemRepository().getImageUrl(this.item.id);
         }
 

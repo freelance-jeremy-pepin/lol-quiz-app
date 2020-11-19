@@ -5,10 +5,10 @@ import axios, { AxiosResponse } from 'axios';
 @Module({
     dynamic: true,
     store,
-    name: 'lol-api/version',
+    name: 'LolApi/version',
     namespaced: true,
 })
-class LolApiVersionModule extends VuexModule {
+class VersionLolApiStore extends VuexModule {
     // region State
 
     private _version?: string = undefined;
@@ -52,4 +52,4 @@ class LolApiVersionModule extends VuexModule {
     // endregion
 }
 
-export default getModule(LolApiVersionModule);
+export default getModule(VersionLolApiStore);

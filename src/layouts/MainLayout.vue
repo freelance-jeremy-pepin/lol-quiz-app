@@ -24,15 +24,15 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import LolApiVersionModule from 'src/store/modules/lol-api/lol-api-version-module';
-import LoLApiItemsModule from 'src/store/modules/lol-api/lol-api-items-module';
+import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
+import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
 
 @Component
 export default class MainLayout extends Vue {
     // region Computed properties
 
     private get version(): string | undefined {
-        return LolApiVersionModule.version;
+        return VersionLolApiStore.version;
     }
 
     // endregion
@@ -42,7 +42,7 @@ export default class MainLayout extends Vue {
     private mounted() {
         this.restoreDarkModeFromLocalStorage();
 
-        LolApiVersionModule.fetchVersion()
+        VersionLolApiStore.fetchVersion()
             .then(() => {
                 LoLApiItemsModule.fetchItems();
             })

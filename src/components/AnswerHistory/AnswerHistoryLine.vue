@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { Prop, Vue } from 'vue-property-decorator';
-import { AnswerHistory } from 'src/models/answerHistory';
+import AnswerHistory from 'src/models/AnswerHistory';
 import Component from 'vue-class-component';
 import IconItem from 'components/Item/IconItem.vue';
 

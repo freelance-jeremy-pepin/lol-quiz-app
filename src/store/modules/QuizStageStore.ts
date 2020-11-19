@@ -17,7 +17,7 @@ export enum QuizStage {
     name: 'quiz',
     namespaced: true,
 })
-class QuizStageModule extends VuexModule {
+class QuizStageStore extends VuexModule {
     // region State
 
     private _stage?: QuizStage = undefined;
@@ -104,4 +104,4 @@ class QuizStageModule extends VuexModule {
     // endregion
 }
 
-export default getModule(QuizStageModule);
+export default getModule(QuizStageStore);
