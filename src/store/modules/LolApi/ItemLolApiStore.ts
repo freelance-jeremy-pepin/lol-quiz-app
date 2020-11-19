@@ -6,7 +6,7 @@ import ItemRepository from 'src/repositories/itemRepository';
 @Module({
     dynamic: true,
     store,
-    name: 'LolApi/items',
+    name: 'lolApi/items',
     namespaced: true,
 })
 class ItemLolApiStore extends VuexModule {

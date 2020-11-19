@@ -6,6 +6,13 @@
                     LoL Quiz items
                 </q-toolbar-title>
 
+                <q-btn v-if="user" flat>
+                    {{ user.pseudo }}
+                    <q-popup-edit v-model="pseudo" auto-save>
+                        <q-input v-model="pseudo" autofocus dense  />
+                    </q-popup-edit>
+                </q-btn>
+
                 <q-btn
                     :icon="$q.dark.isActive ? 'brightness_5' : 'brightness_4'"
                     class="q-mr-md"
@@ -26,6 +33,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
 import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
+import UserStore from 'src/store/modules/UserStore';
+import User from 'src/models/User';
 
 @Component
 export default class MainLayout extends Vue {
@@ -35,11 +44,30 @@ export default class MainLayout extends Vue {
         return VersionLolApiStore.version;
     }
 
+    private get user(): User | undefined {
+        return UserStore.user;
+    }
+
+    private get pseudo(): string | undefined {
+        return UserStore.user?.pseudo;
+    }
+
+    private set pseudo(pseudo: string) {
+        return UserStore.setUser({ ...this.user, pseudo });
+    }
+
     // endregion
 
     // Region Hooks
 
     private mounted() {
+        UserStore.restoreUser()
+            .then((user) => {
+                if (!user) {
+                    UserStore.createNewUser();
+                }
+            });
+
         this.restoreDarkModeFromLocalStorage();
 
         VersionLolApiStore.fetchVersion()

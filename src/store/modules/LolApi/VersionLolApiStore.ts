@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 @Module({
     dynamic: true,
     store,
-    name: 'LolApi/version',
+    name: 'lolApi/version',
     namespaced: true,
 })
 class VersionLolApiStore extends VuexModule {

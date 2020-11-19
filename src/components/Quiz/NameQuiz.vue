@@ -111,7 +111,7 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import { Time } from 'src/const';
 import AnswerHistory from 'src/models/AnswerHistory';
 import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
-import { number, uniqueID } from 'src/utils/number';
+import { randomNumber, uniqueID } from 'src/utils/randomNumber';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 
@@ -308,7 +308,7 @@ export default class NameQuiz extends Vue {
     }
 
     private pickRandomItem() {
-        const randomIndex = number(0, this.items.length - 1);
+        const randomIndex = randomNumber(0, this.items.length - 1);
         this.item = this.items[randomIndex];
     }
 
@@ -367,7 +367,7 @@ export default class NameQuiz extends Vue {
         if (!this.quizIsInfinite) {
             const itemsToPick = [...this.items];
             for (let i = 0; i < this.numberQuestions; i++) {
-                const randomIndex = number(0, itemsToPick.length - 1);
+                const randomIndex = randomNumber(0, itemsToPick.length - 1);
                 this.itemsToFind.push(itemsToPick[randomIndex]);
                 itemsToPick.splice(randomIndex, 1);
             }

@@ -77,7 +77,7 @@ export default class FormQuizConfiguration extends Vue {
     // region Methods
 
     private restoreFormLocalStorage() {
-        const quizConfigurationInLocalStorage = this.$q.localStorage.getItem('quiz-configuration');
+        const quizConfigurationInLocalStorage = this.$q.localStorage.getItem('quiz-configuration') as QuizConfiguration;
 
         if (quizConfigurationInLocalStorage) {
             this.$emit('input', quizConfigurationInLocalStorage);
