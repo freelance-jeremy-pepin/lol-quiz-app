@@ -1,6 +1,7 @@
 import AnswerHistory from 'src/models/AnswerHistory';
 import User, { createDefaultUser } from 'src/models/User';
 import Model from 'src/models/Model';
+import { uniqueID } from 'src/utils/randomNumber';
 
 export default interface Participant extends Model {
     user: User;
@@ -11,7 +12,7 @@ export default interface Participant extends Model {
 
 export function createDefaultParticipant(): Participant {
     return {
-        id: '',
+        id: uniqueID(),
         user: createDefaultUser(),
         currentQuestionNumber: 0,
         hasFinished: false,

@@ -13,7 +13,6 @@
 
                     <form-quiz-configuration
                         v-model="internalRoom.quizConfiguration"
-                        :with-training="false"
                         class="text-center"
                     ></form-quiz-configuration>
 
@@ -86,8 +85,6 @@ export default class FormRoom extends Vue {
         if (this.user) {
             this.internalRoom.name = `${this.user.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
         }
-
-        this.internalRoom.id = uniqueID();
     }
 
     private setOwner() {

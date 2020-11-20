@@ -14,7 +14,13 @@
             <div class="text-bold">Number of questions</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.numberQuestions"
-                :options="numberQuestionsOptions"
+                :options="[
+                    { label: '5', value: 5 },
+                    { label: '10', value: 10 },
+                    { label: '20', value: 20 },
+                    { label: '25', value: 25 },
+                    { label: '30', value: 30 },
+                ]"
                 toggle-color="primary"
                 @input="onInput"
             />
@@ -36,40 +42,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import Quiz, { quizList } from 'src/models/Quiz';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
-    // region Props
-
-    @Prop({ required: false, default: true, type: Boolean }) withTraining!: boolean;
-
-    // endregion
-
-    // region Computed properties
-
-    private get numberQuestionsOptions(): any[] {
-        let options = [];
-
-        if (this.withTraining) {
-            options.push({ label: '∞', value: 0 });
-        }
-
-        options = options.concat([
-            { label: '5', value: 5 },
-            { label: '10', value: 10 },
-            { label: '20', value: 20 },
-            { label: '25', value: 25 },
-            { label: '30', value: 30 },
-        ]);
-
-        return options;
-    }
-
-    // endregion
-
     // region Data
 
     private internalQuizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();

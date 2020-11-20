@@ -1,5 +1,6 @@
 import ItemLolApi, { createDefaultLolApiItem } from 'src/models/LolApi/ItemLolApi';
 import Model from 'src/models/Model';
+import { uniqueID } from 'src/utils/randomNumber';
 
 export default interface AnswerHistory extends Model {
     item: ItemLolApi;
@@ -11,7 +12,7 @@ export default interface AnswerHistory extends Model {
 
 export function createDefaultAnswerHistory(): AnswerHistory {
     return {
-        id: '',
+        id: uniqueID(),
         item: createDefaultLolApiItem(),
         found: false,
         isAnswering: false,
