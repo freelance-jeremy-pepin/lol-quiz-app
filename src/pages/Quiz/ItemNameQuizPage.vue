@@ -9,21 +9,21 @@
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
-                v-on:toggle-history="historyIsVisible =! historyIsVisible"
+                v-on:toggle-history="answerHistoryIsVisible =! answerHistoryIsVisible"
                 v-on:play-again="onStartNewQuiz"
-                v-on:view-history="historyIsVisible = true"
+                v-on:view-history="answerHistoryIsVisible = true"
             >
                 <template v-slot:image>
                     <icon-item
-                        v-if="currentItem"
-                        :item="currentItem"
+                        v-if="itemToGuess"
+                        :item="itemToGuess"
                         :with-tooltip="!quizStageStore.isAnswering"
                     ></icon-item>
                 </template>
             </icon-and-input-quiz-layout>
 
             <list-answers-history-item
-                v-model="historyIsVisible"
+                v-model="answerHistoryIsVisible"
                 :answers-history-item="participant.answersHistoryItem"
             ></list-answers-history-item>
         </div>
@@ -58,6 +58,11 @@ import QuizConfigurationItem, { createDefaultQuizConfigurationItem } from 'src/m
 export default class ItemNameQuizPage extends Vue {
     // region Computed properties
 
+    /**
+     * Liste de tous les objets du jeu.
+     * Les objets tels que les consommables et nécessitant un champion sont exclus.
+     * @private
+     */
     private get items(): ItemLolApi[] | undefined {
         return ItemLolApiStore.itemsFilteredForQuiz;
     }
@@ -66,18 +71,45 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Data
 
+    /**
+     * Participant du quiz.
+     * @private
+     */
     private participant: Participant = createDefaultParticipant();
 
+    /**
+     * Configuration du quiz.
+     * @private
+     */
     private quizConfigurationItem: QuizConfigurationItem = createDefaultQuizConfigurationItem();
 
-    private currentItem: ItemLolApi | null = null;
+    /**
+     * Objet à deviner par le participant.
+     * @private
+     */
+    private itemToGuess: ItemLolApi | null = null;
 
+    /**
+     * Liste des objets à trouver par le participant.
+     * @private
+     */
     private itemsToFind: ItemLolApi[] | null = null;
 
+    /**
+     * Réponse donnée par le participant.
+     * @private
+     */
     private answer: string = '';
 
-    private historyIsVisible: boolean = false;
+    /**
+     * Affiche l'historique des réponses.
+     * @private
+     */
+    private answerHistoryIsVisible: boolean = false;
 
+    /**
+     * Références des composants enfants.
+     */
     public $refs!: {
         quiz: HTMLFormElement;
     };
@@ -86,6 +118,9 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Computed properties
 
+    /**
+     * Store détenant l'état du quiz.
+     */
     public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
     }
@@ -95,11 +130,19 @@ export default class ItemNameQuizPage extends Vue {
     // region Hooks
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Avant la création du quiz, le place en mode de chargement
+     * @private
+     */
     private beforeCreate() {
         QuizStageStore.setLoading();
     }
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Une fois le quiz monté, initialise le quiz.
+     * @private
+     */
     private mounted() {
         this.initQuizConfigurationItem();
         this.initParticipant();
@@ -109,13 +152,27 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Event handlers
 
+    /**
+     * Démarre un nouveau quiz.
+     * @private
+     */
+    private onStartNewQuiz() {
+        this.startNewQuiz();
+    }
+
+    /**
+     * Vérifie la réponse donnée par l'utilisateur.
+     * @private
+     */
     private onVerifyAnswer() {
         QuizStageStore.setVerifyingAnswer();
 
+        // Si la réponse est correcte, incrémente le score et passe au prochain objet.
+        // Sinon, passe en mode mauvaise réponse pendant 1 sec avant de revenir en mode quiz.
         if (this.verifyAnswer()) {
             this.participant.score += 1;
 
-            this.onPickItem();
+            this.onPickNextItem();
         } else {
             QuizStageStore.setWrong();
 
@@ -127,8 +184,12 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
-    private onPickItem() {
-        this.pickItem();
+    /**
+     * Sélectionne le prochain objet.
+     * @private
+     */
+    private onPickNextItem() {
+        this.pickNextItem();
 
         this.answer = '';
 
@@ -137,26 +198,34 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * Passe au prochain objet.
+     * @private
+     */
     private onSkipItem() {
         this.skipItem();
-    }
-
-    private onStartNewQuiz() {
-        this.startNewQuiz();
     }
 
     // endregion
 
     // region Methods
 
+    /**
+     * Démarre un nouveau quiz.
+     * @private
+     */
     private startNewQuiz() {
         this.resetQuiz();
 
-        this.onPickItem();
+        this.onPickNextItem();
 
         QuizStageStore.setAnswering();
     }
 
+    /**
+     * Initialise la configuration du quiz.
+     * @private
+     */
     private initQuizConfigurationItem() {
         this.quizConfigurationItem = createDefaultQuizConfigurationItem();
 
@@ -167,6 +236,10 @@ export default class ItemNameQuizPage extends Vue {
         };
     }
 
+    /**
+     * Initialise le participant du quiz.
+     * @private
+     */
     private initParticipant() {
         if (UserStore.user) {
             this.participant = {
@@ -176,9 +249,15 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * Vérifie la réponse donnée par le participant.
+     * @private
+     */
     private verifyAnswer(): boolean {
-        if (this.currentItem?.name) {
-            const itemName = this.currentItem.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
+        if (this.itemToGuess?.name) {
+            // Garde seulement les caractère alphanumérique du nom de l'objet et de la réponse donnée par le participant.
+            // Si les 2 valeurs sont identiques, le participant a donné la bonne réponse.
+            const itemName = this.itemToGuess.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
             const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
             const answerIsRight = itemName === answer;
@@ -191,38 +270,50 @@ export default class ItemNameQuizPage extends Vue {
         return false;
     }
 
-    private pickItem() {
+    /**
+     * Sélectionne le prochain objet.
+     * @private
+     */
+    private pickNextItem() {
+        // Si la question actuelle du participant dépasse le nombre total de questions du quiz,
+        // cela veut dire qu'il a terminé le quiz.
+        // Sinon, sélectionne le prochain objet.
         if (this.participant.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
             QuizStageStore.setQuizFinished();
             return;
         }
 
         this.participant.currentQuestionNumber += 1;
-        this.pickNextItem();
+
+        if (this.itemsToFind) {
+            this.itemToGuess = this.itemsToFind[this.participant.currentQuestionNumber - 1];
+        }
 
         this.addEmptyAnswerToHistory();
 
         QuizStageStore.setAnswering();
 
-        if (process.env.NODE_ENV === 'development' && this.currentItem?.name) {
-            copyToClipboard(this.currentItem.name);
+        if (process.env.NODE_ENV === 'development' && this.itemToGuess?.name) {
+            copyToClipboard(this.itemToGuess.name);
 
             // eslint-disable-next-line no-console
-            console.log(`%c ${this.currentItem.name}`, 'color: #bada55', this.currentItem);
+            console.log(`%c ${this.itemToGuess.name}`, 'color: #bada55', this.itemToGuess);
         }
     }
 
-    private pickNextItem() {
-        if (this.itemsToFind) {
-            this.currentItem = this.itemsToFind[this.participant.currentQuestionNumber - 1];
-        }
-    }
-
+    /**
+     * Passe au prochain objet.
+     * @private
+     */
     private skipItem() {
         this.updateLastAnswer(false, true);
-        this.onPickItem();
+        this.onPickNextItem();
     }
 
+    /**
+     * Ajoute une réponse vide à l'historique des réponses du participant.
+     * @private
+     */
     private addEmptyAnswerToHistory() {
         const lastAnswer = this.participant.answersHistoryItem[this.participant.answersHistoryItem.length - 1];
 
@@ -230,10 +321,10 @@ export default class ItemNameQuizPage extends Vue {
             lastAnswer.isAnswering = false;
         }
 
-        if (this.currentItem) {
+        if (this.itemToGuess) {
             this.participant.answersHistoryItem.push({
                 id: uniqueID(),
-                item: this.currentItem,
+                item: this.itemToGuess,
                 found: false,
                 answers: [],
                 isAnswering: true,
@@ -242,6 +333,12 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * Met à jour la dernière réponse donnée par le participant.
+     * @param found L'objet a été trouvé.
+     * @param skipped L'objet a été passé.
+     * @private
+     */
     private updateLastAnswer(found: boolean, skipped: boolean) {
         const lastAnswer = this.participant.answersHistoryItem[this.participant.answersHistoryItem.length - 1];
         lastAnswer.found = found;
@@ -260,15 +357,24 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * RaZ le quiz.
+     * @private
+     */
     private resetQuiz() {
         this.participant.currentQuestionNumber = 0;
         this.participant.score = 0;
         this.participant.answersHistoryItem = [];
         this.itemsToFind = [];
 
+        // Construit la liste des objets à deviner.
         if (this.items) {
-            const itemsToPick: ItemLolApi[] = [...this.items];
+            let itemsToPick: ItemLolApi[] = [...this.items];
             for (let i = 0; i < this.quizConfigurationItem.numberQuestions; i++) {
+                if (itemsToPick.length < 1) {
+                    itemsToPick = [...this.items];
+                }
+
                 const randomIndex = randomNumber(0, itemsToPick.length - 1);
                 this.itemsToFind.push(itemsToPick[randomIndex]);
                 itemsToPick.splice(randomIndex, 1);
@@ -280,6 +386,10 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Watchers
 
+    /**
+     * Lors du changement de la liste des objets, démarre un nouveau quiz s'il était en mode de chargement.
+     * @param items
+     */
     @Watch('items', { immediate: true, deep: true })
     public onItemsChanged(items: ItemLolApi[]) {
         if (QuizStageStore.isLoading && items) {
@@ -287,11 +397,12 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * Lors du changement de l'état du quiz récupère le temps du participant si le quiz est terminé.
+     */
     @Watch('quizStageStore.stage', { deep: true })
     public onQuizStateChanged() {
-        if (QuizStageStore.isAnswering) {
-            this.$refs.quiz.focusAnswerInput();
-        } else if (QuizStageStore.isQuizFinished) {
+        if (QuizStageStore.isQuizFinished) {
             if (this.quizConfigurationItem.withStopWatch && this.$refs.quiz) {
                 this.participant.completeTime = { ...this.$refs.quiz.getTime() };
             }

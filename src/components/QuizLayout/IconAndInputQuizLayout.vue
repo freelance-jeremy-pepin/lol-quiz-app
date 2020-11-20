@@ -96,16 +96,28 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 export default class IconAndInputQuizLayout extends Vue {
     // region Props
 
+    /**
+     * Participant du quiz.
+     */
     @Prop({ required: true }) participant!: Participant;
 
+    /**
+     * Configuration du quiz.
+     */
     @Prop({ required: true }) quizConfiguration!: QuizConfiguration;
 
     // endregion
 
     // region Data
 
+    /**
+     * Réponse donnée par le participant.
+     */
     private answer: string = '';
 
+    /**
+     * Référence des composants enfants.
+     */
     public $refs!: {
         answerInput: HTMLFormElement;
         stopWatch: HTMLFormElement;
@@ -115,6 +127,9 @@ export default class IconAndInputQuizLayout extends Vue {
 
     // region Computed properties
 
+    /**
+     * Store détenant l'état du quiz.
+     */
     public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
     }
@@ -124,11 +139,17 @@ export default class IconAndInputQuizLayout extends Vue {
     // region Hooks
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Lorsque le composant est monté, ajoute les raccourcis liés au quiz.
+     */
     private mounted() {
         window.addEventListener('keydown', this.onKeyPress);
     }
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Lorsque le composant est démonté, supprime les raccourcis liés au quiz.
+     */
     private unmounted() {
         window.removeEventListener('keydown', this.onKeyPress);
     }
@@ -137,10 +158,17 @@ export default class IconAndInputQuizLayout extends Vue {
 
     // region Methods
 
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     * Récupère le temps du participant.
+     */
     public getTime(): Time {
-        return this.$refs.stopWatch.getTime;
+        return this.$refs.stopWatch.getTime as Time;
     }
 
+    /**
+     * Focus sur le champs de réponse.
+     */
     public focusAnswerInput() {
         setTimeout(() => {
             if (this.$refs.answerInput) {
@@ -149,6 +177,9 @@ export default class IconAndInputQuizLayout extends Vue {
         }, 20);
     }
 
+    /**
+     * Ajoute les raccourcis liés au quiz.
+     */
     private onKeyPress(e: KeyboardEvent) {
         if (QuizStageStore.isAnswering) {
             if (e.shiftKey && e.key === '/') {
@@ -177,9 +208,22 @@ export default class IconAndInputQuizLayout extends Vue {
 
     // region Watchers
 
+    /**
+     * Synchronise le v-model and this.answer.
+     */
     @Watch('$attrs.value')
     public onValueChanged(value: string) {
         this.answer = value;
+    }
+
+    /**
+     * Lors du changement de l'état du quiz, focus le champ de réponse en mode quiz.
+     */
+    @Watch('quizStageStore.stage', { deep: true })
+    public onQuizStateChanged() {
+        if (QuizStageStore.isAnswering) {
+            this.$refs.quiz.focusAnswerInput();
+        }
     }
 
     // endregion
