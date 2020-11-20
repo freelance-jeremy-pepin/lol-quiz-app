@@ -19,7 +19,7 @@
 
                 <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                <div class="text-accent text-bold">Score: {{ participant.score }}</div>
+                <div class="text-secondary text-bold">Score: {{ participant.score }}</div>
 
                 <q-input
                     v-if="!quizStageStore.isDisplayAnswer"

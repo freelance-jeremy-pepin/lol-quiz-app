@@ -45,5 +45,5 @@ export default interface ItemLolApi {
 }
 
 export function createDefaultLolApiItem(): ItemLolApi {
-    return { };
+    return {};
 }

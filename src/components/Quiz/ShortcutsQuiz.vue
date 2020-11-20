@@ -9,7 +9,10 @@
             class="q-pt-none"
         >
             <table>
-                <tr v-for="shortcutInAnsweringStage in shortcutsInAnsweringStage" :key="shortcutInAnsweringStage.shortcut">
+                <tr
+                    v-for="shortcutInAnsweringStage in shortcutsInAnsweringStage"
+                    :key="shortcutInAnsweringStage.shortcut"
+                >
                     <td class="text-right">
                         <switch-keyboard>{{ shortcutInAnsweringStage.shortcut }}</switch-keyboard>
                     </td>
@@ -22,7 +25,10 @@
 
         <q-card-section v-if="quizStageModule.isQuizFinished" class="q-pt-none">
             <table>
-                <tr v-for="shortcutInQuizFinishedStage in shortcutsInQuizFinishedStage" :key="shortcutInQuizFinishedStage.shortcut">
+                <tr
+                    v-for="shortcutInQuizFinishedStage in shortcutsInQuizFinishedStage"
+                    :key="shortcutInQuizFinishedStage.shortcut"
+                >
                     <td class="text-right">
                         <switch-keyboard>{{ shortcutInQuizFinishedStage.shortcut }}</switch-keyboard>
                     </td>

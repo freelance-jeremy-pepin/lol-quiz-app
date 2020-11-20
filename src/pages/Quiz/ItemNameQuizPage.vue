@@ -32,7 +32,6 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import { copyToClipboard } from 'quasar';
 import { randomNumber, uniqueID } from 'src/utils/randomNumber';
@@ -51,7 +50,6 @@ import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
         IconAndInputQuizLayout,
         IconItem,
         ResultQuiz,
-        SelectQuiz,
     },
 })
 export default class ItemNameQuizPage extends Vue {
@@ -80,6 +78,13 @@ export default class ItemNameQuizPage extends Vue {
      */
     private set participant(participant: Participant) {
         QuizStore.setParticipant(participant);
+    }
+
+    /**
+     * Store détenant l'état du quiz.
+     */
+    public get quizStageStore(): typeof QuizStageStore {
+        return QuizStageStore;
     }
 
     // endregion
@@ -125,17 +130,6 @@ export default class ItemNameQuizPage extends Vue {
 
     // endregion
 
-    // region Computed properties
-
-    /**
-     * Store détenant l'état du quiz.
-     */
-    public get quizStageStore(): typeof QuizStageStore {
-        return QuizStageStore;
-    }
-
-    // endregion
-
     // region Hooks
 
     // noinspection JSUnusedLocalSymbols
@@ -144,7 +138,7 @@ export default class ItemNameQuizPage extends Vue {
      * @private
      */
     private beforeCreate() {
-        QuizStageStore.setLoading();
+        // QuizStageStore.setLoading();
     }
 
     // noinspection JSUnusedLocalSymbols
@@ -153,6 +147,8 @@ export default class ItemNameQuizPage extends Vue {
      * @private
      */
     private mounted() {
+        QuizStageStore.setLoading();
+
         this.initQuizConfigurationItem();
     }
 
@@ -278,7 +274,10 @@ export default class ItemNameQuizPage extends Vue {
             return;
         }
 
-        this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber + 1 };
+        this.participant = {
+            ...this.participant,
+            currentQuestionNumber: this.participant.currentQuestionNumber + 1,
+        };
 
         if (this.itemsToFind) {
             this.itemToGuess = this.itemsToFind[this.participant.currentQuestionNumber - 1];
@@ -389,19 +388,35 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
+    /**
+     * Démarre le premier quiz.
+     * Le quiz depuis cette est lancé seulement si le quiz est en mode chargement
+     * et que les objets ont été récupérés.
+     */
+    private firstStartNewQuiz() {
+        if (QuizStageStore.isLoading && this.items) {
+            this.startNewQuiz();
+        }
+    }
+
     // endregion
 
     // region Watchers
 
     /**
-     * Lors du changement de la liste des objets, démarre un nouveau quiz s'il était en mode de chargement.
-     * @param items
+     * Lors du changement de la liste des objets, démarre le premier quiz.
      */
     @Watch('items', { immediate: true })
-    public onItemsChanged(items: ItemLolApi[]) {
-        if (QuizStageStore.isLoading && items) {
-            this.startNewQuiz();
-        }
+    public onItemsChanged() {
+        this.firstStartNewQuiz();
+    }
+
+    /**
+     * Lors du changement de l'état du quiz, démarre le premier quiz.
+     */
+    @Watch('quizStageStore.stage', { immediate: true })
+    public onQuizStageChanged() {
+        this.firstStartNewQuiz();
     }
 
     // endregion
