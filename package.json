@@ -1,8 +1,8 @@
 {
-    "name": "lol-quiz-items",
+    "name": "lol-items",
     "version": "0.0.1",
     "description": "A Quasar Framework app",
-    "productName": "LoL Quiz items",
+    "productName": "LoL quiz",
     "author": "Jérémy <pepin.jeremy81@gmail.com>",
     "private": true,
     "scripts": {

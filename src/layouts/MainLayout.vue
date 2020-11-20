@@ -3,7 +3,7 @@
         <q-header elevated>
             <q-toolbar>
                 <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
-                    LoL Quiz items
+                    LoL quiz
                 </q-toolbar-title>
 
                 <q-btn v-if="user" flat>

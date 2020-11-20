@@ -94,7 +94,6 @@ module.exports = configure((ctx) => ({
         https: false,
         port: 4000,
         open: false, // opens browser window automatically
-        public: 'lol-quiz-items.com', // opens browser window automatically
     },
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -202,7 +201,7 @@ module.exports = configure((ctx) => ({
         builder: {
             // https://www.electron.build/configuration/configuration
 
-            appId: 'lol-quiz-items',
+            appId: 'lol-quiz',
         },
 
         // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration

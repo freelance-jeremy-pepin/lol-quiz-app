@@ -1,4 +1,4 @@
-# LoL Quiz items (lol-quiz-items)
+# LoL quiz (lol-quiz)
 
 A Quasar Framework app
 
