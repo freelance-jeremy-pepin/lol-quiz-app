@@ -2,103 +2,56 @@
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
         <div class="column items-center" style="max-width: 300px; width: 100%;">
             <result-quiz
-                v-if="quizStageModule.isQuizFinished"
-                :number-questions="numberQuestions"
-                :score="score"
-                :time="time"
+                v-if="quizStageStore.isQuizFinished"
+                :number-questions="quizConfiguration.numberQuestions"
+                :score="participant.score"
+                :time="quizConfiguration.withStopWatch ? participant.completeTime : null"
                 @play-again="onStartNewQuiz"
                 @view-history="historyIsVisible = true"
             ></result-quiz>
 
-            <q-card
-                v-else
-                style="width: 100%;"
-                @keydown.shift="onPickItem"
+            <icon-and-input-quiz-layout
+                v-show="!quizStageStore.isLoading && !quizStageStore.isQuizFinished"
+                ref="quiz"
+                v-model="answer"
+                :participant="participant"
+                :quiz-configuration="quizConfiguration"
+                v-on:skip="onSkipItem"
+                v-on:verify-answer="onVerifyAnswer"
             >
-                <q-card-section v-if="quizStageModule.isLoading" class="column items-center">
-                    <q-spinner color="primary" size="3em"></q-spinner>
-                </q-card-section>
+                <template v-slot:image>
+                    <icon-item
+                        v-if="currentItem"
+                        :item="currentItem"
+                        :with-tooltip="!quizStageStore.isAnswering"
+                    ></icon-item>
+                </template>
+            </icon-and-input-quiz-layout>
 
-                <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
-                    <icon-item v-if="item" :item="item" :with-tooltip="!quizStageModule.isAnswering"></icon-item>
-
-                    <span
-                        v-if="quizStageModule.isDisplayAnswer"
-                        class="text-bold"
-                    >
-                    {{ item.name }}
-                </span>
-
-                    <div v-if="!quizIsInfinite">{{ currentQuestion }}/{{ numberQuestions }}</div>
-                    <div>Score: {{ score }}</div>
-
-                    <q-input
-                        v-if="!quizStageModule.isDisplayAnswer"
-                        ref="answerInput"
-                        v-model="answer"
-                        autofocus
-                        borderless
-                        class="full-width"
-                        label="Your answer"
-                        outlined
-                        @keydown.enter.stop="onVerifyAnswer"
-                    ></q-input>
-
-                    <q-btn
-                        v-if="!quizStageModule.isDisplayAnswer"
-                        :color="quizStageModule.isWrong ? 'negative' : 'primary'"
-                        :disable="quizStageModule.isVerifyingAnswer"
-                        class="full-width"
-                        @click="onVerifyAnswer"
-                    >
-                        {{
-                            quizStageModule.isWrong ? 'Wrong' : quizStageModule.isVerifyingAnswer ? 'Verifying...' : 'Verify'
-                        }}
-                    </q-btn>
-
-                    <q-btn v-else class="full-width" color="secondary" @click="onPickItem">
-                        New item
-                    </q-btn>
-
-                    <q-btn
-                        v-if="!numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
-                        class="full-width"
-                        color="primary"
-                        outline
-                        @click="onGiveAnswer"
-                    >
-                        Ask answer
-                    </q-btn>
-
-                    <q-btn
-                        v-if="numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
-                        class="full-width"
-                        color="negative"
-                        outline
-                        @click="onSkipItem"
-                    >
-                        Skip
-                    </q-btn>
-                </q-card-section>
-            </q-card>
+            <answers-history-list
+                v-model="historyIsVisible"
+                :answers-history="participant.answersHistory"
+            ></answers-history-list>
 
             <q-page-sticky
-                v-if="withStopWatch && !quizStageModule.isQuizFinished && !quizStageModule.isLoading"
+                v-if="quizConfiguration.withStopWatch && !quizStageStore.isQuizFinished && !quizStageStore.isLoading"
                 :offset="[18, 18]"
                 position="top-right"
             >
                 <stop-watch ref="stopWatch"></stop-watch>
             </q-page-sticky>
 
-            <q-page-sticky v-if="!quizStageModule.isQuizFinished" :offset="[18, 18]" position="bottom-right">
+            <q-page-sticky
+                v-if="!quizStageStore.isQuizFinished"
+                :offset="[18, 18]"
+                position="bottom-right"
+            >
                 <q-btn color="accent" fab icon="history" @click="historyIsVisible = true" />
             </q-page-sticky>
 
             <q-page-sticky :offset="[18, 18]" position="bottom-left">
                 <shortcuts-quiz></shortcuts-quiz>
             </q-page-sticky>
-
-            <answers-history-list v-model="historyIsVisible" :answers-history="answersHistory"></answers-history-list>
         </div>
     </q-page>
 </template>
@@ -108,8 +61,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
-import { Time } from 'src/const';
-import AnswerHistory from 'src/models/AnswerHistory';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import { copyToClipboard } from 'quasar';
 import { randomNumber, uniqueID } from 'src/utils/randomNumber';
@@ -118,9 +69,21 @@ import IconItem from 'components/Item/IconItem.vue';
 import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
+import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
+import Participant, { createDefaultParticipant } from 'src/models/Participant';
+import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
+import UserStore from 'src/store/modules/UserStore';
 
 @Component({
-    components: { StopWatch, ShortcutsQuiz, AnswersHistoryList, IconItem, ResultQuiz, SelectQuiz },
+    components: {
+        IconAndInputQuizLayout,
+        StopWatch,
+        ShortcutsQuiz,
+        AnswersHistoryList,
+        IconItem,
+        ResultQuiz,
+        SelectQuiz,
+    },
 })
 export default class ItemNameQuizPage extends Vue {
     // region Computed properties
@@ -129,48 +92,32 @@ export default class ItemNameQuizPage extends Vue {
         return ItemLolApiStore.itemsFilteredForQuiz;
     }
 
-    private get numberQuestions(): number {
-        return this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 0;
-    }
-
-    private get withStopWatch(): boolean {
-        return this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false;
-    }
-
     // endregion
 
     // region Data
 
-    private item: ItemLolApi | null = null;
+    private participant: Participant = createDefaultParticipant();
+
+    private quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+
+    private currentItem: ItemLolApi | null = null;
 
     private itemsToFind: ItemLolApi[] | null = null;
 
     private answer: string = '';
 
-    private score: number = 0;
-
-    private currentQuestion: number = 0;
-
-    private time: Time | null = null;
-
-    private answersHistory: AnswerHistory[] = [];
-
     private historyIsVisible: boolean = false;
 
     public $refs!: {
-        answerInput: any;
-        stopWatch: any;
+        quiz: HTMLFormElement;
+        stopWatch: HTMLFormElement;
     };
 
     // endregion
 
     // region Computed properties
 
-    public get quizIsInfinite(): boolean {
-        return this.numberQuestions === 0;
-    }
-
-    public get quizStageModule(): typeof QuizStageStore {
+    public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
     }
 
@@ -178,12 +125,20 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private beforeCreate() {
         QuizStageStore.setLoading();
 
         window.addEventListener('keydown', this.onKeyPress);
     }
 
+    // noinspection JSUnusedLocalSymbols
+    private mounted() {
+        this.initQuizConfiguration();
+        this.initParticipant();
+    }
+
+    // noinspection JSUnusedLocalSymbols
     private unmounted() {
         window.removeEventListener('keydown', this.onKeyPress);
     }
@@ -196,13 +151,9 @@ export default class ItemNameQuizPage extends Vue {
         QuizStageStore.setVerifyingAnswer();
 
         if (this.verifyAnswer()) {
-            if (!this.quizIsInfinite) {
-                this.onPickItem();
-            } else {
-                QuizStageStore.setRight();
-            }
+            this.participant.score += 1;
 
-            this.score += 1;
+            this.onPickItem();
         } else {
             QuizStageStore.setWrong();
 
@@ -214,16 +165,12 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
-    private onGiveAnswer() {
-        this.giveAnswer();
-    }
-
     private onPickItem() {
         this.pickItem();
 
         this.answer = '';
 
-        this.focusAnswerInput();
+        this.$refs.quiz.focusAnswerInput();
     }
 
     private onSkipItem() {
@@ -237,7 +184,7 @@ export default class ItemNameQuizPage extends Vue {
 
         if (QuizStageStore.isAnswering) {
             if (e.shiftKey && e.key === '/') {
-                this.focusAnswerInput();
+                this.$refs.quiz.focusAnswerInput();
             }
 
             if (e.key === 'F9') {
@@ -266,9 +213,26 @@ export default class ItemNameQuizPage extends Vue {
 
     // region Methods
 
+    private initQuizConfiguration() {
+        this.quizConfiguration = {
+            ...this.quizConfiguration,
+            numberQuestions: this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 5,
+            withStopWatch: this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false,
+        };
+    }
+
+    private initParticipant() {
+        if (UserStore.user) {
+            this.participant = {
+                ...this.participant,
+                user: UserStore.user,
+            };
+        }
+    }
+
     private verifyAnswer(): boolean {
-        if (this.item?.name) {
-            const itemName = this.item.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
+        if (this.currentItem?.name) {
+            const itemName = this.currentItem.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
             const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
             const answerIsRight = itemName === answer;
@@ -281,43 +245,30 @@ export default class ItemNameQuizPage extends Vue {
         return false;
     }
 
-    private giveAnswer() {
-        QuizStageStore.setAnswerGiven();
-    }
-
     private pickItem() {
-        if (!this.quizIsInfinite && this.currentQuestion >= this.numberQuestions) {
+        if (this.participant.currentQuestionNumber >= this.quizConfiguration.numberQuestions) {
             QuizStageStore.setQuizFinished();
             return;
         }
-
-        if (!this.quizIsInfinite) {
-            this.currentQuestion += 1;
-            this.pickNextItem();
-        } else {
-            this.pickRandomItem();
-        }
+        this.participant.currentQuestionNumber += 1;
+        this.pickNextItem();
 
         this.addNewAnswerToHistory();
 
         QuizStageStore.setAnswering();
 
-        if (process.env.NODE_ENV === 'development' && this.item?.name) {
-            copyToClipboard(this.item.name);
-            console.log(`%c ${this.item.name}`, 'color: #bada55');
-            console.log(this.item);
+        if (process.env.NODE_ENV === 'development' && this.currentItem?.name) {
+            copyToClipboard(this.currentItem.name);
+
+            // eslint-disable-next-line no-console
+            console.log(`%c ${this.currentItem.name}`, 'color: #bada55', this.currentItem);
         }
     }
 
     private pickNextItem() {
         if (this.itemsToFind) {
-            this.item = this.itemsToFind[this.currentQuestion - 1];
+            this.currentItem = this.itemsToFind[this.participant.currentQuestionNumber - 1];
         }
-    }
-
-    private pickRandomItem() {
-        const randomIndex = randomNumber(0, this.items.length - 1);
-        this.item = this.items[randomIndex];
     }
 
     private skipItem() {
@@ -334,16 +285,16 @@ export default class ItemNameQuizPage extends Vue {
     }
 
     private addNewAnswerToHistory() {
-        const lastAnswer = this.answersHistory[this.answersHistory.length - 1];
+        const lastAnswer = this.participant.answersHistory[this.participant.answersHistory.length - 1];
 
         if (lastAnswer) {
             lastAnswer.isAnswering = false;
         }
 
-        if (this.item) {
-            this.answersHistory.push({
+        if (this.currentItem) {
+            this.participant.answersHistory.push({
                 id: uniqueID(),
-                item: this.item,
+                item: this.currentItem,
                 found: false,
                 answers: [],
                 isAnswering: true,
@@ -353,7 +304,7 @@ export default class ItemNameQuizPage extends Vue {
     }
 
     private updateLastAnswer(found: boolean, skipped: boolean) {
-        const lastAnswer = this.answersHistory[this.answersHistory.length - 1];
+        const lastAnswer = this.participant.answersHistory[this.participant.answersHistory.length - 1];
         lastAnswer.found = found;
         lastAnswer.skipped = skipped;
 
@@ -362,32 +313,28 @@ export default class ItemNameQuizPage extends Vue {
         }
 
         if (this.answer.trim()) {
-            lastAnswer.answers = [...lastAnswer.answers, { id: new Date().getUTCMilliseconds(), isRight: found, answer: this.answer.trim() }];
+            lastAnswer.answers = [...lastAnswer.answers, {
+                id: new Date().getUTCMilliseconds(),
+                isRight: found,
+                answer: this.answer.trim(),
+            }];
         }
     }
 
     private resetQuiz() {
-        this.currentQuestion = 0;
-        this.score = 0;
-        this.answersHistory = [];
+        this.participant.currentQuestionNumber = 0;
+        this.participant.score = 0;
+        this.participant.answersHistory = [];
         this.itemsToFind = [];
 
-        if (!this.quizIsInfinite) {
-            const itemsToPick = [...this.items];
-            for (let i = 0; i < this.numberQuestions; i++) {
+        if (this.items) {
+            const itemsToPick: ItemLolApi[] = [...this.items];
+            for (let i = 0; i < this.quizConfiguration.numberQuestions; i++) {
                 const randomIndex = randomNumber(0, itemsToPick.length - 1);
                 this.itemsToFind.push(itemsToPick[randomIndex]);
                 itemsToPick.splice(randomIndex, 1);
             }
         }
-    }
-
-    private focusAnswerInput() {
-        setTimeout(() => {
-            if (this.$refs.answerInput) {
-                this.$refs.answerInput.focus();
-            }
-        }, 20);
     }
 
     // endregion
@@ -401,13 +348,13 @@ export default class ItemNameQuizPage extends Vue {
         }
     }
 
-    @Watch('quizStageModule.stage', { deep: true })
+    @Watch('quizStageStore.stage', { deep: true })
     public onQuizStateChanged() {
         if (QuizStageStore.isAnswering) {
-            this.focusAnswerInput();
+            this.$refs.quiz.focusAnswerInput();
         } else if (QuizStageStore.isQuizFinished) {
-            if (this.withStopWatch && this.$refs.stopWatch) {
-                this.time = { ...this.$refs.stopWatch.getTime };
+            if (this.quizConfiguration.withStopWatch && this.$refs.stopWatch) {
+                this.participant.completeTime = { ...this.$refs.stopWatch.getTime };
             }
         }
     }

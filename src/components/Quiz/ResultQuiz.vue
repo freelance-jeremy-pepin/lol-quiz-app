@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Time } from 'src/const';
+import { Time } from 'src/models/Time';
 
 @Component
 export default class ResultQuiz extends Vue {

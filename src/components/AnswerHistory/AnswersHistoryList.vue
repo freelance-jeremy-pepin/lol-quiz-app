@@ -1,10 +1,6 @@
 <template>
     <q-dialog v-model="$attrs.value" v-bind="$attrs" v-on="$listeners">
-        <q-card
-            style
-                ="max-width: 500px; width: 100%;"
-        >
-
+        <q-card style="max-width: 500px; width: 100%;">
             <q-list>
                 <answer-history-line
                     v-for="(answerHistory, index) in answersHistory"

@@ -32,7 +32,6 @@ import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import SocketStore from 'src/store/modules/SocketStore';
 import { getModule } from 'vuex-module-decorators';
-import { uniqueID } from 'src/utils/randomNumber';
 
 @Component({
     components: { FormQuizConfiguration, SelectQuiz },

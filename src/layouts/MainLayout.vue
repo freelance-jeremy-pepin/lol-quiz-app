@@ -52,6 +52,7 @@ export default class MainLayout extends Vue {
         return UserStore.user?.pseudo;
     }
 
+    // noinspection JSUnusedLocalSymbols
     private set pseudo(pseudo: string | undefined) {
         if (pseudo && this.user) {
             UserStore.setUser({ id: this.user.id, pseudo });
@@ -62,6 +63,7 @@ export default class MainLayout extends Vue {
 
     // Region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         UserStore.restoreUser()
             .then((user) => {
