@@ -9,54 +9,56 @@
             @view-history="$emit('view-history')"
         ></result-quiz>
 
-        <q-card v-else>
-            <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
-                <q-spinner color="primary" size="3em"></q-spinner>
-            </q-card-section>
+        <div v-else class="q-gutter-y-sm">
+            <q-card>
+                <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
+                    <q-spinner color="primary" size="3em"></q-spinner>
+                </q-card-section>
 
-            <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
-                <slot name="image"></slot>
+                <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+                    <slot name="image"></slot>
 
-                <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                    <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                <div class="text-secondary text-bold">Score: {{ participant.score }}</div>
+                    <div class="text-secondary text-bold">Score: {{ participant.score }}</div>
 
-                <q-input
-                    v-if="!quizStageStore.isDisplayAnswer"
-                    ref="answerInput"
-                    v-model="answer"
-                    autofocus
-                    borderless
-                    class="full-width"
-                    label="Your answer"
-                    outlined
-                    @input="$emit('input', answer)"
-                    @keydown.enter.stop="$emit('verify-answer')"
-                ></q-input>
+                    <q-input
+                        v-if="!quizStageStore.isDisplayAnswer"
+                        ref="answerInput"
+                        v-model="answer"
+                        autofocus
+                        borderless
+                        class="full-width"
+                        label="Your answer"
+                        outlined
+                        @input="$emit('input', answer)"
+                        @keydown.enter.stop="$emit('verify-answer')"
+                    ></q-input>
 
-                <q-btn
-                    v-if="!quizStageStore.isDisplayAnswer"
-                    :color="quizStageStore.isWrong ? 'negative' : 'primary'"
-                    :disable="quizStageStore.isVerifyingAnswer"
-                    class="full-width"
-                    @click="$emit('verify-answer')"
-                >
-                    {{
-                        quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'
-                    }}
-                </q-btn>
+                    <q-btn
+                        v-if="!quizStageStore.isDisplayAnswer"
+                        :color="quizStageStore.isWrong ? 'negative' : 'primary'"
+                        :disable="quizStageStore.isVerifyingAnswer"
+                        class="full-width"
+                        @click="$emit('verify-answer')"
+                    >
+                        {{
+                            quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'
+                        }}
+                    </q-btn>
+                </q-card-section>
+            </q-card>
 
-                <q-btn
-                    v-if="quizStageStore.isAnswering || quizStageStore.isWrong"
-                    class="full-width"
-                    color="negative"
-                    flat
-                    @click="$emit('skip')"
-                >
-                    Skip
-                </q-btn>
-            </q-card-section>
-        </q-card>
+            <q-btn
+                v-if="quizStageStore.isAnswering || quizStageStore.isWrong"
+                class="full-width"
+                color="grey"
+                flat
+                @click="$emit('skip')"
+            >
+                Skip
+            </q-btn>
+        </div>
 
         <q-page-sticky :offset="[18, 18]" position="bottom-left">
             <shortcuts-quiz></shortcuts-quiz>

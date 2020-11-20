@@ -1,7 +1,7 @@
 <template>
-    <q-layout view="lHh Lpr lFf">
+    <q-layout view="lHh Lpr lFf" >
         <q-header elevated>
-            <q-toolbar>
+            <q-toolbar :class="$q.dark.isActive ? 'bg-grey-10' : 'bg-primary'">
                 <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
                     LoL Quiz
                 </q-toolbar-title>
