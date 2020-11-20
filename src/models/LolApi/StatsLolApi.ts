@@ -1,4 +1,4 @@
-export interface Stats {
+export default interface StatsLolApi {
     FlatHPPoolMod: number;
     rFlatHPModPerLevel: number;
     FlatMPPoolMod: number;

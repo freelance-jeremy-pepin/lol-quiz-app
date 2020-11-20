@@ -29,6 +29,10 @@ module.exports = configure((ctx) => ({
 
         'i18n',
         'axios',
+        {
+            path: 'socket.io',
+            server: false,
+        },
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css

@@ -1,4 +1,4 @@
-export interface Maps {
+export default interface MapsLolApi {
     1: boolean;
     2: boolean;
     3: boolean;

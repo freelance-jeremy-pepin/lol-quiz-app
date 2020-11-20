@@ -1,25 +1,25 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import { Item } from 'src/models/item';
+import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import ItemRepository from 'src/repositories/itemRepository';
 
 @Module({
     dynamic: true,
     store,
-    name: 'lol-api/items',
+    name: 'lolApi/items',
     namespaced: true,
 })
-class LolApiItemsModule extends VuexModule {
+class ItemLolApiStore extends VuexModule {
     // region State
 
-    private _items?: Item[] = undefined;
+    private _items?: ItemLolApi[] = undefined;
 
     // endregion
 
     // region Mutation
 
     @Mutation
-    public setItems(items: Item[]) {
+    public setItems(items: ItemLolApi[]) {
         this._items = items;
     }
 
@@ -30,7 +30,7 @@ class LolApiItemsModule extends VuexModule {
     @Action
     public fetchItems(lang = 'en_US') {
         new ItemRepository().getAll(lang)
-            .then((items: Item[]) => {
+            .then((items: ItemLolApi[]) => {
                 this.setItems(items);
             })
             .catch(() => {
@@ -42,15 +42,15 @@ class LolApiItemsModule extends VuexModule {
 
     // region Getters
 
-    public get items(): Item[] | undefined {
+    public get items(): ItemLolApi[] | undefined {
         return this._items;
     }
 
-    public get itemsFilteredForQuiz(): Item[] | undefined {
+    public get itemsFilteredForQuiz(): ItemLolApi[] | undefined {
         if (this._items) {
             return this._items.filter(i => {
                 if (
-                    i.maps['11']
+                    i.maps && i.maps['11']
                     && (i.consumed === undefined || !i.consumed) // Enlève les consommables.
                     && (i.requiredChampion === undefined) // Enlève les items nécessitant un champion.
                 ) {
@@ -67,4 +67,4 @@ class LolApiItemsModule extends VuexModule {
     // endregion
 }
 
-export default getModule(LolApiItemsModule);
+export default getModule(ItemLolApiStore);
