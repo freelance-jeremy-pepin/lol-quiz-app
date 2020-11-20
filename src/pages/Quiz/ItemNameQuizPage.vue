@@ -1,131 +1,141 @@
 <template>
-    <div class="column items-center" style="max-width: 300px; width: 100%;">
-        <result-quiz
-            v-if="quizStageModule.isQuizFinished"
-            :number-questions="numberQuestions"
-            :score="score"
-            :time="time"
-            @play-again="onStartNewQuiz"
-            @view-history="historyIsVisible = true"
-        ></result-quiz>
+    <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
+        <div class="column items-center" style="max-width: 300px; width: 100%;">
+            <result-quiz
+                v-if="quizStageModule.isQuizFinished"
+                :number-questions="numberQuestions"
+                :score="score"
+                :time="time"
+                @play-again="onStartNewQuiz"
+                @view-history="historyIsVisible = true"
+            ></result-quiz>
 
-        <q-card
-            v-else
-            style="width: 100%;"
-            @keydown.shift="onPickItem"
-        >
-            <q-card-section v-if="quizStageModule.isLoading" class="column items-center">
-                <q-spinner color="primary" size="3em"></q-spinner>
-            </q-card-section>
+            <q-card
+                v-else
+                style="width: 100%;"
+                @keydown.shift="onPickItem"
+            >
+                <q-card-section v-if="quizStageModule.isLoading" class="column items-center">
+                    <q-spinner color="primary" size="3em"></q-spinner>
+                </q-card-section>
 
-            <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
-                <icon-item v-if="item" :item="item" :with-tooltip="!quizStageModule.isAnswering"></icon-item>
+                <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+                    <icon-item v-if="item" :item="item" :with-tooltip="!quizStageModule.isAnswering"></icon-item>
 
-                <span
-                    v-if="quizStageModule.isDisplayAnswer"
-                    class="text-bold"
-                >
+                    <span
+                        v-if="quizStageModule.isDisplayAnswer"
+                        class="text-bold"
+                    >
                     {{ item.name }}
                 </span>
 
-                <div v-if="!quizIsInfinite">{{ currentQuestion }}/{{ numberQuestions }}</div>
-                <div>Score: {{ score }}</div>
+                    <div v-if="!quizIsInfinite">{{ currentQuestion }}/{{ numberQuestions }}</div>
+                    <div>Score: {{ score }}</div>
 
-                <q-input
-                    v-if="!quizStageModule.isDisplayAnswer"
-                    ref="answerInput"
-                    v-model="answer"
-                    autofocus
-                    borderless
-                    class="full-width"
-                    label="Your answer"
-                    outlined
-                    @keydown.enter.stop="onVerifyAnswer"
-                ></q-input>
+                    <q-input
+                        v-if="!quizStageModule.isDisplayAnswer"
+                        ref="answerInput"
+                        v-model="answer"
+                        autofocus
+                        borderless
+                        class="full-width"
+                        label="Your answer"
+                        outlined
+                        @keydown.enter.stop="onVerifyAnswer"
+                    ></q-input>
 
-                <q-btn
-                    v-if="!quizStageModule.isDisplayAnswer"
-                    :color="quizStageModule.isWrong ? 'negative' : 'primary'"
-                    :disable="quizStageModule.isVerifyingAnswer"
-                    class="full-width"
-                    @click="onVerifyAnswer"
-                >
-                    {{
-                        quizStageModule.isWrong ? 'Wrong' : quizStageModule.isVerifyingAnswer ? 'Verifying...' : 'Verify'
-                    }}
-                </q-btn>
+                    <q-btn
+                        v-if="!quizStageModule.isDisplayAnswer"
+                        :color="quizStageModule.isWrong ? 'negative' : 'primary'"
+                        :disable="quizStageModule.isVerifyingAnswer"
+                        class="full-width"
+                        @click="onVerifyAnswer"
+                    >
+                        {{
+                            quizStageModule.isWrong ? 'Wrong' : quizStageModule.isVerifyingAnswer ? 'Verifying...' : 'Verify'
+                        }}
+                    </q-btn>
 
-                <q-btn v-else class="full-width" color="secondary" @click="onPickItem">
-                    New item
-                </q-btn>
+                    <q-btn v-else class="full-width" color="secondary" @click="onPickItem">
+                        New item
+                    </q-btn>
 
-                <q-btn
-                    v-if="!numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
-                    class="full-width"
-                    color="primary"
-                    outline
-                    @click="onGiveAnswer"
-                >
-                    Ask answer
-                </q-btn>
+                    <q-btn
+                        v-if="!numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
+                        class="full-width"
+                        color="primary"
+                        outline
+                        @click="onGiveAnswer"
+                    >
+                        Ask answer
+                    </q-btn>
 
-                <q-btn
-                    v-if="numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
-                    class="full-width"
-                    color="negative"
-                    outline
-                    @click="onSkipItem"
-                >
-                    Skip
-                </q-btn>
-            </q-card-section>
-        </q-card>
+                    <q-btn
+                        v-if="numberQuestions && (quizStageModule.isAnswering || quizStageModule.isWrong)"
+                        class="full-width"
+                        color="negative"
+                        outline
+                        @click="onSkipItem"
+                    >
+                        Skip
+                    </q-btn>
+                </q-card-section>
+            </q-card>
 
-        <q-page-sticky
-            v-if="withStopWatch && !quizStageModule.isQuizFinished && !quizStageModule.isLoading"
-            :offset="[18, 18]"
-            position="top-right"
-        >
-            <stop-watch ref="stopWatch"></stop-watch>
-        </q-page-sticky>
+            <q-page-sticky
+                v-if="withStopWatch && !quizStageModule.isQuizFinished && !quizStageModule.isLoading"
+                :offset="[18, 18]"
+                position="top-right"
+            >
+                <stop-watch ref="stopWatch"></stop-watch>
+            </q-page-sticky>
 
-        <q-page-sticky v-if="!quizStageModule.isQuizFinished" :offset="[18, 18]" position="bottom-right">
-            <q-btn color="accent" fab icon="history" @click="historyIsVisible = true" />
-        </q-page-sticky>
+            <q-page-sticky v-if="!quizStageModule.isQuizFinished" :offset="[18, 18]" position="bottom-right">
+                <q-btn color="accent" fab icon="history" @click="historyIsVisible = true" />
+            </q-page-sticky>
 
-        <q-page-sticky :offset="[18, 18]" position="bottom-left">
-            <shortcuts-quiz></shortcuts-quiz>
-        </q-page-sticky>
+            <q-page-sticky :offset="[18, 18]" position="bottom-left">
+                <shortcuts-quiz></shortcuts-quiz>
+            </q-page-sticky>
 
-        <answers-history-list v-model="historyIsVisible" :answers-history="answersHistory"></answers-history-list>
-    </div>
+            <answers-history-list v-model="historyIsVisible" :answers-history="answersHistory"></answers-history-list>
+        </div>
+    </q-page>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import IconItem from 'components/Item/IconItem.vue';
-import StopWatch from 'components/Common/StopWatch.vue';
-import { copyToClipboard } from 'quasar';
-import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
+import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 import { Time } from 'src/const';
 import AnswerHistory from 'src/models/AnswerHistory';
-import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
-import { randomNumber, uniqueID } from 'src/utils/randomNumber';
-import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
+import { copyToClipboard } from 'quasar';
+import { randomNumber, uniqueID } from 'src/utils/randomNumber';
+import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
+import IconItem from 'components/Item/IconItem.vue';
+import AnswersHistoryList from 'components/AnswerHistory/AnswersHistoryList.vue';
+import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
+import StopWatch from 'components/Common/StopWatch.vue';
 
 @Component({
-    components: { ShortcutsQuiz, ResultQuiz, StopWatch, IconItem, AnswersHistoryList },
+    components: { StopWatch, ShortcutsQuiz, AnswersHistoryList, IconItem, ResultQuiz, SelectQuiz },
 })
-export default class NameQuiz extends Vue {
-    // region Props
+export default class ItemNameQuizPage extends Vue {
+    // region Computed properties
 
-    @Prop({ required: true }) items!: ItemLolApi[];
+    private get items(): ItemLolApi[] | undefined {
+        return ItemLolApiStore.itemsFilteredForQuiz;
+    }
 
-    @Prop({ required: false, default: false, type: Boolean }) withStopWatch!: boolean;
+    private get numberQuestions(): number {
+        return this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 0;
+    }
 
-    @Prop({ required: true, default: null }) numberQuestions!: number;
+    private get withStopWatch(): boolean {
+        return this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false;
+    }
 
     // endregion
 
@@ -168,12 +178,10 @@ export default class NameQuiz extends Vue {
 
     // region Hooks
 
-    private mounted() {
+    private beforeCreate() {
         QuizStageStore.setLoading();
 
         window.addEventListener('keydown', this.onKeyPress);
-
-        this.startNewQuiz();
     }
 
     private unmounted() {
@@ -385,6 +393,13 @@ export default class NameQuiz extends Vue {
     // endregion
 
     // region Watchers
+
+    @Watch('items', { immediate: true, deep: true })
+    public onItemsChanged(items: ItemLolApi[]) {
+        if (QuizStageStore.isLoading && items) {
+            this.startNewQuiz();
+        }
+    }
 
     @Watch('quizStageModule.stage', { deep: true })
     public onQuizStateChanged() {

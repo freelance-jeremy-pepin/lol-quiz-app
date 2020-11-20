@@ -6,11 +6,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import NameQuiz from 'components/Quiz/NameQuiz.vue';
 import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 
 @Component({
-    components: { SelectQuiz, NameQuiz },
+    components: { SelectQuiz },
 })
 export default class PageIndex extends Vue {
 

@@ -16,7 +16,7 @@ export function createDefaultQuiz(): Quiz {
 export const quizList: Quiz[] = [
     {
         id: '1',
-        name: 'Name quiz',
-        internalName: 'name-quiz',
+        name: `Find item's name`,
+        internalName: 'item-name-quiz',
     },
 ];
