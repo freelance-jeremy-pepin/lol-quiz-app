@@ -2,10 +2,8 @@
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
         <div class="column items-center" style="max-width: 300px; width: 100%;">
             <icon-and-input-quiz-layout
-                v-show="!quizStageStore.isLoading"
                 ref="quiz"
                 v-model="answer"
-                :participant="participant"
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
@@ -41,10 +39,11 @@ import { randomNumber, uniqueID } from 'src/utils/randomNumber';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import Participant, { createDefaultParticipant } from 'src/models/Participant';
-import UserStore from 'src/store/modules/UserStore';
+import Participant from 'src/models/Participant';
 import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHistoryItem.vue';
 import QuizConfigurationItem, { createDefaultQuizConfigurationItem } from 'src/models/QuizConfigurationItem';
+import QuizStore from 'src/store/modules/QuizStore';
+import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 
 @Component({
     components: {
@@ -59,7 +58,7 @@ export default class ItemNameQuizPage extends Vue {
     // region Computed properties
 
     /**
-     * Liste de tous les objets du jeu.
+     * Récupère la liste de tous les objets du jeu.
      * Les objets tels que les consommables et nécessitant un champion sont exclus.
      * @private
      */
@@ -67,15 +66,25 @@ export default class ItemNameQuizPage extends Vue {
         return ItemLolApiStore.itemsFilteredForQuiz;
     }
 
+    /**
+     * Récupère le participant du quiz.
+     * @private
+     */
+    private get participant(): Participant {
+        return QuizStore.participant;
+    }
+
+    /**
+     * Modifier le participant du quiz.
+     * @private
+     */
+    private set participant(participant: Participant) {
+        QuizStore.setParticipant(participant);
+    }
+
     // endregion
 
     // region Data
-
-    /**
-     * Participant du quiz.
-     * @private
-     */
-    private participant: Participant = createDefaultParticipant();
 
     /**
      * Configuration du quiz.
@@ -145,7 +154,6 @@ export default class ItemNameQuizPage extends Vue {
      */
     private mounted() {
         this.initQuizConfigurationItem();
-        this.initParticipant();
     }
 
     // endregion
@@ -170,7 +178,7 @@ export default class ItemNameQuizPage extends Vue {
         // Si la réponse est correcte, incrémente le score et passe au prochain objet.
         // Sinon, passe en mode mauvaise réponse pendant 1 sec avant de revenir en mode quiz.
         if (this.verifyAnswer()) {
-            this.participant.score += 1;
+            this.participant = { ...this.participant, score: this.participant.score + 1 };
 
             this.onPickNextItem();
         } else {
@@ -237,19 +245,6 @@ export default class ItemNameQuizPage extends Vue {
     }
 
     /**
-     * Initialise le participant du quiz.
-     * @private
-     */
-    private initParticipant() {
-        if (UserStore.user) {
-            this.participant = {
-                ...this.participant,
-                user: UserStore.user,
-            };
-        }
-    }
-
-    /**
      * Vérifie la réponse donnée par le participant.
      * @private
      */
@@ -283,7 +278,7 @@ export default class ItemNameQuizPage extends Vue {
             return;
         }
 
-        this.participant.currentQuestionNumber += 1;
+        this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber + 1 };
 
         if (this.itemsToFind) {
             this.itemToGuess = this.itemsToFind[this.participant.currentQuestionNumber - 1];
@@ -322,14 +317,22 @@ export default class ItemNameQuizPage extends Vue {
         }
 
         if (this.itemToGuess) {
-            this.participant.answersHistoryItem.push({
+            const emptyAnswer: AnswerHistoryItem = {
                 id: uniqueID(),
                 item: this.itemToGuess,
                 found: false,
                 answers: [],
                 isAnswering: true,
                 skipped: false,
-            });
+            };
+            this.participant = {
+                ...this.participant,
+                answersHistoryItem: [
+                    ...this.participant.answersHistoryItem,
+                    emptyAnswer,
+                ],
+            };
+            this.participant.answersHistoryItem.push();
         }
     }
 
@@ -362,9 +365,13 @@ export default class ItemNameQuizPage extends Vue {
      * @private
      */
     private resetQuiz() {
-        this.participant.currentQuestionNumber = 0;
-        this.participant.score = 0;
-        this.participant.answersHistoryItem = [];
+        this.participant = {
+            ...this.participant,
+            currentQuestionNumber: 0,
+            score: 0,
+            answersHistoryItem: [],
+        };
+
         this.itemsToFind = [];
 
         // Construit la liste des objets à deviner.
@@ -390,22 +397,10 @@ export default class ItemNameQuizPage extends Vue {
      * Lors du changement de la liste des objets, démarre un nouveau quiz s'il était en mode de chargement.
      * @param items
      */
-    @Watch('items', { immediate: true, deep: true })
+    @Watch('items', { immediate: true })
     public onItemsChanged(items: ItemLolApi[]) {
         if (QuizStageStore.isLoading && items) {
             this.startNewQuiz();
-        }
-    }
-
-    /**
-     * Lors du changement de l'état du quiz récupère le temps du participant si le quiz est terminé.
-     */
-    @Watch('quizStageStore.stage', { deep: true })
-    public onQuizStateChanged() {
-        if (QuizStageStore.isQuizFinished) {
-            if (this.quizConfigurationItem.withStopWatch && this.$refs.quiz) {
-                this.participant.completeTime = { ...this.$refs.quiz.getTime() };
-            }
         }
     }
 

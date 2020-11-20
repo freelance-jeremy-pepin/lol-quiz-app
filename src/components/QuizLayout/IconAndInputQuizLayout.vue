@@ -89,17 +89,15 @@ import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
 import { Time } from 'src/models/Time';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
+import QuizStore from 'src/store/modules/QuizStore';
+import UserStore from 'src/store/modules/UserStore';
+import User from 'src/models/User';
 
 @Component({
     components: { ResultQuiz, StopWatch, ShortcutsQuiz },
 })
 export default class IconAndInputQuizLayout extends Vue {
     // region Props
-
-    /**
-     * Participant du quiz.
-     */
-    @Prop({ required: true }) participant!: Participant;
 
     /**
      * Configuration du quiz.
@@ -134,6 +132,30 @@ export default class IconAndInputQuizLayout extends Vue {
         return QuizStageStore;
     }
 
+    /**
+     * Récupère l'utilisateur de l'application.
+     * @private
+     */
+    private get user(): User | undefined {
+        return UserStore.user;
+    }
+
+    /**
+     * Récupère le participant du quiz.
+     * @private
+     */
+    private get participant(): Participant {
+        return QuizStore.participant;
+    }
+
+    /**
+     * Modifier le participant du quiz.
+     * @private
+     */
+    private set participant(participant: Participant) {
+        QuizStore.setParticipant(participant);
+    }
+
     // endregion
 
     // region Hooks
@@ -157,14 +179,6 @@ export default class IconAndInputQuizLayout extends Vue {
     // endregion
 
     // region Methods
-
-    // noinspection JSUnusedGlobalSymbols
-    /**
-     * Récupère le temps du participant.
-     */
-    public getTime(): Time {
-        return this.$refs.stopWatch.getTime as Time;
-    }
 
     /**
      * Focus sur le champs de réponse.
@@ -217,12 +231,32 @@ export default class IconAndInputQuizLayout extends Vue {
     }
 
     /**
-     * Lors du changement de l'état du quiz, focus le champ de réponse en mode quiz.
+     * Synchronise l'utilisateur et le participant.
+     */
+    @Watch('user')
+    public onUserChanged(user: User) {
+        if (user) {
+            QuizStore.setParticipant({
+                ...QuizStore.participant,
+                user,
+            });
+        }
+    }
+
+    /**
+     * Lors du changement de l'état du quiz :
+     *  - focus le champ de réponse en mode quiz,
+     *  - démarre un nouveau quiz s'il était en mode de chargement.
      */
     @Watch('quizStageStore.stage', { deep: true })
     public onQuizStateChanged() {
         if (QuizStageStore.isAnswering) {
-            this.$refs.quiz.focusAnswerInput();
+            this.focusAnswerInput();
+        } else if (QuizStageStore.isQuizFinished) {
+            if (this.quizConfiguration.withStopWatch) {
+                const completeTime: Time = { ...this.$refs.stopWatch.getTime };
+                this.participant = { ...this.participant, completeTime };
+            }
         }
     }
 
