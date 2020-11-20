@@ -21,7 +21,6 @@ class UserStore extends VuexModule {
 
     @Mutation
     public setUser(user: User) {
-        debugger;
         this._user = user;
         LocalStorage.set('user', user);
     }

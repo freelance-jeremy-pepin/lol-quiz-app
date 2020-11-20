@@ -4,7 +4,7 @@ import Model from 'src/models/Model';
 
 export default interface Participant extends Model {
     user: User;
-    currentQuestionNumber: string;
+    currentQuestionNumber: number;
     hasFinished: boolean;
     answerHistory: AnswerHistory[];
 }
@@ -13,7 +13,7 @@ export function createDefaultParticipant(): Participant {
     return {
         id: '',
         user: createDefaultUser(),
-        currentQuestionNumber: '',
+        currentQuestionNumber: 0,
         hasFinished: false,
         answerHistory: [],
     };

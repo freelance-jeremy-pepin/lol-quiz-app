@@ -2,6 +2,7 @@
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import Room from 'src/models/Room.ts';
 import { socket } from 'src/boot/socket.io';
+import Participant from 'src/models/Participant';
 
 @Module({
     name: 'socket',
@@ -32,8 +33,36 @@ export default class SocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_NEW_ROOM(room: Room) {
+    public SOCKET_ROOM_CREATED(room: Room) {
         this._rooms.push(room);
+    }
+
+    @Mutation
+    public SOCKET_ROOM_DELETED(roomDeleted: Room) {
+        const indexToRemove = this._rooms.findIndex(r => r.id === roomDeleted.id);
+        this._rooms.splice(indexToRemove, 1);
+    }
+
+    @Mutation
+    public SOCKET_ROOM_JOINED(roomJoined: Room, participant: Participant) {
+        const roomJoinedFound = this._rooms.find(r => r.id === roomJoined.id);
+
+        if (roomJoinedFound) {
+            roomJoinedFound.participants.push(participant);
+        }
+    }
+
+    @Mutation
+    public SOCKET_ROOM_LEFT(roomLeft: Room, participant: Participant) {
+        const roomLeftFound = this._rooms.find(r => r.id === roomLeft.id);
+
+        if (roomLeftFound) {
+            const participantIndexToRemove = roomLeftFound.participants.findIndex(p => p.id === participant.id);
+
+            if (participantIndexToRemove > -1) {
+                roomLeftFound.participants.splice(participantIndexToRemove, 1);
+            }
+        }
     }
 
     // endregion
@@ -42,12 +71,27 @@ export default class SocketStore extends VuexModule {
 
     @Action
     public getAllRooms() {
-        socket.emit('get-all-rooms');
+        socket.emit('get_all_rooms');
     }
 
     @Action
-    public createRoom(newRoomName: Room) {
-        socket.emit('create-room', newRoomName);
+    public createRoom(newRoom: Room) {
+        socket.emit('create_room', newRoom);
+    }
+
+    @Action
+    public deleteRoom(roomToDelete: Room) {
+        socket.emit('delete_room', roomToDelete);
+    }
+
+    @Action
+    public joinRoom(payload: { roomToJoin: Room, participant: Participant }) {
+        socket.emit('join_room', payload.roomToJoin, payload.participant);
+    }
+
+    @Action
+    public leaveRoom(payload: { roomToLeave: Room, participant: Participant }) {
+        socket.emit('leave_room', payload.roomToLeave, payload.participant);
     }
 
     // endregion

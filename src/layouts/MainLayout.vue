@@ -9,7 +9,7 @@
                 <q-btn v-if="user" flat>
                     {{ user.pseudo }}
                     <q-popup-edit v-model="pseudo" auto-save>
-                        <q-input v-model="pseudo" autofocus dense  />
+                        <q-input v-model="pseudo" autofocus dense />
                     </q-popup-edit>
                 </q-btn>
 
@@ -52,8 +52,10 @@ export default class MainLayout extends Vue {
         return UserStore.user?.pseudo;
     }
 
-    private set pseudo(pseudo: string) {
-        return UserStore.setUser({ ...this.user, pseudo });
+    private set pseudo(pseudo: string | undefined) {
+        if (pseudo && this.user) {
+            UserStore.setUser({ id: this.user.id, pseudo });
+        }
     }
 
     // endregion
