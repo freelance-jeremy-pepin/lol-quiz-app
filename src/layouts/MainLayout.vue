@@ -2,14 +2,15 @@
     <q-layout view="lHh Lpr lFf">
         <q-header elevated>
             <q-toolbar>
-                <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
+                <q-toolbar-title class="cursor-pointer"
+                                 @click="$router.push('/')">
                     LoL Quiz
                 </q-toolbar-title>
 
                 <q-btn v-if="user" flat>
                     {{ user.pseudo }}
                     <q-popup-edit v-model="pseudo" auto-save>
-                        <q-input v-model="pseudo" autofocus dense />
+                        <q-input v-model="pseudo" autofocus dense/>
                     </q-popup-edit>
                 </q-btn>
 
@@ -24,7 +25,7 @@
         </q-header>
 
         <q-page-container>
-            <router-view />
+            <router-view/>
         </q-page-container>
     </q-layout>
 </template>
@@ -33,6 +34,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
 import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
+import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 
@@ -66,21 +68,22 @@ export default class MainLayout extends Vue {
     // noinspection JSUnusedLocalSymbols
     private mounted() {
         UserStore.restoreUser()
-            .then((user) => {
-                if (!user) {
-                    UserStore.createNewUser();
-                }
-            });
+        .then((user) => {
+            if (!user) {
+                UserStore.createNewUser();
+            }
+        });
 
         this.restoreDarkModeFromLocalStorage();
 
         VersionLolApiStore.fetchVersion()
-            .then(() => {
-                LoLApiItemsModule.fetchItems();
-            })
-            .catch((e) => {
-                throw new Error(e);
-            });
+        .then(() => {
+            LoLApiItemsModule.fetchItems();
+            ChampionLolApiStore.fetchChampions();
+        })
+        .catch((e) => {
+            throw new Error(e);
+        });
     }
 
     // endregion

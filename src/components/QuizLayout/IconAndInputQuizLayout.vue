@@ -10,16 +10,24 @@
         ></result-quiz>
 
         <q-card v-else>
-            <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
+            <q-card-section v-if="quizStageStore.isLoading"
+                            class="column items-center">
                 <q-spinner color="primary" size="3em"></q-spinner>
             </q-card-section>
 
-            <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+            <q-card-section v-else
+                            class="column items-center q-pa-md q-gutter-y-md">
                 <slot name="image"></slot>
 
-                <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                <div>{{
+                        participant.currentQuestionNumber
+                    }}/{{ quizConfiguration.numberQuestions }}
+                </div>
 
-                <div class="text-accent text-bold">Score: {{ participant.score }}</div>
+                <div class="text-accent text-bold">Score: {{
+                        participant.score
+                    }}
+                </div>
 
                 <q-input
                     v-if="!quizStageStore.isDisplayAnswer"
@@ -75,7 +83,8 @@
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history" @click="$emit('view-history')" />
+            <q-btn color="accent" fab icon="history"
+                   @click="$emit('view-history')"/>
         </q-page-sticky>
     </div>
 </template>
@@ -94,7 +103,7 @@ import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 
 @Component({
-    components: { ResultQuiz, StopWatch, ShortcutsQuiz },
+    components: { ResultQuiz, StopWatch, ShortcutsQuiz }
 })
 export default class IconAndInputQuizLayout extends Vue {
     // region Props
@@ -223,7 +232,7 @@ export default class IconAndInputQuizLayout extends Vue {
     // region Watchers
 
     /**
-     * Synchronise le v-model and this.answer.
+     * Synchronise le v-model et this.answer.
      */
     @Watch('$attrs.value')
     public onValueChanged(value: string) {
@@ -238,7 +247,7 @@ export default class IconAndInputQuizLayout extends Vue {
         if (user) {
             QuizStore.setParticipant({
                 ...QuizStore.participant,
-                user,
+                user
             });
         }
     }
