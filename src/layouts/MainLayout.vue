@@ -6,12 +6,7 @@
                     LoL Quiz
                 </q-toolbar-title>
 
-                <q-btn v-if="me" flat>
-                    {{ me.pseudo }}
-                    <q-popup-edit v-model="pseudo" auto-save>
-                        <q-input v-model="pseudo" autofocus dense />
-                    </q-popup-edit>
-                </q-btn>
+                <pseudo-user></pseudo-user>
 
                 <q-btn
                     :icon="$q.dark.isActive ? 'brightness_5' : 'brightness_4'"
@@ -37,8 +32,11 @@ import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import SocketMixin from 'src/mixins/socketMixin';
+import PseudoUser from 'components/User/PseudoUser.vue';
 
-@Component
+@Component({
+    components: { PseudoUser },
+})
 export default class MainLayout extends Mixins(SocketMixin) {
     // region Computed properties
 
@@ -48,17 +46,6 @@ export default class MainLayout extends Mixins(SocketMixin) {
 
     private get me(): User | undefined {
         return UserStore.me;
-    }
-
-    private get pseudo(): string | undefined {
-        return UserStore.me?.pseudo;
-    }
-
-    // noinspection JSUnusedLocalSymbols
-    private set pseudo(pseudo: string | undefined) {
-        if (pseudo && this.me) {
-            UserStore.setMe({ id: this.me.id, pseudo });
-        }
     }
 
     // endregion

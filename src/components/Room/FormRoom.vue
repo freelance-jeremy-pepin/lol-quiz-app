@@ -48,7 +48,6 @@ export default class FormRoom extends Mixins(SocketMixin) {
     }
 
     public get totalRoomsOfUser(): number {
-        debugger;
         if (this.user?.id) {
             const userID = this.user.id;
             return this.roomSocketStore.rooms.filter(r => r.owner.id === userID).length;

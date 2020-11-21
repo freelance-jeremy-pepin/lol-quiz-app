@@ -28,7 +28,7 @@ export default class UserSocketStore extends VuexModule {
         // Si l'utilisateur existe, le modifie.
         // Sinon l'ajoute.
         if (indexFound > -1) {
-            this._users[indexFound] = user;
+            this._users = this._users.map(u => (u.id === user.id ? user : u));
         } else {
             this._users.push(user);
         }
