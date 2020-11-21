@@ -1,6 +1,6 @@
 <template>
-    <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <q-card class="text-center" style="max-width: 400px; width: 100%;">
+    <q-page class="q-pa-md row items-center justify-center" style="margin-top: 16px;">
+        <q-card align="center" style="max-width: 500px; width: 100%;">
             <q-card-section class="bg-primary text-white">
                 <div class="text-h3">Select your quiz</div>
             </q-card-section>
@@ -13,9 +13,16 @@
                 <q-btn label="Rooms" to="/rooms"></q-btn>
             </q-card-section>
 
-            <q-card-section>
-                <q-btn class="full-width" color="primary" @click="onStartQuiz">Start</q-btn>
-            </q-card-section>
+            <q-card-actions class="q-pa-none">
+                <q-btn
+                    class="full-width"
+                    style="border-top-left-radius: 0; border-top-right-radius: 0;"
+                    color="accent"
+                    size="lg"
+                    @click="onStartQuiz"
+                >Start
+                </q-btn>
+            </q-card-actions>
         </q-card>
     </q-page>
 </template>

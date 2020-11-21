@@ -2,12 +2,20 @@
     <div>
         <div>
             <div class="text-bold">Quiz</div>
-            <q-btn-toggle
-                v-model="internalQuizConfiguration.quiz.internalName"
-                :options="quizList.map(q => ({ label: q.name, value: q.internalName }))"
-                toggle-color="primary"
-                @input="onInput"
-            />
+
+            <q-btn color="primary" icon-right="keyboard_arrow_down">
+                <q-menu fit>
+                    <q-list style="min-width: 100px">
+                        <div v-for="(quiz, index) in quizList" :key="quiz.id">
+                            <q-item v-close-popup clickable>
+                                <q-item-section @click="internalQuizConfiguration.quiz = quiz">{{ quiz.name }}</q-item-section>
+                            </q-item>
+                            <q-separator v-if="index !== quizList.length -1" />
+                        </div>
+                    </q-list>
+                </q-menu>
+                {{ internalQuizConfiguration.quiz.name }}
+            </q-btn>
         </div>
 
         <div class="q-pt-md">

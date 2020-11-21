@@ -86,7 +86,7 @@ export default class ListRoom extends Mixins(SocketMixin, UserMixin) {
 
             participant = {
                 ...participant,
-                user: this.user,
+                userId: this.user.id,
             };
 
             this.roomSocketStore.joinRoom({ roomToJoin, participant });

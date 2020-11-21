@@ -1,7 +1,13 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <div class="row justify-center" style="max-width: 500px; width: 100%;">
+        <joined-room v-if="roomJoined" :room="roomJoined"></joined-room>
+
+        <div v-else class="row justify-center" style="max-width: 500px; width: 100%;">
             <q-card class="full-width">
+                <q-card-section class="bg-primary text-white text-center">
+                    <div class="text-h3">Rooms</div>
+                </q-card-section>
+
                 <q-card-section>
                     <list-rooms v-if="rooms.length > 0" :rooms="rooms"></list-rooms>
                     <div v-else class="text-center">No room.</div>
@@ -34,9 +40,10 @@ import Room, { createDefaultRoom } from 'src/models/Room';
 import User from 'src/models/User';
 import UserStore from 'src/store/modules/UserStore';
 import SocketMixin from 'src/mixins/socketMixin';
+import JoinedRoom from 'components/Room/JoinedRoom.vue';
 
 @Component({
-    components: { ListRooms, FormRoom },
+    components: { JoinedRoom, ListRooms, FormRoom },
 })
 export default class RoomsPage extends Mixins(SocketMixin) {
     // region Data
@@ -54,6 +61,22 @@ export default class RoomsPage extends Mixins(SocketMixin) {
 
     private get rooms(): Room[] {
         return this.roomSocketStore.rooms;
+    }
+
+    private get roomJoined(): Room | null {
+        let roomJoined: Room = null;
+
+        if (this.user) {
+            this.rooms.forEach(r => {
+                r.participants.forEach(p => {
+                    if (p.userId === this.user.id) {
+                        roomJoined = r;
+                    }
+                });
+            });
+        }
+
+        return roomJoined;
     }
 
     private get user(): User | undefined {

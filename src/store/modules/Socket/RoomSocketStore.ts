@@ -42,19 +42,21 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_ROOM_JOINED(roomJoined: Room, participant: Participant) {
-        const roomJoinedFound = this._rooms.find(r => r.id === roomJoined.id);
+    public SOCKET_ROOM_JOINED(payload: { roomJoined: Room, participant: Participant }) {
+        this._rooms = this._rooms.map(r => {
+            if (r.id === payload.roomJoined.id) {
+                r.participants.push(payload.participant);
+            }
 
-        if (roomJoinedFound) {
-            roomJoinedFound.participants.push(participant);
-        }
+            return r;
+        });
     }
 
     @Mutation
-    public SOCKET_ROOM_LEFT(roomLeft: Room, participant: Participant) {
+    public SOCKET_ROOM_LEFT(payload: { roomLeft: Room, participant: Participant }) {
         this._rooms = this._rooms.map(r => {
-            if (r.id === roomLeft.id) {
-                r.participants = r.participants.filter(p => p.id !== participant.id);
+            if (r.id === payload.roomLeft.id) {
+                r.participants = r.participants.filter(p => p.id !== payload.participant.id);
             }
 
             return r;

@@ -6,19 +6,37 @@
         v-on="$listeners"
         @before-show="onBeforeShow"
     >
-        <q-card style="max-width: 400px; width: 100%;">
+        <q-card align="center" style="max-width: 500px; width: 100%;">
+            <q-card-section class="bg-primary text-white">
+                <div class="text-h3">New room</div>
+            </q-card-section>
+
             <q-card-section>
                 <q-form class="q-gutter-y-lg" @submit="onCreateRoom">
-                    <q-input v-model="internalRoom.name" label="Room's name" outlined></q-input>
+                    <q-input
+                        v-model="internalRoom.name"
+                        label="Room's name"
+                        outlined
+                        style="max-width: 250px;"
+                    ></q-input>
 
                     <form-quiz-configuration
                         v-model="internalRoom.quizConfiguration"
-                        class="text-center"
                     ></form-quiz-configuration>
 
-                    <q-btn class="full-width" color="primary" type="submit">Create room</q-btn>
                 </q-form>
             </q-card-section>
+
+            <q-card-actions class="q-pa-none">
+                <q-btn
+                    class="full-width"
+                    style="border-top-left-radius: 0; border-top-right-radius: 0;"
+                    color="accent"
+                    size="lg"
+                    type="submit"
+                >Create room
+                </q-btn>
+            </q-card-actions>
         </q-card>
     </q-dialog>
 </template>
