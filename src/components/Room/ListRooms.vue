@@ -4,7 +4,12 @@
             <q-item-section>
                 <q-item-label class="text-bold">
                     {{ room.name }}
-                    <span v-if="userHasJoinedRoom(room)" class="text-bold text-accent"> (active room)</span>
+                    <span
+                        v-if="userHasJoinedRoom(room)"
+                        class="text-bold text-accent"
+                    >
+                        (active room)
+                    </span>
                 </q-item-label>
                 <q-item-label caption>Owner: {{ room.owner.pseudo }}</q-item-label>
                 <q-item-label caption>

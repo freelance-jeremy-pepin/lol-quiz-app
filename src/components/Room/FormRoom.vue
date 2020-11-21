@@ -26,7 +26,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
-import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
@@ -34,7 +33,7 @@ import SocketStore from 'src/store/modules/SocketStore';
 import { getModule } from 'vuex-module-decorators';
 
 @Component({
-    components: { FormQuizConfiguration, SelectQuiz },
+    components: { FormQuizConfiguration },
 })
 export default class FormRoom extends Vue {
     // region Data
