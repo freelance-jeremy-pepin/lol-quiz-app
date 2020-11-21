@@ -50,7 +50,7 @@ export default class FormRoom extends Mixins(SocketMixin) {
     public get totalRoomsOfUser(): number {
         if (this.user?.id) {
             const userID = this.user.id;
-            return this.roomSocketStore.rooms.filter(r => r.owner.id === userID).length;
+            return this.roomSocketStore.rooms.filter(r => r.ownerId === userID).length;
         }
 
         return 0;
@@ -78,6 +78,7 @@ export default class FormRoom extends Mixins(SocketMixin) {
 
     private initRoom() {
         if (this.user) {
+            this.internalRoom = createDefaultRoom();
             this.internalRoom.name = `${this.user.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
         }
     }

@@ -38,8 +38,7 @@ export default class RoomSocketStore extends VuexModule {
 
     @Mutation
     public SOCKET_ROOM_DELETED(roomDeleted: Room) {
-        const indexToRemove = this._rooms.findIndex(r => r.id === roomDeleted.id);
-        this._rooms.splice(indexToRemove, 1);
+        this._rooms = this._rooms.filter(r => r.id !== roomDeleted.id);
     }
 
     @Mutation
@@ -53,15 +52,13 @@ export default class RoomSocketStore extends VuexModule {
 
     @Mutation
     public SOCKET_ROOM_LEFT(roomLeft: Room, participant: Participant) {
-        const roomLeftFound = this._rooms.find(r => r.id === roomLeft.id);
-
-        if (roomLeftFound) {
-            const participantIndexToRemove = roomLeftFound.participants.findIndex(p => p.id === participant.id);
-
-            if (participantIndexToRemove > -1) {
-                roomLeftFound.participants.splice(participantIndexToRemove, 1);
+        this._rooms = this._rooms.map(r => {
+            if (r.id === roomLeft.id) {
+                r.participants = r.participants.filter(p => p.id !== participant.id);
             }
-        }
+
+            return r;
+        });
     }
 
     // endregion

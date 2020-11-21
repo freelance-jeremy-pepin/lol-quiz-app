@@ -4,12 +4,6 @@
             <q-item-section>
                 <q-item-label class="text-bold">
                     {{ room.name }}
-                    <span
-                        v-if="userHasJoinedRoom(room)"
-                        class="text-bold text-accent"
-                    >
-                        (active room)
-                    </span>
                 </q-item-label>
                 <q-item-label caption>Owner: {{ getPseudoById(room.ownerId) }}</q-item-label>
                 <q-item-label caption>
@@ -19,34 +13,29 @@
                             <div>Quiz: {{ room.quizConfiguration.quiz.name }}</div>
                             <div>Number of questions: {{ room.quizConfiguration.numberQuestions }}</div>
                             <div>With stopwatch: {{ room.quizConfiguration.withStopWatch }}</div>
-
                         </q-tooltip>
                     </q-icon>
                 </q-item-label>
             </q-item-section>
 
             <q-item-section side>
-                <q-btn
-                    v-if="!userHasJoinedRoom(room)"
-                    color="primary"
-                    flat
-                    @click="onJoinRoom(room)"
-                >Join room
-                </q-btn>
-                <q-btn
-                    v-else
-                    color="accent"
-                    flat
-                    @click="onLeaveRoom(room)"
-                >Leave room
-                </q-btn>
-                <q-btn
-                    v-if="user && user.id === room.ownerId"
-                    color="negative"
-                    flat
-                    @click="onDeleteRoom(room)"
-                >Delete room
-                </q-btn>
+                <div class="text-grey-8">
+                    <q-btn
+                        color="primary"
+                        flat
+                        @click="onJoinRoom(room)"
+                    >Join room
+                    </q-btn>
+                    <q-btn dense flat icon="more_vert" round size="12px">
+                        <q-menu>
+                            <q-list style="min-width: 100px">
+                                <q-item v-close-popup clickable>
+                                    <q-item-section class="text-negative" @click="onDeleteRoom(room)">Delete room</q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
+                </div>
             </q-item-section>
         </q-item>
     </q-list>
@@ -57,7 +46,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator';
 import Room from 'src/models/Room';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
-import Participant, { createDefaultParticipant } from 'src/models/Participant';
+import { createDefaultParticipant } from 'src/models/Participant';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
 
@@ -83,10 +72,6 @@ export default class ListRoom extends Mixins(SocketMixin, UserMixin) {
         this.joinRoom(roomToJoin);
     }
 
-    private onLeaveRoom(roomToLeave: Room) {
-        this.leaveRoom(roomToLeave);
-    }
-
     private onDeleteRoom(roomToDelete: Room) {
         this.deleteRoom(roomToDelete);
     }
@@ -108,29 +93,8 @@ export default class ListRoom extends Mixins(SocketMixin, UserMixin) {
         }
     }
 
-    private leaveRoom(roomToLeave: Room) {
-        if (this.user?.id) {
-            const userID = this.user.id;
-
-            const participant: Participant | undefined = roomToLeave.participants.find(p => p.user.id === userID);
-
-            if (participant) {
-                this.roomSocketStore.leaveRoom({ roomToLeave, participant });
-            }
-        }
-    }
-
     private deleteRoom(roomToDelete: Room) {
         this.roomSocketStore.deleteRoom(roomToDelete);
-    }
-
-    private userHasJoinedRoom(room: Room): boolean {
-        if (this.user?.id) {
-            const userID = this.user.id;
-            return room.participants.some(p => p.user.id === userID);
-        }
-
-        return false;
     }
 
     // endregion

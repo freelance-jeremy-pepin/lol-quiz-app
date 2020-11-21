@@ -12,7 +12,7 @@
                 <q-card-actions align="right">
                     <q-btn
                         :disable="!user || !socketStore.isConnected"
-                        color="primary"
+                        color="positive"
                         flat
                         @click="formRoom.display = true"
                     >
