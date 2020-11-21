@@ -142,7 +142,7 @@ export default class IconAndInputQuizLayout extends Vue {
      * @private
      */
     private get user(): User | undefined {
-        return UserStore.user;
+        return UserStore.me;
     }
 
     /**

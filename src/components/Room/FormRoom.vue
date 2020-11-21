@@ -24,36 +24,34 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
-import SocketStore from 'src/store/modules/SocketStore';
-import { getModule } from 'vuex-module-decorators';
+import SocketMixin from 'src/mixins/socketMixin';
 
 @Component({
     components: { FormQuizConfiguration },
 })
-export default class FormRoom extends Vue {
+export default class FormRoom extends Mixins(SocketMixin) {
     // region Data
 
     private internalRoom: Room = createDefaultRoom();
-
-    private socket: SocketStore = getModule(SocketStore, this.$store);
 
     // endregion
 
     // region Computed properties
 
     private get user(): User | undefined {
-        return UserStore.user;
+        return UserStore.me;
     }
 
     public get totalRoomsOfUser(): number {
+        debugger;
         if (this.user?.id) {
             const userID = this.user.id;
-            return this.socket.rooms.filter(r => r.owner.id === userID).length;
+            return this.roomSocketStore.rooms.filter(r => r.owner.id === userID).length;
         }
 
         return 0;
@@ -87,12 +85,12 @@ export default class FormRoom extends Vue {
 
     private setOwner() {
         if (this.user) {
-            this.internalRoom.owner = this.user;
+            this.internalRoom.ownerId = this.user.id;
         }
     }
 
     private createRoom() {
-        this.socket.createRoom(this.internalRoom);
+        this.roomSocketStore.createRoom(this.internalRoom);
     }
 
     private hide() {

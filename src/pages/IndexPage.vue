@@ -10,6 +10,10 @@
             </q-card-section>
 
             <q-card-section>
+                <q-btn label="Rooms" to="/rooms"></q-btn>
+            </q-card-section>
+
+            <q-card-section>
                 <q-btn class="full-width" color="primary" @click="onStartQuiz">Start</q-btn>
             </q-card-section>
         </q-card>

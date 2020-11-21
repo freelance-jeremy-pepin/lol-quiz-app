@@ -11,7 +11,7 @@
 
                 <q-card-actions align="right">
                     <q-btn
-                        :disable="!user || !socket.isConnected"
+                        :disable="!user || !socketStore.isConnected"
                         color="primary"
                         flat
                         @click="formRoom.display = true"
@@ -27,24 +27,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import FormRoom from 'components/Room/FormRoom.vue';
 import ListRooms from 'components/Room/ListRooms.vue';
 import Room, { createDefaultRoom } from 'src/models/Room';
-import SocketStore from 'src/store/modules/SocketStore';
-import { getModule } from 'vuex-module-decorators';
 import User from 'src/models/User';
 import UserStore from 'src/store/modules/UserStore';
+import SocketMixin from 'src/mixins/socketMixin';
 
 @Component({
     components: { ListRooms, FormRoom },
 })
-export default class RoomsPage extends Vue {
+export default class RoomsPage extends Mixins(SocketMixin) {
     // region Data
 
     private newRoom: Room = createDefaultRoom();
-
-    private socket: SocketStore = getModule(SocketStore, this.$store);
 
     private formRoom: { display: boolean, room: Room } = {
         display: false,
@@ -56,11 +53,11 @@ export default class RoomsPage extends Vue {
     // region Computed properties
 
     private get rooms(): Room[] {
-        return this.socket.rooms;
+        return this.roomSocketStore.rooms;
     }
 
     private get user(): User | undefined {
-        return UserStore.user;
+        return UserStore.me;
     }
 
     // endregion
@@ -68,7 +65,7 @@ export default class RoomsPage extends Vue {
     // region Hooks
 
     private mounted() {
-        this.socket.getAllRooms();
+        this.roomSocketStore.getAllRooms();
     }
 
     // endregion
@@ -76,7 +73,7 @@ export default class RoomsPage extends Vue {
     // region Events handlers
 
     private onCreateRoom() {
-        this.socket.createRoom(this.newRoom);
+        this.roomSocketStore.createRoom(this.newRoom);
         this.newRoom.name = '';
     }
 

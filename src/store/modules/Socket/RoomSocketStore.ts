@@ -1,17 +1,16 @@
 /* eslint-disable camelcase */
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import Room from 'src/models/Room.ts';
-import { socket } from 'src/boot/socket.io';
+import { socket } from 'boot/socket.io';
 import Participant from 'src/models/Participant';
 
 @Module({
-    name: 'socket',
-    namespaced: true,
+    name: 'socket/room',
 })
-export default class SocketStore extends VuexModule {
+export default class RoomSocketStore extends VuexModule {
     // region State
 
-    public _rooms: Room[] = [];
+    private _rooms: Room[] = [];
 
     // endregion
 
@@ -97,10 +96,6 @@ export default class SocketStore extends VuexModule {
     // endregion
 
     // region Getters
-
-    public get isConnected(): boolean {
-        return socket.connected;
-    }
 
     public get rooms(): Room[] {
         return this._rooms;

@@ -1,11 +1,10 @@
-import User, { createDefaultUser } from 'src/models/User';
 import Model from 'src/models/Model';
 import { uniqueID } from 'src/utils/randomNumber';
 import { createDefaultTime, Time } from 'src/models/Time';
 import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 
 export default interface Participant extends Model {
-    user: User;
+    userId: string;
     score: number;
     currentQuestionNumber: number;
     hasFinished: boolean;
@@ -16,7 +15,7 @@ export default interface Participant extends Model {
 export function createDefaultParticipant(): Participant {
     return {
         id: uniqueID(),
-        user: createDefaultUser(),
+        userId: '',
         score: 0,
         currentQuestionNumber: 0,
         hasFinished: false,
