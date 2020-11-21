@@ -13,7 +13,6 @@
 
                     <form-quiz-configuration
                         v-model="internalRoom.quizConfiguration"
-                        :with-training="false"
                         class="text-center"
                     ></form-quiz-configuration>
 
@@ -27,16 +26,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
-import SelectQuiz from 'components/Quiz/SelectQuiz.vue';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import SocketStore from 'src/store/modules/SocketStore';
 import { getModule } from 'vuex-module-decorators';
-import { uniqueID } from 'src/utils/randomNumber';
 
 @Component({
-    components: { FormQuizConfiguration, SelectQuiz },
+    components: { FormQuizConfiguration },
 })
 export default class FormRoom extends Vue {
     // region Data
@@ -86,8 +83,6 @@ export default class FormRoom extends Vue {
         if (this.user) {
             this.internalRoom.name = `${this.user.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
         }
-
-        this.internalRoom.id = uniqueID();
     }
 
     private setOwner() {

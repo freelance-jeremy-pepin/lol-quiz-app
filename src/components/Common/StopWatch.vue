@@ -10,17 +10,13 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Time } from 'src/const';
+import { createDefaultTime, Time } from 'src/models/Time';
 
 @Component
 export default class StopWatch extends Vue {
     // region Data
 
-    private time: Time = {
-        minutes: '00',
-        seconds: '00',
-        milliseconds: '000',
-    };
+    private time: Time = createDefaultTime();
 
     private interval: NodeJS.Timeout | null = null;
 
@@ -38,11 +34,13 @@ export default class StopWatch extends Vue {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.interval = setInterval(this.running, 10);
         this.timeBegan = new Date();
     }
 
+    // noinspection JSUnusedLocalSymbols
     private unmounted() {
         if (this.interval) {
             clearInterval(this.interval);

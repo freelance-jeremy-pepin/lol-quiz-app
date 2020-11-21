@@ -1,9 +1,9 @@
 <template>
     <q-layout view="lHh Lpr lFf">
         <q-header elevated>
-            <q-toolbar>
+            <q-toolbar :class="$q.dark.isActive ? 'bg-grey-10' : 'bg-primary'">
                 <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
-                    LoL Quiz items
+                    LoL Quiz
                 </q-toolbar-title>
 
                 <q-btn v-if="user" flat>
@@ -33,6 +33,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
 import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
+import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 
@@ -52,6 +53,7 @@ export default class MainLayout extends Vue {
         return UserStore.user?.pseudo;
     }
 
+    // noinspection JSUnusedLocalSymbols
     private set pseudo(pseudo: string | undefined) {
         if (pseudo && this.user) {
             UserStore.setUser({ id: this.user.id, pseudo });
@@ -62,6 +64,7 @@ export default class MainLayout extends Vue {
 
     // Region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         UserStore.restoreUser()
             .then((user) => {
@@ -75,6 +78,7 @@ export default class MainLayout extends Vue {
         VersionLolApiStore.fetchVersion()
             .then(() => {
                 LoLApiItemsModule.fetchItems();
+                ChampionLolApiStore.fetchChampions();
             })
             .catch((e) => {
                 throw new Error(e);

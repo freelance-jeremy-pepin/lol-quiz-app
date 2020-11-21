@@ -4,7 +4,12 @@
             <q-item-section>
                 <q-item-label class="text-bold">
                     {{ room.name }}
-                    <span v-if="userHasJoinedRoom(room)" class="text-bold text-accent"> (active room)</span>
+                    <span
+                        v-if="userHasJoinedRoom(room)"
+                        class="text-bold text-accent"
+                    >
+                        (active room)
+                    </span>
                 </q-item-label>
                 <q-item-label caption>Owner: {{ room.owner.pseudo }}</q-item-label>
                 <q-item-label caption>
@@ -54,8 +59,7 @@ import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import SocketStore from 'src/store/modules/SocketStore';
 import { getModule } from 'vuex-module-decorators';
-import { uniqueID } from 'src/utils/randomNumber';
-import Participant from 'src/models/Participant';
+import Participant, { createDefaultParticipant } from 'src/models/Participant';
 
 @Component
 export default class ListRoom extends Vue {
@@ -99,12 +103,11 @@ export default class ListRoom extends Vue {
 
     private joinRoom(roomToJoin: Room) {
         if (this.user) {
-            const participant: Participant = {
-                id: uniqueID(),
+            let participant = createDefaultParticipant();
+
+            participant = {
+                ...participant,
                 user: this.user,
-                answerHistory: [],
-                currentQuestionNumber: 0,
-                hasFinished: false,
             };
 
             this.socket.joinRoom({ roomToJoin, participant });

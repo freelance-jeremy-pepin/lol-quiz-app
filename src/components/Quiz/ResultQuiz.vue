@@ -7,7 +7,7 @@
         <q-separator></q-separator>
 
         <q-card-section class="text-h5">
-            <div>Score:</div>
+            <div>Score</div>
             <span class="text-bold text-primary">{{ score }} </span>
             <span class="text-grey">/ {{ numberQuestions }}</span>
         </q-card-section>
@@ -19,10 +19,16 @@
         </q-card-section>
 
         <q-card-section class="q-gutter-y-md">
-            <q-btn class="full-width" color="primary" @click="$emit('play-again')">Play again!
+            <q-btn
+                class="full-width"
+                color="primary"
+                @click="$emit('play-again')"
+            >
+                Play again!
             </q-btn>
 
-            <q-btn class="full-width" color="accent" @click="$emit('view-history')">View history
+            <q-btn class="full-width" color="accent" @click="$emit('view-history')">
+                View history
             </q-btn>
         </q-card-section>
     </q-card>
@@ -30,7 +36,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Time } from 'src/const';
+import { Time } from 'src/models/Time';
 
 @Component
 export default class ResultQuiz extends Vue {

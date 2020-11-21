@@ -10,10 +10,10 @@ const routes: RouteConfig[] = [
     },
 
     {
-        path: '/quiz/name-quiz',
+        path: '/quiz/item-name-quiz',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Quiz/NameQuizPage.vue') },
+            { path: '', component: () => import('pages/Quiz/ItemNameQuizPage.vue') },
         ],
         props: true,
     },

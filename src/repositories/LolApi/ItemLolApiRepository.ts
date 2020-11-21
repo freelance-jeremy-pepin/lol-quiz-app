@@ -1,10 +1,9 @@
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import axios, { AxiosResponse } from 'axios';
-import LoLApiVersionModule from '../store/modules/LolApi/VersionLolApiStore';
+import LoLApiVersionModule from '../../store/modules/LolApi/VersionLolApiStore';
+import LolApiRepository from './LolApiRepository';
 
-export default class ItemRepository {
-    private baseUrl: string = LoLApiVersionModule.version ? `http://ddragon.leagueoflegends.com/cdn/${LoLApiVersionModule.version}` : '';
-
+export default class ItemLolApiRepository extends LolApiRepository {
     public getAll(lang = 'en_US'): Promise<ItemLolApi[]> {
         return new Promise((resolve, reject) => {
             axios.get(`${this.baseUrl}/data/${lang}/item.json`)

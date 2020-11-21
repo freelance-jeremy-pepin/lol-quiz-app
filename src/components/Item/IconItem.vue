@@ -2,6 +2,7 @@
     <q-img
         :src="imageUrl"
         :style="`width: ${item.image.w}px; height: ${item.image.h};`"
+        class="q-ma-none"
     >
         <q-tooltip v-if="withTooltip" content-class="bg-black" content-style="font-size: 16px;">
             <div class="text-primary text-bold">{{ item.name }}</div>
@@ -15,7 +16,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import ItemRepository from 'src/repositories/itemRepository';
+import ItemLolApiRepository from 'src/repositories/LolApi/ItemLolApiRepository';
 
 @Component
 export default class IconItem extends Vue {
@@ -31,7 +32,7 @@ export default class IconItem extends Vue {
 
     private get imageUrl(): string {
         if (this.item.id) {
-            return new ItemRepository().getImageUrl(this.item.id);
+            return new ItemLolApiRepository().getImageUrl(this.item.id);
         }
 
         return '';

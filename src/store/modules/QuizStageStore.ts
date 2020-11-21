@@ -14,7 +14,7 @@ export enum QuizStage {
 @Module({
     dynamic: true,
     store,
-    name: 'quiz',
+    name: 'quizStage',
     namespaced: true,
 })
 class QuizStageStore extends VuexModule {
