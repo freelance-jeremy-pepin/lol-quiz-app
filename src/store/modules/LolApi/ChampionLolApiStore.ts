@@ -1,13 +1,13 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
-import ChampionRepository from 'src/repositories/championRepository';
+import ChampionLolApiRepository from 'src/repositories/LolApi/ChampionLolApiRepository';
 
 @Module({
     dynamic: true,
     store,
     name: 'lolApi/champions',
-    namespaced: true
+    namespaced: true,
 })
 class ChampionLolApiStore extends VuexModule {
     // region State
@@ -19,8 +19,8 @@ class ChampionLolApiStore extends VuexModule {
     // region Mutation
 
     @Mutation
-    public setChampions(items: ChampionLolApi[]) {
-        this._champions = items;
+    public setChampions(champions: ChampionLolApi[]) {
+        this._champions = champions;
     }
 
     // endregion
@@ -29,13 +29,13 @@ class ChampionLolApiStore extends VuexModule {
 
     @Action
     public fetchChampions(lang = 'en_US') {
-        new ChampionRepository().getAll(lang)
-        .then((items: ChampionLolApi[]) => {
-            this.setChampions(items);
-        })
-        .catch(() => {
-            throw new Error('Unable to fetch items');
-        });
+        new ChampionLolApiRepository().getAll(lang)
+            .then((champions: ChampionLolApi[]) => {
+                this.setChampions(champions);
+            })
+            .catch(() => {
+                throw new Error('Unable to fetch champions.');
+            });
     }
 
     // endregion

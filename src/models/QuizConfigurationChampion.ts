@@ -8,6 +8,6 @@ export default interface QuizConfigurationChampion extends QuizConfiguration {
 export function createDefaultQuizConfigurationChampion(): QuizConfigurationChampion {
     return {
         ...createDefaultQuizConfiguration(),
-        champions: []
+        champions: [],
     };
 }

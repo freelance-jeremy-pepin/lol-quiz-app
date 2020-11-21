@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="lHh Lpr lFf" >
+    <q-layout view="lHh Lpr lFf">
         <q-header elevated>
             <q-toolbar :class="$q.dark.isActive ? 'bg-grey-10' : 'bg-primary'">
                 <q-toolbar-title class="cursor-pointer" @click="$router.push('/')">
@@ -9,7 +9,7 @@
                 <q-btn v-if="user" flat>
                     {{ user.pseudo }}
                     <q-popup-edit v-model="pseudo" auto-save>
-                        <q-input v-model="pseudo" autofocus dense/>
+                        <q-input v-model="pseudo" autofocus dense />
                     </q-popup-edit>
                 </q-btn>
 
@@ -24,7 +24,7 @@
         </q-header>
 
         <q-page-container>
-            <router-view/>
+            <router-view />
         </q-page-container>
     </q-layout>
 </template>
@@ -67,22 +67,22 @@ export default class MainLayout extends Vue {
     // noinspection JSUnusedLocalSymbols
     private mounted() {
         UserStore.restoreUser()
-        .then((user) => {
-            if (!user) {
-                UserStore.createNewUser();
-            }
-        });
+            .then((user) => {
+                if (!user) {
+                    UserStore.createNewUser();
+                }
+            });
 
         this.restoreDarkModeFromLocalStorage();
 
         VersionLolApiStore.fetchVersion()
-        .then(() => {
-            LoLApiItemsModule.fetchItems();
-            ChampionLolApiStore.fetchChampions();
-        })
-        .catch((e) => {
-            throw new Error(e);
-        });
+            .then(() => {
+                LoLApiItemsModule.fetchItems();
+                ChampionLolApiStore.fetchChampions();
+            })
+            .catch((e) => {
+                throw new Error(e);
+            });
     }
 
     // endregion

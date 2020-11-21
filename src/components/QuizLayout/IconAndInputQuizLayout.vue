@@ -77,8 +77,10 @@
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history"
-                   @click="$emit('view-history')"/>
+            <q-btn
+                color="accent" fab icon="history"
+                @click="$emit('view-history')"
+            />
         </q-page-sticky>
     </div>
 </template>
@@ -97,7 +99,7 @@ import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 
 @Component({
-    components: { ResultQuiz, StopWatch, ShortcutsQuiz }
+    components: { ResultQuiz, StopWatch, ShortcutsQuiz },
 })
 export default class IconAndInputQuizLayout extends Vue {
     // region Props
@@ -241,7 +243,7 @@ export default class IconAndInputQuizLayout extends Vue {
         if (user) {
             QuizStore.setParticipant({
                 ...QuizStore.participant,
-                user
+                user,
             });
         }
     }

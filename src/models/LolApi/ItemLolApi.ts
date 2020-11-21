@@ -1,5 +1,5 @@
-import ItemStatsLolApi from './ItemStatsLolApi';
 import MapsLolApi from 'src/models/LolApi/MapsLolApi';
+import ItemStatsLolApi from './ItemStatsLolApi';
 import ImageLolApi from './ImageLolApi';
 
 export default interface ItemLolApi {

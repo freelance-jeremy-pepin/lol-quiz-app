@@ -1,7 +1,7 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import ItemRepository from 'src/repositories/itemRepository';
+import ItemLolApiRepository from 'src/repositories/LolApi/ItemLolApiRepository';
 
 @Module({
     dynamic: true,
@@ -29,12 +29,12 @@ class ItemLolApiStore extends VuexModule {
 
     @Action
     public fetchItems(lang = 'en_US') {
-        new ItemRepository().getAll(lang)
+        new ItemLolApiRepository().getAll(lang)
             .then((items: ItemLolApi[]) => {
                 this.setItems(items);
             })
             .catch(() => {
-                throw new Error('Unable to fetch items');
+                throw new Error('Unable to fetch items.');
             });
     }
 
