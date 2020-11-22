@@ -87,7 +87,7 @@ export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigu
     private createRoom() {
         this.internalRoom.quizConfiguration = this.specialiseQuizConfiguration(this.internalRoom.quizConfiguration);
 
-        this.roomSocketStore.createRoom(this.internalRoom);
+        this.roomSocketStore.createOrUpdateRoom(this.internalRoom);
     }
 
     private hide() {

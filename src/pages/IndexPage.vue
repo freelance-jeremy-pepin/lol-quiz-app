@@ -47,6 +47,7 @@ export default class PageIndex extends Vue {
         this.$router.push({
             path: `/quiz/${this.internalQuizConfiguration.quiz.internalName}`,
             query: {
+                quiz: this.internalQuizConfiguration.quiz.id.toString(),
                 numberQuestions: this.internalQuizConfiguration.numberQuestions.toString(),
                 withStopWatch: this.internalQuizConfiguration.withStopWatch.toString(),
             },

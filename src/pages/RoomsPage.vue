@@ -53,7 +53,7 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
     // region Computed properties
 
     private get rooms(): Room[] {
-        return this.roomSocketStore.rooms;
+        return this.roomSocketStore.roomsNotInGame;
     }
 
     private get roomJoined(): Room | null {
@@ -76,15 +76,6 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
 
     private mounted() {
         this.roomSocketStore.getAllRooms();
-    }
-
-    // endregion
-
-    // region Events handlers
-
-    private onCreateRoom() {
-        this.roomSocketStore.createRoom(this.newRoom);
-        this.newRoom.name = '';
     }
 
     // endregion

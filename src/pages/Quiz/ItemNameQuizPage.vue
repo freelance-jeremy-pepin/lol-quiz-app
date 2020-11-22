@@ -34,7 +34,7 @@ import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import { copyToClipboard } from 'quasar';
-import { randomNumber, uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/randomNumber';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
@@ -46,6 +46,7 @@ import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
+import { quizList } from 'src/models/Quiz';
 
 @Component({
     components: {
@@ -111,12 +112,6 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      * @private
      */
     private itemToGuess: ItemLolApi | null = null;
-
-    /**
-     * Liste des objets à trouver par le participant.
-     * @private
-     */
-    private itemsToFind: ItemLolApi[] | null = null;
 
     /**
      * Réponse donnée par le participant.
@@ -244,8 +239,15 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
 
             this.roomSocketStore.getRoomById({ id: this.$route.query.room.toString(), user: this.me });
         } else {
+            const quiz = quizList.find(q => q.id === this.$route.query.quiz);
+
+            if (!quiz) {
+                throw new Error('Unknown quiz');
+            }
+
             this.quizConfigurationItem = {
                 ...this.quizConfigurationItem,
+                quiz,
                 numberQuestions: this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 5,
                 withStopWatch: this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false,
             };
@@ -291,9 +293,7 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
             currentQuestionNumber: this.participant.currentQuestionNumber + 1,
         };
 
-        if (this.itemsToFind) {
-            this.itemToGuess = this.itemsToFind[this.participant.currentQuestionNumber - 1];
-        }
+        this.itemToGuess = this.quizConfigurationItem.items[this.participant.currentQuestionNumber - 1];
 
         this.addEmptyAnswerToHistory();
 
@@ -384,8 +384,6 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         };
 
         if (!this.isMultiplayer) {
-            this.itemsToFind = [];
-
             this.quizConfigurationItem = this.specialiseQuizConfiguration(this.quizConfigurationItem) as QuizConfigurationItem;
         }
     }
@@ -426,7 +424,6 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         if (this.isMultiplayer) {
             if (this.roomSocketStore.room) {
                 this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
-                this.itemsToFind = this.quizConfigurationItem.items;
                 this.pickNextItem();
             } else {
                 this.quizStageStore.setUnknownRoom();

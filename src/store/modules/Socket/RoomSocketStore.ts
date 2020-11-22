@@ -40,8 +40,17 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_ROOM_CREATED(room: Room) {
-        this._rooms.push(room);
+    public SOCKET_ROOM_CREATED_OR_UPDATED(room: Room) {
+        // Cherche la salle.
+        const indexFound = this._rooms.findIndex(r => r.id === room.id);
+
+        // Si la salle existe, la modifie.
+        // Sinon l'ajoute.
+        if (indexFound > -1) {
+            this._rooms = this._rooms.map(r => (r.id === room.id ? room : r));
+        } else {
+            this._rooms.push(room);
+        }
     }
 
     @Mutation
@@ -98,8 +107,8 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Action({ rawError: true })
-    public createRoom(newRoom: Room) {
-        socket.emit('create_room', newRoom);
+    public createOrUpdateRoom(room: Room) {
+        socket.emit('create_or_update_room', room);
     }
 
     @Action({ rawError: true })
@@ -128,6 +137,10 @@ export default class RoomSocketStore extends VuexModule {
 
     public get rooms(): Room[] {
         return this._rooms;
+    }
+
+    public get roomsNotInGame(): Room[] {
+        return this._rooms.filter(r => !r.inGame);
     }
 
     public get room(): Room | undefined | null {

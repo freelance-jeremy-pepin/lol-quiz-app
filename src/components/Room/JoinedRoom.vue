@@ -107,6 +107,8 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
     @Watch('allParticipantsAreReady')
     private onAllParticipantsAreReady() {
         if (this.allParticipantsAreReady) {
+            this.roomSocketStore.createOrUpdateRoom({ ...this.room, inGame: true });
+
             this.$router.push({
                 path: `/quiz/${this.room.quizConfiguration.quiz.internalName}`,
                 query: {
