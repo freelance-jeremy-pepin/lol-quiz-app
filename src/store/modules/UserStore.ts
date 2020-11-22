@@ -1,6 +1,6 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import User from 'src/models/User';
+import User, { createDefaultUser } from 'src/models/User';
 import { randomNumber, uniqueID } from 'src/utils/randomNumber';
 import { LocalStorage } from 'quasar';
 
@@ -13,18 +13,16 @@ import { LocalStorage } from 'quasar';
 class UserStore extends VuexModule {
     // region State
 
-    private _me?: User = undefined;
+    private _me: User = createDefaultUser();
 
     // endregion
 
     // region Mutation
 
     @Mutation
-    public setMe(user: User | undefined) {
-        if (user) {
-            this._me = user;
-            LocalStorage.set('user', user);
-        }
+    public setMe(user: User) {
+        this._me = user;
+        LocalStorage.set('user', user);
     }
 
     // endregion
@@ -67,7 +65,7 @@ class UserStore extends VuexModule {
 
     // region Getters
 
-    public get me(): User | undefined {
+    public get me(): User {
         return this._me;
     }
 

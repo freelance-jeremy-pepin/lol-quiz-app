@@ -19,7 +19,7 @@
         </q-header>
 
         <q-page-container>
-            <router-view />
+            <router-view v-if="Object.values(loadings).every(loading => loading === false)" />
         </q-page-container>
     </q-layout>
 </template>
@@ -39,6 +39,14 @@ import User from 'src/models/User';
     components: { PseudoUser },
 })
 export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
+    // region Data
+
+    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = { me: true, version: true, items: true, champions: true };
+
+    private isError: boolean = false;
+
+    // endregion
+
     // region Computed properties
 
     private get version(): string | undefined {
@@ -51,13 +59,16 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
 
     // noinspection JSUnusedLocalSymbols
     private mounted() {
+        this.loadings = { me: true, version: true, items: true, champions: true };
+        this.isError = false;
+
         this.userSocketStore.getAllUsers();
 
         this.restoreMe();
 
         this.restoreDarkModeFromLocalStorage();
 
-        this.fetchItems();
+        this.fetchDataLolApi();
     }
 
     // endregion
@@ -78,19 +89,60 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
         UserStore.restoreMe()
             .then((user) => {
                 if (!user) {
-                    UserStore.createNewGuest();
+                    UserStore.createNewGuest()
+                        .catch(() => {
+                            this.isError = true;
+                        })
+                        .finally(() => {
+                            this.loadings.me = false;
+                        });
+                }
+            })
+            .catch(() => {
+                this.isError = true;
+            })
+            .finally(() => {
+                // Si le restoreMe a fonctionné.
+                if (this.me.id) {
+                    this.loadings.me = false;
                 }
             });
     }
 
-    private fetchItems() {
+    private fetchDataLolApi() {
         VersionLolApiStore.fetchVersion()
             .then(() => {
-                LoLApiItemsModule.fetchItems();
-                ChampionLolApiStore.fetchChampions();
+                this.fetchItems();
+                this.fetchChampions();
             })
             .catch((e) => {
+                this.isError = true;
                 throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.version = false;
+            });
+    }
+
+    private fetchItems() {
+        LoLApiItemsModule.fetchItems()
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.items = false;
+            });
+    }
+
+    private fetchChampions() {
+        ChampionLolApiStore.fetchChampions()
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.champions = false;
             });
     }
 

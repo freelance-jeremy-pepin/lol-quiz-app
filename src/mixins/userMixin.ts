@@ -7,11 +7,11 @@ import UserStore from 'src/store/modules/UserStore';
 export default class UserMixin extends Mixins(SocketMixin) {
     // region Computed properties
 
-    public get me(): User | undefined {
+    public get me(): User {
         return UserStore.me;
     }
 
-    public set me(user: User | undefined) {
+    public set me(user: User) {
         UserStore.setMe(user);
     }
 
@@ -23,7 +23,7 @@ export default class UserMixin extends Mixins(SocketMixin) {
         return this.userSocketStore.users.find(u => u.id === id) || undefined;
     }
 
-    public getPseudoById(id: string | undefined): string {
+    public getPseudoById(id: string): string {
         if (id) {
             return this.findUserById(id)?.pseudo || 'Unknown';
         }

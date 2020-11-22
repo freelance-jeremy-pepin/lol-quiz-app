@@ -8,6 +8,7 @@ export default interface Room extends Model {
     quizConfiguration: QuizConfiguration;
     ownerId: string; // Id d'un User.
     participants: Participant[];
+    inGame: boolean;
 }
 
 export function createDefaultRoom(): Room {
@@ -17,5 +18,6 @@ export function createDefaultRoom(): Room {
         name: '',
         ownerId: '',
         participants: [],
+        inGame: false,
     };
 }

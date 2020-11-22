@@ -9,6 +9,14 @@
             @view-history="$emit('view-history')"
         ></result-quiz>
 
+        <div v-else-if="quizStageStore.isLoading" class="text-center">
+            <q-spinner color="primary" size="3em"></q-spinner>
+        </div>
+
+        <div v-else-if="quizStageStore.isUnknownRoom" class="text-center text-bold text-negative">
+            Room does not exists!
+        </div>
+
         <div v-else class="q-gutter-y-sm">
             <card-with-title-and-action
                 :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
@@ -16,11 +24,7 @@
                 :action-label="quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
                 @action="$emit('verify-answer')"
             >
-                <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
-                    <q-spinner color="primary" size="3em"></q-spinner>
-                </q-card-section>
-
-                <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+                <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
 
                     <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>

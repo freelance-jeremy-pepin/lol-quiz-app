@@ -1,6 +1,5 @@
 <template>
     <q-dialog
-        v-if="user"
         v-model="$attrs.value"
         v-bind="$attrs"
         v-on="$listeners"
@@ -34,15 +33,15 @@
 import { Component, Mixins } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
-import UserStore from 'src/store/modules/UserStore';
-import User from 'src/models/User';
 import SocketMixin from 'src/mixins/socketMixin';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component({
     components: { CardWithTitleAndAction, FormQuizConfiguration },
 })
-export default class FormRoom extends Mixins(SocketMixin) {
+export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigurationMixin) {
     // region Data
 
     private internalRoom: Room = createDefaultRoom();
@@ -51,17 +50,9 @@ export default class FormRoom extends Mixins(SocketMixin) {
 
     // region Computed properties
 
-    private get user(): User | undefined {
-        return UserStore.me;
-    }
-
     public get totalRoomsOfUser(): number {
-        if (this.user?.id) {
-            const userID = this.user.id;
-            return this.roomSocketStore.rooms.filter(r => r.ownerId === userID).length;
-        }
-
-        return 0;
+        const userID = this.me.id;
+        return this.roomSocketStore.rooms.filter(r => r.ownerId === userID).length;
     }
 
     // endregion
@@ -85,19 +76,17 @@ export default class FormRoom extends Mixins(SocketMixin) {
     // region Methods
 
     private initRoom() {
-        if (this.user) {
-            this.internalRoom = createDefaultRoom();
-            this.internalRoom.name = `${this.user.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
-        }
+        this.internalRoom = createDefaultRoom();
+        this.internalRoom.name = `${this.me.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
     }
 
     private setOwner() {
-        if (this.user) {
-            this.internalRoom.ownerId = this.user.id;
-        }
+        this.internalRoom.ownerId = this.me.id;
     }
 
     private createRoom() {
+        this.internalRoom.quizConfiguration = this.specialiseQuizConfiguration(this.internalRoom.quizConfiguration);
+
         this.roomSocketStore.createRoom(this.internalRoom);
     }
 

@@ -43,9 +43,7 @@ export default class extends Mixins(UserMixin) {
     // region Methods
 
     private savePseudo() {
-        if (this.me) {
-            this.me = { id: this.me.id, pseudo: this.internalPseudo };
-        }
+        this.me = { id: this.me.id, pseudo: this.internalPseudo };
     }
 
     // endregion

@@ -1,4 +1,5 @@
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
+import SocketMixin from 'src/mixins/socketMixin';
 
 @Component({
     filters: {
@@ -11,5 +12,5 @@ import { Component, Vue } from 'vue-property-decorator';
         },
     },
 })
-export default class ParticipantMixin extends Vue {
+export default class ParticipantMixin extends Mixins(SocketMixin) {
 }

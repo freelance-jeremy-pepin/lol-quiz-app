@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator';
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 import Room from 'src/models/Room';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import SocketMixin from 'src/mixins/socketMixin';
@@ -62,6 +62,10 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
 
     private get participant(): Participant | undefined {
         return this.room.participants.find(p => p.userId === this.me?.id);
+    }
+
+    private get allParticipantsAreReady(): boolean {
+        return this.room.participants.every(p => p.isReady);
     }
 
     // endregion
@@ -93,6 +97,22 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
         if (this.participant) {
             const participant = { ...this.participant, isReady: !this.participant?.isReady };
             this.roomSocketStore.updateParticipant({ room: this.room, participant });
+        }
+    }
+
+    // endregion
+
+    // region Watchers
+
+    @Watch('allParticipantsAreReady')
+    private onAllParticipantsAreReady() {
+        if (this.allParticipantsAreReady) {
+            this.$router.push({
+                path: `/quiz/${this.room.quizConfiguration.quiz.internalName}`,
+                query: {
+                    room: this.room.id.toString(),
+                },
+            });
         }
     }
 

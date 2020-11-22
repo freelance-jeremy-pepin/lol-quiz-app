@@ -3,6 +3,7 @@ import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import Room from 'src/models/Room.ts';
 import { socket } from 'boot/socket.io';
 import Participant from 'src/models/Participant';
+import User from 'src/models/User';
 
 @Module({
     name: 'socket/room',
@@ -11,6 +12,8 @@ export default class RoomSocketStore extends VuexModule {
     // region State
 
     private _rooms: Room[] = [];
+
+    private _room?: Room | null = undefined;
 
     // endregion
 
@@ -29,6 +32,11 @@ export default class RoomSocketStore extends VuexModule {
     @Mutation
     public SOCKET_ALL_ROOMS(rooms: Room[]) {
         this._rooms = rooms;
+    }
+
+    @Mutation
+    public SOCKET_ROOM_BY_ID(room: Room | null) {
+        this._room = room;
     }
 
     @Mutation
@@ -80,7 +88,13 @@ export default class RoomSocketStore extends VuexModule {
 
     @Action({ rawError: true })
     public getAllRooms() {
+        this._room = undefined;
         socket.emit('get_all_rooms');
+    }
+
+    @Action({ rawError: true })
+    public getRoomById(payload: { id: string, user: User }) {
+        socket.emit('get_room_by_id', payload.id, payload.user);
     }
 
     @Action({ rawError: true })
@@ -114,6 +128,10 @@ export default class RoomSocketStore extends VuexModule {
 
     public get rooms(): Room[] {
         return this._rooms;
+    }
+
+    public get room(): Room | undefined | null {
+        return this._room;
     }
 
     // endregion

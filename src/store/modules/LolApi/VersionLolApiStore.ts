@@ -1,6 +1,6 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 
 @Module({
     dynamic: true,
@@ -35,8 +35,8 @@ class VersionLolApiStore extends VuexModule {
                     this.setVersion(version);
                     resolve(version);
                 })
-                .catch(() => {
-                    reject('Unable to fetch version.');
+                .catch((e: AxiosError) => {
+                    reject(e);
                 });
         });
     }

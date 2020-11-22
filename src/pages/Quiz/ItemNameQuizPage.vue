@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Mixins, Watch } from 'vue-property-decorator';
 import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
@@ -43,6 +43,9 @@ import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHist
 import QuizConfigurationItem, { createDefaultQuizConfigurationItem } from 'src/models/QuizConfigurationItem';
 import QuizStore from 'src/store/modules/QuizStore';
 import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
+import SocketMixin from 'src/mixins/socketMixin';
+import UserMixin from 'src/mixins/userMixin';
+import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 
 @Component({
     components: {
@@ -52,7 +55,13 @@ import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
         ResultQuiz,
     },
 })
-export default class ItemNameQuizPage extends Vue {
+export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin) {
+    // region Data
+
+    private isMultiplayer: boolean = false;
+
+    // endregion
+
     // region Computed properties
 
     /**
@@ -60,7 +69,7 @@ export default class ItemNameQuizPage extends Vue {
      * Les objets tels que les consommables et nécessitant un champion sont exclus.
      * @private
      */
-    private get items(): ItemLolApi[] | undefined {
+    private get items(): ItemLolApi[] {
         return ItemLolApiStore.itemsFilteredForQuiz;
     }
 
@@ -214,7 +223,9 @@ export default class ItemNameQuizPage extends Vue {
     private startNewQuiz() {
         this.resetQuiz();
 
-        this.onPickNextItem();
+        if (!this.isMultiplayer) {
+            this.onPickNextItem();
+        }
 
         QuizStageStore.setAnswering();
     }
@@ -226,11 +237,19 @@ export default class ItemNameQuizPage extends Vue {
     private initQuizConfigurationItem() {
         this.quizConfigurationItem = createDefaultQuizConfigurationItem();
 
-        this.quizConfigurationItem = {
-            ...this.quizConfigurationItem,
-            numberQuestions: this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 5,
-            withStopWatch: this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false,
-        };
+        // Si la salle est renseignée, cela veut dire que le quiz est fait en multi joueur.
+        // Sinon, le quiz est fait en solo.
+        if (this.$route.query.room) {
+            this.isMultiplayer = true;
+
+            this.roomSocketStore.getRoomById({ id: this.$route.query.room.toString(), user: this.me });
+        } else {
+            this.quizConfigurationItem = {
+                ...this.quizConfigurationItem,
+                numberQuestions: this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 5,
+                withStopWatch: this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false,
+            };
+        }
     }
 
     /**
@@ -364,20 +383,10 @@ export default class ItemNameQuizPage extends Vue {
             answersHistoryItem: [],
         };
 
-        this.itemsToFind = [];
+        if (!this.isMultiplayer) {
+            this.itemsToFind = [];
 
-        // Construit la liste des objets à deviner.
-        if (this.items) {
-            let itemsToPick: ItemLolApi[] = [...this.items];
-            for (let i = 0; i < this.quizConfigurationItem.numberQuestions; i++) {
-                if (itemsToPick.length < 1) {
-                    itemsToPick = [...this.items];
-                }
-
-                const randomIndex = randomNumber(0, itemsToPick.length - 1);
-                this.itemsToFind.push(itemsToPick[randomIndex]);
-                itemsToPick.splice(randomIndex, 1);
-            }
+            this.quizConfigurationItem = this.specialiseQuizConfiguration(this.quizConfigurationItem) as QuizConfigurationItem;
         }
     }
 
@@ -410,6 +419,19 @@ export default class ItemNameQuizPage extends Vue {
     @Watch('quizStageStore.stage', { immediate: true })
     public onQuizStageChanged() {
         this.firstStartNewQuiz();
+    }
+
+    @Watch('roomSocketStore.room')
+    public onRoomChanged() {
+        if (this.isMultiplayer) {
+            if (this.roomSocketStore.room) {
+                this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
+                this.itemsToFind = this.quizConfigurationItem.items;
+                this.pickNextItem();
+            } else {
+                this.quizStageStore.setUnknownRoom();
+            }
+        }
     }
 
     // endregion
