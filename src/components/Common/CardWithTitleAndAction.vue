@@ -1,7 +1,7 @@
 <template>
     <q-card
         :align="centerContent ? 'center' : ''"
-        :style="`max-width: ${maxWidth}px; width: 100%;`"
+        :style="`max-width: ${maxWidth}px !important; width: 100% !important;`"
     >
         <q-card-section v-if="title" align="center" class="bg-primary text-white">
             <div class="text-h3">{{ title }}</div>

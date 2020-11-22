@@ -3,7 +3,7 @@
         <q-card style="max-width: 500px; width: 100%;">
             <q-list>
                 <line-answer-history-item
-                    v-for="(answerHistoryItem, index) in answersHistoryItem"
+                    v-for="(answerHistoryItem, index) in answersHistoryItemReversed"
                     :key="answerHistoryItem.id"
                     :answer-history-item="answerHistoryItem"
                     :is-last="index === answersHistoryItem.length - 1"
@@ -26,6 +26,14 @@ export default class AnswersHistoryList extends Vue {
     // region Props
 
     @Prop({ required: true }) answersHistoryItem!: AnswerHistoryItem[];
+
+    // endregion
+
+    // region Computed properties
+
+    private get answersHistoryItemReversed(): AnswerHistoryItem[] {
+        return [...this.answersHistoryItem].reverse();
+    }
 
     // endregion
 }

@@ -2,6 +2,7 @@
     <div class="full-width">
         <result-quiz
             v-if="quizStageStore.isQuizFinished"
+            :is-multiplayer="isMultiplayer"
             :number-questions="quizConfiguration.numberQuestions"
             :score="participant.score"
             :time="quizConfiguration.withStopWatch ? participant.completeTime : null"

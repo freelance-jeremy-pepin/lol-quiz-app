@@ -1,6 +1,6 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <div class="column items-center" style="max-width: 300px; width: 100%;">
+        <div class="column items-center" style="max-width: 350px; width: 100%;">
             <icon-and-input-quiz-layout
                 ref="quiz"
                 v-model="answer"
@@ -280,14 +280,14 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      * Sélectionne le prochain objet.
      * @private
      */
-    private pickNextItem() {
+    private pickNextItem(addEmptyAnswerToHistory: boolean = true) {
         // Si la question actuelle du participant dépasse le nombre total de questions du quiz,
         // cela veut dire qu'il a terminé le quiz.
         // Sinon, sélectionne le prochain objet.
         if (this.participant.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
             QuizStageStore.setQuizFinished();
 
-            if (this.isMultiplayer) {
+            if (this.isMultiplayer && this.roomSocketStore.room) {
                 this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: { ...this.participant, hasFinished: true } });
             }
 
@@ -301,7 +301,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
 
         this.itemToGuess = this.quizConfigurationItem.items[this.participant.currentQuestionNumber - 1];
 
-        this.addEmptyAnswerToHistory();
+        if (addEmptyAnswerToHistory) {
+            this.addEmptyAnswerToHistory();
+        }
 
         QuizStageStore.setAnswering();
 
@@ -379,6 +381,11 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
                 answer: this.answer.trim(),
             }];
         }
+
+        // TODO: faire fonction
+        if (this.isMultiplayer && this.roomSocketStore.room) {
+            this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: this.participant });
+        }
     }
 
     /**
@@ -434,15 +441,22 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         if (this.isMultiplayer) {
             if (this.roomSocketStore.room) {
                 this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
-                this.participant = this.roomSocketStore.room.participants.find(p => p.userId === this.me.id);
 
-                // TODO: à revoir
-                // Si le participant a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
-                if (this.participant.currentQuestionNumber > 0 && !this.participant.hasFinished) {
-                    this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber - 1 };
+                const participantFound = this.roomSocketStore.room.participants.find(p => p.userId === this.me.id);
+
+                if (participantFound) {
+                    this.participant = participantFound;
+
+                    // TODO: à revoir
+                    // Si le participant a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
+                    let addEmptyAnswerToHistory = true;
+                    if (this.participant.currentQuestionNumber > 0 && !this.participant.hasFinished) {
+                        this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber - 1 };
+                        addEmptyAnswerToHistory = false;
+                    }
+
+                    this.pickNextItem(addEmptyAnswerToHistory);
                 }
-
-                this.pickNextItem();
             } else {
                 this.quizStageStore.setUnknownRoom();
             }

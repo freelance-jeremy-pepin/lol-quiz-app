@@ -26,29 +26,5 @@ export default class ProgressQuizMultiplayer extends Mixins(UserMixin) {
     @Prop({ required: true }) room!: Room;
 
     // endregion
-
-    // region Data
-
-    // endregion
-
-    // region Computed properties
-
-    // endregion
-
-    // region Hooks
-
-    // endregion
-
-    // region Event handlers
-
-    // endregion
-
-    // region Methods
-
-    // endregion
-
-    // region Watchers
-
-    // endregion
 }
 </script>
