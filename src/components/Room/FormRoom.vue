@@ -6,13 +6,9 @@
         v-on="$listeners"
         @before-show="onBeforeShow"
     >
-        <q-card align="center" style="max-width: 500px; width: 100%;">
-            <q-card-section class="bg-primary text-white">
-                <div class="text-h3">New room</div>
-            </q-card-section>
-
+        <card-with-title-and-action title="New room" action-label="Create room" :max-width="500" @action="onCreateRoom">
             <q-card-section>
-                <q-form class="q-gutter-y-lg" @submit="onCreateRoom">
+                <q-form @submit="onCreateRoom">
                     <q-input
                         v-model="internalRoom.name"
                         label="Room's name"
@@ -23,21 +19,9 @@
                     <form-quiz-configuration
                         v-model="internalRoom.quizConfiguration"
                     ></form-quiz-configuration>
-
                 </q-form>
             </q-card-section>
-
-            <q-card-actions class="q-pa-none">
-                <q-btn
-                    class="full-width"
-                    style="border-top-left-radius: 0; border-top-right-radius: 0;"
-                    color="accent"
-                    size="lg"
-                    type="submit"
-                >Create room
-                </q-btn>
-            </q-card-actions>
-        </q-card>
+        </card-with-title-and-action>
     </q-dialog>
 </template>
 
@@ -48,9 +32,10 @@ import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfigur
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import SocketMixin from 'src/mixins/socketMixin';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 
 @Component({
-    components: { FormQuizConfiguration },
+    components: { CardWithTitleAndAction, FormQuizConfiguration },
 })
 export default class FormRoom extends Mixins(SocketMixin) {
     // region Data

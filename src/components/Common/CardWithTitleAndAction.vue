@@ -1,0 +1,43 @@
+<template>
+    <q-card :align="centerContent ? 'center' : ''" :style="`max-width: ${maxWidth}px; width: 100%;`">
+        <q-card-section align="center" class="bg-primary text-white" v-if="title">
+            <div class="text-h3">{{ title }}</div>
+        </q-card-section>
+
+        <slot></slot>
+
+        <q-card-actions class="q-pa-none">
+            <q-btn
+                class="full-width"
+                :color="actionColor"
+                size="lg"
+                style="border-top-left-radius: 0; border-top-right-radius: 0;"
+                @click="$emit('action')"
+            >{{ actionLabel }}
+            </q-btn>
+        </q-card-actions>
+    </q-card>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator';
+
+@Component
+export default class CardWithTitleAndAction extends Vue {
+    // region Props
+
+    @Prop({ required: false }) title!: string;
+
+    @Prop({ required: true }) actionLabel!: string;
+
+    @Prop({ required: false, default: 'accent' }) actionColor!: string;
+
+    @Prop({ required: false, default: true, type: Boolean }) centerContent!: boolean;
+
+    @Prop({ required: false, default: false, type: Boolean }) actionDisable!: boolean;
+
+    @Prop({ required: false, default: 400 }) maxWidth!: number;
+
+    // endregion
+}
+</script>

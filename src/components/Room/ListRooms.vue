@@ -1,5 +1,5 @@
 <template>
-    <q-list bordered separator>
+    <q-list separator>
         <q-item v-for="room in rooms" :key="room.id">
             <q-item-section>
                 <q-item-label class="text-bold">
@@ -30,7 +30,11 @@
                         <q-menu>
                             <q-list style="min-width: 100px">
                                 <q-item v-close-popup clickable>
-                                    <q-item-section class="text-negative" @click="onDeleteRoom(room)">Delete room</q-item-section>
+                                    <q-item-section
+                                        class="text-negative"
+                                        @click="onDeleteRoom(room)"
+                                    >Delete room
+                                    </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>

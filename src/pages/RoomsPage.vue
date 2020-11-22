@@ -3,29 +3,15 @@
         <joined-room v-if="roomJoined" :room="roomJoined"></joined-room>
 
         <div v-else class="row justify-center" style="max-width: 500px; width: 100%;">
-            <q-card class="full-width">
-                <q-card-section class="bg-primary text-white text-center">
-                    <div class="text-h3">Rooms</div>
+            <card-with-title-and-action title="Rooms" action-label="Create room" :max-width="500" @action="formRoom.display = true" :action-disable="!user || !socketStore.isConnected" :center-content="false">
+                <q-card-section v-if="rooms.length > 0" class="q-pa-none">
+                    <list-rooms  :rooms="rooms"></list-rooms>
                 </q-card-section>
 
-                <q-card-section>
-                    <list-rooms v-if="rooms.length > 0" :rooms="rooms"></list-rooms>
-                    <div v-else class="text-center">No room.</div>
+                <q-card-section v-else>
+                    <div  class="text-center">No room.</div>
                 </q-card-section>
-
-                <q-separator></q-separator>
-
-                <q-card-actions align="right">
-                    <q-btn
-                        :disable="!user || !socketStore.isConnected"
-                        color="positive"
-                        flat
-                        @click="formRoom.display = true"
-                    >
-                        Create room
-                    </q-btn>
-                </q-card-actions>
-            </q-card>
+            </card-with-title-and-action>
 
             <form-room v-model="formRoom.display"></form-room>
         </div>
@@ -41,9 +27,10 @@ import User from 'src/models/User';
 import UserStore from 'src/store/modules/UserStore';
 import SocketMixin from 'src/mixins/socketMixin';
 import JoinedRoom from 'components/Room/JoinedRoom.vue';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 
 @Component({
-    components: { JoinedRoom, ListRooms, FormRoom },
+    components: { CardWithTitleAndAction, JoinedRoom, ListRooms, FormRoom },
 })
 export default class RoomsPage extends Mixins(SocketMixin) {
     // region Data

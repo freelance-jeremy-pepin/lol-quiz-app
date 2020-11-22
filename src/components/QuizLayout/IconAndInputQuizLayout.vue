@@ -10,7 +10,12 @@
         ></result-quiz>
 
         <div v-else class="q-gutter-y-sm">
-            <q-card>
+            <card-with-title-and-action
+                :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
+                :action-disable="quizStageStore.isVerifyingAnswer"
+                :action-label="quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
+                @action="$emit('verify-answer')"
+            >
                 <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
                     <q-spinner color="primary" size="3em"></q-spinner>
                 </q-card-section>
@@ -34,20 +39,8 @@
                         @input="$emit('input', answer)"
                         @keydown.enter.stop="$emit('verify-answer')"
                     ></q-input>
-
-                    <q-btn
-                        v-if="!quizStageStore.isDisplayAnswer"
-                        :color="quizStageStore.isWrong ? 'negative' : 'primary'"
-                        :disable="quizStageStore.isVerifyingAnswer"
-                        class="full-width"
-                        @click="$emit('verify-answer')"
-                    >
-                        {{
-                            quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'
-                        }}
-                    </q-btn>
                 </q-card-section>
-            </q-card>
+            </card-with-title-and-action>
 
             <q-btn
                 v-if="quizStageStore.isAnswering || quizStageStore.isWrong"
@@ -97,9 +90,10 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import QuizStore from 'src/store/modules/QuizStore';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 
 @Component({
-    components: { ResultQuiz, StopWatch, ShortcutsQuiz },
+    components: { CardWithTitleAndAction, ResultQuiz, StopWatch, ShortcutsQuiz },
 })
 export default class IconAndInputQuizLayout extends Vue {
     // region Props

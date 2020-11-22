@@ -8,7 +8,7 @@
                     <q-list style="min-width: 100px">
                         <div v-for="(quiz, index) in quizList" :key="quiz.id">
                             <q-item v-close-popup clickable>
-                                <q-item-section @click="internalQuizConfiguration.quiz = quiz">{{ quiz.name }}</q-item-section>
+                                <q-item-section @click="onQuizChanged(quiz)">{{ quiz.name }}</q-item-section>
                             </q-item>
                             <q-separator v-if="index !== quizList.length -1" />
                         </div>
@@ -73,6 +73,12 @@ export default class FormQuizConfiguration extends Vue {
     // endregion
 
     // region Events handlers
+
+    private onQuizChanged(quiz: Quiz) {
+        this.internalQuizConfiguration.quiz = quiz;
+
+        this.onInput();
+    }
 
     private onInput() {
         this.saveInLocalStorage();
