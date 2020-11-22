@@ -1,11 +1,13 @@
 <template>
     <div class="q-gutter-y-sm" style="max-width: 500px; width: 100%;">
-        <q-card class="full-width">
-
-            <q-card-section class="bg-primary text-h3 text-white ">
-                {{ room.name }}
-            </q-card-section>
-
+        <card-with-title-and-action
+            :action-color="participant.isReady | formatIsReadyColor"
+            :action-label="participant.isReady | formatIsReadyLabel"
+            :center-content="false"
+            :max-width="500"
+            :title="room.name"
+            @action="onToggleIsReady"
+        >
             <q-card-section>
                 <div class="text-bold text-h6">
                     Quiz:
@@ -18,17 +20,19 @@
                 </ul>
             </q-card-section>
 
-            <q-card-section>
+            <q-card-section class="q-pt-none">
                 <div class="text-bold text-h6">
                     Participants ({{ room.participants.length }}):
                 </div>
 
                 <div v-for="participant in room.participants" :key="participant.id">
                     {{ getPseudoById(participant.userId) }}
+                    <span :class="`text-${$options.filters.formatIsReadyColor(participant.isReady)}`" class="text-bold">
+                        ({{ participant.isReady | formatIsReadyLabel }})
+                    </span>
                 </div>
             </q-card-section>
-
-        </q-card>
+        </card-with-title-and-action>
 
         <q-btn class="full-width" color="grey" flat @click="onLeaveRoom">Leave room</q-btn>
     </div>
@@ -40,12 +44,25 @@ import Room from 'src/models/Room';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
+import Participant from 'src/models/Participant';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import ParticipantMixin from 'src/mixins/participantMixin';
 
-@Component
-export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin) {
+@Component({
+    components: { CardWithTitleAndAction },
+})
+export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin, ParticipantMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
+
+    // endregion
+
+    // region Computed properties
+
+    private get participant(): Participant | undefined {
+        return this.room.participants.find(p => p.userId === this.me?.id);
+    }
 
     // endregion
 
@@ -55,15 +72,27 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
         this.leaveRoom();
     }
 
+    private onToggleIsReady() {
+        this.toggleIsReady();
+    }
+
     // endregion
 
     // region Methods
 
     private leaveRoom() {
-        const participant = this.room.participants.find(p => p.userId === this.me?.id);
+        if (this.participant) {
+            this.roomSocketStore.leaveRoom({
+                roomToLeave: this.room,
+                participant: this.participant,
+            });
+        }
+    }
 
-        if (participant) {
-            this.roomSocketStore.leaveRoom({ roomToLeave: this.room, participant });
+    private toggleIsReady() {
+        if (this.participant) {
+            const participant = { ...this.participant, isReady: !this.participant?.isReady };
+            this.roomSocketStore.updateParticipant({ room: this.room, participant });
         }
     }
 

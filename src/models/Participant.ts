@@ -10,6 +10,7 @@ export default interface Participant extends Model {
     hasFinished: boolean;
     answersHistoryItem: AnswerHistoryItem[];
     completeTime: Time;
+    isReady: boolean;
 }
 
 export function createDefaultParticipant(): Participant {
@@ -21,5 +22,6 @@ export function createDefaultParticipant(): Participant {
         hasFinished: false,
         answersHistoryItem: [],
         completeTime: createDefaultTime(),
+        isReady: false,
     };
 }

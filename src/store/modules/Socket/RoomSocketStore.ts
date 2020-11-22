@@ -63,6 +63,17 @@ export default class RoomSocketStore extends VuexModule {
         });
     }
 
+    @Mutation
+    public SOCKET_PARTICIPANT_UPDATED(payload: { room: Room, participantUpdated: Participant }) {
+        this._rooms = this._rooms.map(r => {
+            if (r.id === payload.room.id) {
+                r.participants = r.participants.map(p => (p.id === payload.participantUpdated.id ? payload.participantUpdated : p));
+            }
+
+            return r;
+        });
+    }
+
     // endregion
 
     // region Action
@@ -90,6 +101,11 @@ export default class RoomSocketStore extends VuexModule {
     @Action({ rawError: true })
     public leaveRoom(payload: { roomToLeave: Room, participant: Participant }) {
         socket.emit('leave_room', payload.roomToLeave, payload.participant);
+    }
+
+    @Action({ rawError: true })
+    public updateParticipant(payload: { room: Room, participant: Participant }) {
+        socket.emit('update_participant', payload.room, payload.participant);
     }
 
     // endregion

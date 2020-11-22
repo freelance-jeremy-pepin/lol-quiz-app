@@ -26,7 +26,7 @@ class VersionLolApiStore extends VuexModule {
 
     // region Actions
 
-    @Action @Action({ rawError: true })
+    @Action({ rawError: true })
     public fetchVersion(): Promise<string> {
         return new Promise((resolve, reject) => {
             axios.get('https://ddragon.leagueoflegends.com/api/versions.json')
