@@ -4,6 +4,7 @@
             <icon-and-input-quiz-layout
                 ref="quiz"
                 v-model="answer"
+                :isMultiplayer="isMultiplayer"
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
@@ -285,6 +286,11 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         // Sinon, sélectionne le prochain objet.
         if (this.participant.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
             QuizStageStore.setQuizFinished();
+
+            if (this.isMultiplayer) {
+                this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: { ...this.participant, hasFinished: true } });
+            }
+
             return;
         }
 
@@ -298,6 +304,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         this.addEmptyAnswerToHistory();
 
         QuizStageStore.setAnswering();
+
+        if (this.isMultiplayer && this.roomSocketStore.room) {
+            this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: this.participant });
+        }
 
         if (process.env.NODE_ENV === 'development' && this.itemToGuess?.name) {
             copyToClipboard(this.itemToGuess.name);
@@ -424,6 +434,14 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         if (this.isMultiplayer) {
             if (this.roomSocketStore.room) {
                 this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
+                this.participant = this.roomSocketStore.room.participants.find(p => p.userId === this.me.id);
+
+                // TODO: à revoir
+                // Si le participant a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
+                if (this.participant.currentQuestionNumber > 0 && !this.participant.hasFinished) {
+                    this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber - 1 };
+                }
+
                 this.pickNextItem();
             } else {
                 this.quizStageStore.setUnknownRoom();

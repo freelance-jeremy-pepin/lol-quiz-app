@@ -22,16 +22,31 @@ export default class RoomSocketStore extends VuexModule {
     @Mutation
     public SOCKET_CONNECT() {
         this._rooms = [];
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
     public SOCKET_DISCONNECT() {
         this._rooms = [];
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
     public SOCKET_ALL_ROOMS(rooms: Room[]) {
         this._rooms = rooms;
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
@@ -51,11 +66,21 @@ export default class RoomSocketStore extends VuexModule {
         } else {
             this._rooms.push(room);
         }
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
     public SOCKET_ROOM_DELETED(roomDeleted: Room) {
         this._rooms = this._rooms.filter(r => r.id !== roomDeleted.id);
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
@@ -67,6 +92,11 @@ export default class RoomSocketStore extends VuexModule {
 
             return r;
         });
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
@@ -78,6 +108,11 @@ export default class RoomSocketStore extends VuexModule {
 
             return r;
         });
+
+        if (this._room) {
+            const roomId = this._room.id;
+            this._room = this._rooms.find(r => r.id === roomId);
+        }
     }
 
     @Mutation
@@ -89,6 +124,10 @@ export default class RoomSocketStore extends VuexModule {
 
             return r;
         });
+
+        if (this._room && this._room.id === payload.room.id) {
+            this._room.participants = this._room.participants.map(p => (p.id === payload.participantUpdated.id ? payload.participantUpdated : p));
+        }
     }
 
     // endregion

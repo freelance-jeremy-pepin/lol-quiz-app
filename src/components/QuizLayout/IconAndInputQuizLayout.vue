@@ -70,6 +70,14 @@
         </q-page-sticky>
 
         <q-page-sticky
+            v-if="isMultiplayer && room && !quizStageStore.isQuizFinished"
+            :offset="[18, 18]"
+            position="top-left"
+        >
+            <progress-quiz-multiplayer :room="room"></progress-quiz-multiplayer>
+        </q-page-sticky>
+
+        <q-page-sticky
             v-if="!quizStageStore.isQuizFinished"
             :offset="[18, 18]"
             position="bottom-right"
@@ -95,17 +103,22 @@ import QuizStore from 'src/store/modules/QuizStore';
 import User from 'src/models/User';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import UserMixin from 'src/mixins/userMixin';
+import SocketMixin from 'src/mixins/socketMixin';
+import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
+import Room from 'src/models/Room';
 
 @Component({
-    components: { CardWithTitleAndAction, ResultQuiz, StopWatch, ShortcutsQuiz },
+    components: { ProgressQuizMultiplayer, CardWithTitleAndAction, ResultQuiz, StopWatch, ShortcutsQuiz },
 })
-export default class IconAndInputQuizLayout extends Mixins(UserMixin) {
+export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixin) {
     // region Props
 
     /**
      * Configuration du quiz.
      */
     @Prop({ required: true }) quizConfiguration!: QuizConfiguration;
+
+    @Prop({ required: false, default: false, type: Boolean }) isMultiplayer!: boolean;
 
     // endregion
 
@@ -149,6 +162,14 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin) {
      */
     private set participant(participant: Participant) {
         QuizStore.setParticipant(participant);
+    }
+
+    private get room(): Room | undefined | null {
+        if (this.isMultiplayer) {
+            return this.roomSocketStore.room;
+        }
+
+        return undefined;
     }
 
     // endregion
