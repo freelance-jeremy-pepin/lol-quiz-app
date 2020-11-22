@@ -20,9 +20,11 @@ class UserStore extends VuexModule {
     // region Mutation
 
     @Mutation
-    public setMe(user: User) {
-        this._me = user;
-        LocalStorage.set('user', user);
+    public setMe(user: User | undefined) {
+        if (user) {
+            this._me = user;
+            LocalStorage.set('user', user);
+        }
     }
 
     // endregion
@@ -45,7 +47,7 @@ class UserStore extends VuexModule {
         });
     }
 
-    @Action
+    @Action({ rawError: true })
     public createNewGuest(): Promise<User> {
         return new Promise<User>((resolve) => {
             const newUser = {

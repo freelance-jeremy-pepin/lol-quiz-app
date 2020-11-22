@@ -1,6 +1,11 @@
 <template>
     <div class="q-gutter-y-sm">
-        <card-with-title-and-action title="Results" action-label="Play again!" :max-width="300" @action="$emit('play-again')">
+        <card-with-title-and-action
+            :max-width="300"
+            action-label="Play again!"
+            title="Results"
+            @action="$emit('play-again')"
+        >
             <q-card-section class="text-h5">
                 <div>Score</div>
                 <span class="text-bold text-primary">{{ score }} </span>

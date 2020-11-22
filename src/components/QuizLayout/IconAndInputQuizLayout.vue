@@ -79,7 +79,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import Participant from 'src/models/Participant';
@@ -88,14 +88,14 @@ import StopWatch from 'components/Common/StopWatch.vue';
 import { Time } from 'src/models/Time';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import QuizStore from 'src/store/modules/QuizStore';
-import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component({
     components: { CardWithTitleAndAction, ResultQuiz, StopWatch, ShortcutsQuiz },
 })
-export default class IconAndInputQuizLayout extends Vue {
+export default class IconAndInputQuizLayout extends Mixins(UserMixin) {
     // region Props
 
     /**
@@ -129,14 +129,6 @@ export default class IconAndInputQuizLayout extends Vue {
      */
     public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
-    }
-
-    /**
-     * Récupère l'utilisateur de l'application.
-     * @private
-     */
-    private get user(): User | undefined {
-        return UserStore.me;
     }
 
     /**
@@ -232,12 +224,12 @@ export default class IconAndInputQuizLayout extends Vue {
     /**
      * Synchronise l'utilisateur et le participant.
      */
-    @Watch('user')
-    public onUserChanged(user: User) {
-        if (user) {
+    @Watch('me')
+    public onMeChanged(me: User) {
+        if (me) {
             QuizStore.setParticipant({
                 ...QuizStore.participant,
-                user,
+                userId: me.id,
             });
         }
     }

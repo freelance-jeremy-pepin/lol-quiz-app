@@ -133,13 +133,6 @@ export default class ItemNameQuizPage extends Vue {
     // region Hooks
 
     // noinspection JSUnusedLocalSymbols
-    /**
-     * Avant la création du quiz, le place en mode de chargement
-     * @private
-     */
-    private beforeCreate() {
-        // QuizStageStore.setLoading();
-    }
 
     // noinspection JSUnusedLocalSymbols
     /**

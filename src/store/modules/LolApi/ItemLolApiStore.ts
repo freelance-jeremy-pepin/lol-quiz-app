@@ -27,7 +27,7 @@ class ItemLolApiStore extends VuexModule {
 
     // region Actions
 
-    @Action
+    @Action({ rawError: true })
     public fetchItems(lang = 'en_US') {
         new ItemLolApiRepository().getAll(lang)
             .then((items: ItemLolApi[]) => {

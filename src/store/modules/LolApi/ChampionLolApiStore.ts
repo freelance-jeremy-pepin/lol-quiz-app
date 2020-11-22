@@ -27,7 +27,7 @@ class ChampionLolApiStore extends VuexModule {
 
     // region Actions
 
-    @Action
+    @Action({ rawError: true })
     public fetchChampions(lang = 'en_US') {
         new ChampionLolApiRepository().getAll(lang)
             .then((champions: ChampionLolApi[]) => {

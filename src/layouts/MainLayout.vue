@@ -30,22 +30,19 @@ import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
 import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
-import User from 'src/models/User';
 import SocketMixin from 'src/mixins/socketMixin';
 import PseudoUser from 'components/User/PseudoUser.vue';
+import UserMixin from 'src/mixins/userMixin';
+import User from 'src/models/User';
 
 @Component({
     components: { PseudoUser },
 })
-export default class MainLayout extends Mixins(SocketMixin) {
+export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
     // region Computed properties
 
     private get version(): string | undefined {
         return VersionLolApiStore.version;
-    }
-
-    private get me(): User | undefined {
-        return UserStore.me;
     }
 
     // endregion
@@ -54,9 +51,6 @@ export default class MainLayout extends Mixins(SocketMixin) {
 
     // noinspection JSUnusedLocalSymbols
     private mounted() {
-        setInterval(() => {
-            // console.log(socket.connected);
-        });
         this.userSocketStore.getAllUsers();
 
         this.restoreMe();
@@ -124,7 +118,7 @@ export default class MainLayout extends Mixins(SocketMixin) {
     /**
      * Lorsque le serveur est connecté, envoi son l'utilisateur courant au serveur.
      */
-    @Watch('socketStore.isConnected', { immediate: true })
+    @Watch('socketStore.isConnected')
     public onSocketIsConnectedChanged() {
         this.sendMeToServer();
     }
@@ -132,9 +126,11 @@ export default class MainLayout extends Mixins(SocketMixin) {
     /**
      * Lorsque l'utilisateur a changé, envoi l'utilisateur courant au serveur.
      */
-    @Watch('me', { immediate: true })
-    public onMeChanged() {
-        this.sendMeToServer();
+    @Watch('me')
+    public onMeChanged(me: User, oldMe: User | undefined) {
+        if (me.id !== oldMe?.id || me.pseudo !== oldMe?.pseudo) {
+            this.sendMeToServer();
+        }
     }
 
     // endregion

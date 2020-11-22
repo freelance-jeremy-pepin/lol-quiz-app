@@ -1,19 +1,23 @@
 <template>
     <q-btn v-if="me" flat>
         {{ me.pseudo }}
-        <q-popup-edit v-model="internalPseudo" buttons @save="onSave" @before-show="internalPseudo = me.pseudo">
+        <q-popup-edit
+            v-model="internalPseudo"
+            buttons
+            @save="onSave"
+            @before-show="internalPseudo = me.pseudo"
+        >
             <q-input v-model="internalPseudo" autofocus dense />
         </q-popup-edit>
     </q-btn>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import UserStore from 'src/store/modules/UserStore';
-import User from 'src/models/User';
+import { Component, Mixins } from 'vue-property-decorator';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component
-export default class extends Vue {
+export default class extends Mixins(UserMixin) {
     // region Props
 
     // endregion
@@ -21,14 +25,6 @@ export default class extends Vue {
     // region Data
 
     private internalPseudo: string = '';
-
-    // endregion
-
-    // region Computed properties
-
-    private get me(): User | undefined {
-        return UserStore.me;
-    }
 
     // endregion
 
@@ -47,7 +43,9 @@ export default class extends Vue {
     // region Methods
 
     private savePseudo() {
-        UserStore.setMe({ id: this.me.id, pseudo: this.internalPseudo });
+        if (this.me) {
+            this.me = { id: this.me.id, pseudo: this.internalPseudo };
+        }
     }
 
     // endregion

@@ -6,7 +6,12 @@
         v-on="$listeners"
         @before-show="onBeforeShow"
     >
-        <card-with-title-and-action title="New room" action-label="Create room" :max-width="500" @action="onCreateRoom">
+        <card-with-title-and-action
+            :max-width="500"
+            action-label="Create room"
+            title="New room"
+            @action="onCreateRoom"
+        >
             <q-card-section>
                 <q-form @submit="onCreateRoom">
                     <q-input

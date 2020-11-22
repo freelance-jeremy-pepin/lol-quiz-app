@@ -1,6 +1,11 @@
 <template>
     <q-page class="q-pa-md row items-center justify-center" style="margin-top: 16px;">
-        <card-with-title-and-action :max-width="500" action-label="Start" title="Select your quiz" @action="onStartQuiz">
+        <card-with-title-and-action
+            :max-width="500"
+            action-label="Start"
+            title="Select your quiz"
+            @action="onStartQuiz"
+        >
             <q-card-section>
                 <form-quiz-configuration v-model="internalQuizConfiguration"></form-quiz-configuration>
             </q-card-section>

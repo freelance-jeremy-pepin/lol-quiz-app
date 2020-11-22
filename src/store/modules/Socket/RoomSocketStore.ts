@@ -67,27 +67,27 @@ export default class RoomSocketStore extends VuexModule {
 
     // region Action
 
-    @Action
+    @Action({ rawError: true })
     public getAllRooms() {
         socket.emit('get_all_rooms');
     }
 
-    @Action
+    @Action({ rawError: true })
     public createRoom(newRoom: Room) {
         socket.emit('create_room', newRoom);
     }
 
-    @Action
+    @Action({ rawError: true })
     public deleteRoom(roomToDelete: Room) {
         socket.emit('delete_room', roomToDelete);
     }
 
-    @Action
+    @Action({ rawError: true })
     public joinRoom(payload: { roomToJoin: Room, participant: Participant }) {
         socket.emit('join_room', payload.roomToJoin, payload.participant);
     }
 
-    @Action
+    @Action({ rawError: true })
     public leaveRoom(payload: { roomToLeave: Room, participant: Participant }) {
         socket.emit('leave_room', payload.roomToLeave, payload.participant);
     }

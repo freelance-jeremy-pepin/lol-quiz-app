@@ -1,6 +1,9 @@
 <template>
-    <q-card :align="centerContent ? 'center' : ''" :style="`max-width: ${maxWidth}px; width: 100%;`">
-        <q-card-section align="center" class="bg-primary text-white" v-if="title">
+    <q-card
+        :align="centerContent ? 'center' : ''"
+        :style="`max-width: ${maxWidth}px; width: 100%;`"
+    >
+        <q-card-section v-if="title" align="center" class="bg-primary text-white">
             <div class="text-h3">{{ title }}</div>
         </q-card-section>
 
@@ -8,8 +11,8 @@
 
         <q-card-actions class="q-pa-none">
             <q-btn
-                class="full-width"
                 :color="actionColor"
+                class="full-width"
                 size="lg"
                 style="border-top-left-radius: 0; border-top-right-radius: 0;"
                 @click="$emit('action')"

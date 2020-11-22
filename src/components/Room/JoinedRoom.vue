@@ -30,40 +30,22 @@
 
         </q-card>
 
-        <q-btn class="full-width" color="grey" flat @click="leaveRoom">Leave room</q-btn>
+        <q-btn class="full-width" color="grey" flat @click="onLeaveRoom">Leave room</q-btn>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
-import SocketMixin from 'src/mixins/socketMixin';
 import Room from 'src/models/Room';
-import UserStore from 'src/store/modules/UserStore';
-import User from 'src/models/User';
-import UserMixin from 'src/mixins/userMixin';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
+import SocketMixin from 'src/mixins/socketMixin';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component
 export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
-
-    // endregion
-
-    // region Data
-
-    // endregion
-
-    // region Computed properties
-
-    private me(): User | undefined {
-        return UserStore.me;
-    }
-
-    // endregion
-
-    // region Hooks
 
     // endregion
 
@@ -78,18 +60,12 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
     // region Methods
 
     private leaveRoom() {
-        if (this.me) {
-            const participant = this.room.participants.find(p => p.userId === UserStore.me.id);
+        const participant = this.room.participants.find(p => p.userId === this.me?.id);
 
-            if (participant) {
-                this.roomSocketStore.leaveRoom({ roomToLeave: this.room, participant });
-            }
+        if (participant) {
+            this.roomSocketStore.leaveRoom({ roomToLeave: this.room, participant });
         }
     }
-
-    // endregion
-
-    // region Watchers
 
     // endregion
 }

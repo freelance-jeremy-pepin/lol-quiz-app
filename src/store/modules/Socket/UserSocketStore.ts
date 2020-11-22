@@ -38,12 +38,12 @@ export default class UserSocketStore extends VuexModule {
 
     // region Action
 
-    @Action
+    @Action({ rawError: true })
     public getAllUsers() {
         socket.emit('get_all_users');
     }
 
-    @Action
+    @Action({ rawError: true })
     public createOrUpdateUser(user: User) {
         socket.emit('create_or_update_user', user);
     }

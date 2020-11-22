@@ -1,6 +1,6 @@
 <template>
     <q-list separator>
-        <q-item v-for="room in rooms" :key="room.id">
+        <q-item v-for="room in rooms" :key="room.id" class="q-pa-md">
             <q-item-section>
                 <q-item-label class="text-bold">
                     {{ room.name }}
