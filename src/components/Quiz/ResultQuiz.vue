@@ -19,11 +19,20 @@
             </q-card-section>
         </card-with-title-and-action>
 
-        <q-btn v-if="!isMultiplayer" class="full-width" color="grey" flat @click="$emit('view-history')">
+        <q-btn
+            v-if="!isMultiplayer"
+            class="full-width"
+            color="grey"
+            flat
+            @click="$emit('view-history')"
+        >
             View history
         </q-btn>
 
-        <leader-board-multiplayer v-if="isMultiplayer && room" :room="room"></leader-board-multiplayer>
+        <leader-board-multiplayer
+            v-if="isMultiplayer && room"
+            :room="room"
+        ></leader-board-multiplayer>
     </div>
 </template>
 

@@ -41,7 +41,12 @@ import User from 'src/models/User';
 export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
     // region Data
 
-    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = { me: true, version: true, items: true, champions: true };
+    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = {
+        me: true,
+        version: true,
+        items: true,
+        champions: true,
+    };
 
     private isError: boolean = false;
 

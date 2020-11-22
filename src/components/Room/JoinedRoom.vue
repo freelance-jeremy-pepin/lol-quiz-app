@@ -27,7 +27,10 @@
 
                 <div v-for="participant in room.participants" :key="participant.id">
                     {{ getPseudoById(participant.userId) }}
-                    <span :class="`text-${$options.filters.formatIsReadyColor(participant.isReady)}`" class="text-bold">
+                    <span
+                        :class="`text-${$options.filters.formatIsReadyColor(participant.isReady)}`"
+                        class="text-bold"
+                    >
                         ({{ participant.isReady | formatIsReadyLabel }})
                     </span>
                 </div>

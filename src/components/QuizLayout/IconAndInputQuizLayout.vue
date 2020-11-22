@@ -109,7 +109,13 @@ import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultipla
 import Room from 'src/models/Room';
 
 @Component({
-    components: { ProgressQuizMultiplayer, CardWithTitleAndAction, ResultQuiz, StopWatch, ShortcutsQuiz },
+    components: {
+        ProgressQuizMultiplayer,
+        CardWithTitleAndAction,
+        ResultQuiz,
+        StopWatch,
+        ShortcutsQuiz,
+    },
 })
 export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixin) {
     // region Props

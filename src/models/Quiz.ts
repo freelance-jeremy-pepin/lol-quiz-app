@@ -15,8 +15,8 @@ export function createDefaultQuiz(): Quiz {
 }
 
 export enum QuizListInternalName {
-    ItemNameQuiz= 'item-name-quiz',
-    AnUltraSecretQuiz= 'an-ultra-secret-quiz',
+    ItemNameQuiz = 'item-name-quiz',
+    AnUltraSecretQuiz = 'an-ultra-secret-quiz',
 }
 
 export const quizList: Quiz[] = [

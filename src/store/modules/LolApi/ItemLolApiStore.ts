@@ -54,8 +54,8 @@ class ItemLolApiStore extends VuexModule {
         return this._items.filter(i => {
             if (
                 i.maps && i.maps['11']
-                    && (i.consumed === undefined || !i.consumed) // Enlève les consommables.
-                    && (i.requiredChampion === undefined) // Enlève les items nécessitant un champion.
+                && (i.consumed === undefined || !i.consumed) // Enlève les consommables.
+                && (i.requiredChampion === undefined) // Enlève les items nécessitant un champion.
             ) {
                 return true;
             }

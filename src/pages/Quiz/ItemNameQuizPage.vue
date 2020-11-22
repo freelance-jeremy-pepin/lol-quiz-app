@@ -238,7 +238,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         if (this.$route.query.room) {
             this.isMultiplayer = true;
 
-            this.roomSocketStore.getRoomById({ id: this.$route.query.room.toString(), user: this.me });
+            this.roomSocketStore.getRoomById({
+                id: this.$route.query.room.toString(),
+                user: this.me,
+            });
         } else {
             const quiz = quizList.find(q => q.id === this.$route.query.quiz);
 
@@ -288,7 +291,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
             QuizStageStore.setQuizFinished();
 
             if (this.isMultiplayer && this.roomSocketStore.room) {
-                this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: { ...this.participant, hasFinished: true } });
+                this.roomSocketStore.updateParticipant({
+                    room: this.roomSocketStore.room,
+                    participant: { ...this.participant, hasFinished: true },
+                });
             }
 
             return;
@@ -308,7 +314,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         QuizStageStore.setAnswering();
 
         if (this.isMultiplayer && this.roomSocketStore.room) {
-            this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: this.participant });
+            this.roomSocketStore.updateParticipant({
+                room: this.roomSocketStore.room,
+                participant: this.participant,
+            });
         }
 
         if (process.env.NODE_ENV === 'development' && this.itemToGuess?.name) {
@@ -384,7 +393,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
 
         // TODO: faire fonction
         if (this.isMultiplayer && this.roomSocketStore.room) {
-            this.roomSocketStore.updateParticipant({ room: this.roomSocketStore.room, participant: this.participant });
+            this.roomSocketStore.updateParticipant({
+                room: this.roomSocketStore.room,
+                participant: this.participant,
+            });
         }
     }
 
@@ -451,7 +463,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
                     // Si le participant a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
                     let addEmptyAnswerToHistory = true;
                     if (this.participant.currentQuestionNumber > 0 && !this.participant.hasFinished) {
-                        this.participant = { ...this.participant, currentQuestionNumber: this.participant.currentQuestionNumber - 1 };
+                        this.participant = {
+                            ...this.participant,
+                            currentQuestionNumber: this.participant.currentQuestionNumber - 1,
+                        };
                         addEmptyAnswerToHistory = false;
                     }
 
