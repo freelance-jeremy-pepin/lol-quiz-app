@@ -23,7 +23,7 @@
 
             <list-answers-history-item
                 v-model="answerHistoryIsVisible"
-                :answers-history-item="participant.answersHistoryItem"
+                :answers-history-item="player.answersHistoryItem"
             ></list-answers-history-item>
         </div>
     </q-page>
@@ -39,7 +39,7 @@ import { uniqueID } from 'src/utils/randomNumber';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHistoryItem.vue';
 import QuizConfigurationItem, { createDefaultQuizConfigurationItem } from 'src/models/QuizConfigurationItem';
 import QuizStore from 'src/store/modules/QuizStore';
@@ -76,19 +76,19 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     }
 
     /**
-     * Récupère le participant du quiz.
+     * Récupère le joueur du quiz.
      * @private
      */
-    private get participant(): Participant {
-        return QuizStore.participant;
+    private get player(): Player {
+        return QuizStore.player;
     }
 
     /**
-     * Modifier le participant du quiz.
+     * Modifier le joueur du quiz.
      * @private
      */
-    private set participant(participant: Participant) {
-        QuizStore.setParticipant(participant);
+    private set player(player: Player) {
+        QuizStore.setPlayer(player);
     }
 
     /**
@@ -109,13 +109,13 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     private quizConfigurationItem: QuizConfigurationItem = createDefaultQuizConfigurationItem();
 
     /**
-     * Objet à deviner par le participant.
+     * Objet à deviner par le joueur.
      * @private
      */
     private itemToGuess: ItemLolApi | null = null;
 
     /**
-     * Réponse donnée par le participant.
+     * Réponse donnée par le joueur.
      * @private
      */
     private answer: string = '';
@@ -172,7 +172,7 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         // Si la réponse est correcte, incrémente le score et passe au prochain objet.
         // Sinon, passe en mode mauvaise réponse pendant 1 sec avant de revenir en mode quiz.
         if (this.verifyAnswer()) {
-            this.participant = { ...this.participant, score: this.participant.score + 1 };
+            this.player = { ...this.player, score: this.player.score + 1 };
 
             this.onPickNextItem();
         } else {
@@ -259,13 +259,13 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     }
 
     /**
-     * Vérifie la réponse donnée par le participant.
+     * Vérifie la réponse donnée par le joueur.
      * @private
      */
     private verifyAnswer(): boolean {
         if (this.itemToGuess?.name) {
-            // Garde seulement les caractère alphanumérique du nom de l'objet et de la réponse donnée par le participant.
-            // Si les 2 valeurs sont identiques, le participant a donné la bonne réponse.
+            // Garde seulement les caractère alphanumérique du nom de l'objet et de la réponse donnée par le joueur.
+            // Si les 2 valeurs sont identiques, le joueur a donné la bonne réponse.
             const itemName = this.itemToGuess.name.replace(/[^a-z0-9]/gi, '').toLowerCase();
             const answer = this.answer.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
@@ -284,28 +284,28 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      * @private
      */
     private pickNextItem(addEmptyAnswerToHistory: boolean = true) {
-        // Si la question actuelle du participant dépasse le nombre total de questions du quiz,
+        // Si la question actuelle du joueur dépasse le nombre total de questions du quiz,
         // cela veut dire qu'il a terminé le quiz.
         // Sinon, sélectionne le prochain objet.
-        if (this.participant.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
+        if (this.player.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
             QuizStageStore.setQuizFinished();
 
             if (this.isMultiplayer && this.roomSocketStore.room) {
-                this.roomSocketStore.updateParticipant({
+                this.roomSocketStore.updatePlayer({
                     room: this.roomSocketStore.room,
-                    participant: { ...this.participant, hasFinished: true },
+                    player: { ...this.player, hasFinished: true },
                 });
             }
 
             return;
         }
 
-        this.participant = {
-            ...this.participant,
-            currentQuestionNumber: this.participant.currentQuestionNumber + 1,
+        this.player = {
+            ...this.player,
+            currentQuestionNumber: this.player.currentQuestionNumber + 1,
         };
 
-        this.itemToGuess = this.quizConfigurationItem.items[this.participant.currentQuestionNumber - 1];
+        this.itemToGuess = this.quizConfigurationItem.items[this.player.currentQuestionNumber - 1];
 
         if (addEmptyAnswerToHistory) {
             this.addEmptyAnswerToHistory();
@@ -314,9 +314,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         QuizStageStore.setAnswering();
 
         if (this.isMultiplayer && this.roomSocketStore.room) {
-            this.roomSocketStore.updateParticipant({
+            this.roomSocketStore.updatePlayer({
                 room: this.roomSocketStore.room,
-                participant: this.participant,
+                player: this.player,
             });
         }
 
@@ -338,11 +338,11 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     }
 
     /**
-     * Ajoute une réponse vide à l'historique des réponses du participant.
+     * Ajoute une réponse vide à l'historique des réponses du joueur.
      * @private
      */
     private addEmptyAnswerToHistory() {
-        const lastAnswer = this.participant.answersHistoryItem[this.participant.answersHistoryItem.length - 1];
+        const lastAnswer = this.player.answersHistoryItem[this.player.answersHistoryItem.length - 1];
 
         if (lastAnswer) {
             lastAnswer.isAnswering = false;
@@ -357,25 +357,25 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
                 isAnswering: true,
                 skipped: false,
             };
-            this.participant = {
-                ...this.participant,
+            this.player = {
+                ...this.player,
                 answersHistoryItem: [
-                    ...this.participant.answersHistoryItem,
+                    ...this.player.answersHistoryItem,
                     emptyAnswer,
                 ],
             };
-            this.participant.answersHistoryItem.push();
+            this.player.answersHistoryItem.push();
         }
     }
 
     /**
-     * Met à jour la dernière réponse donnée par le participant.
+     * Met à jour la dernière réponse donnée par le joueur.
      * @param found L'objet a été trouvé.
      * @param skipped L'objet a été passé.
      * @private
      */
     private updateLastAnswer(found: boolean, skipped: boolean) {
-        const lastAnswer = this.participant.answersHistoryItem[this.participant.answersHistoryItem.length - 1];
+        const lastAnswer = this.player.answersHistoryItem[this.player.answersHistoryItem.length - 1];
         lastAnswer.found = found;
         lastAnswer.skipped = skipped;
 
@@ -393,9 +393,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
 
         // TODO: faire fonction
         if (this.isMultiplayer && this.roomSocketStore.room) {
-            this.roomSocketStore.updateParticipant({
+            this.roomSocketStore.updatePlayer({
                 room: this.roomSocketStore.room,
-                participant: this.participant,
+                player: this.player,
             });
         }
     }
@@ -405,8 +405,8 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      * @private
      */
     private resetQuiz() {
-        this.participant = {
-            ...this.participant,
+        this.player = {
+            ...this.player,
             currentQuestionNumber: 0,
             score: 0,
             answersHistoryItem: [],
@@ -454,18 +454,18 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
             if (this.roomSocketStore.room) {
                 this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
 
-                const participantFound = this.roomSocketStore.room.participants.find(p => p.userId === this.me.id);
+                const playerFound = this.roomSocketStore.room.players.find(p => p.userId === this.me.id);
 
-                if (participantFound) {
-                    this.participant = participantFound;
+                if (playerFound) {
+                    this.player = playerFound;
 
                     // TODO: à revoir
-                    // Si le participant a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
+                    // Si le joueur a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
                     let addEmptyAnswerToHistory = true;
-                    if (this.participant.currentQuestionNumber > 0 && !this.participant.hasFinished) {
-                        this.participant = {
-                            ...this.participant,
-                            currentQuestionNumber: this.participant.currentQuestionNumber - 1,
+                    if (this.player.currentQuestionNumber > 0 && !this.player.hasFinished) {
+                        this.player = {
+                            ...this.player,
+                            currentQuestionNumber: this.player.currentQuestionNumber - 1,
                         };
                         addEmptyAnswerToHistory = false;
                     }

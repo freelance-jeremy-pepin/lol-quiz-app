@@ -9,8 +9,8 @@
         >
             <q-list separator>
                 <q-item
-                    v-for="(participant, index) in participantsClassement"
-                    :key="participant.id"
+                    v-for="(player, index) in playersClassement"
+                    :key="player.id"
                     class="q-pa-md"
                 >
                     <q-item-section side>
@@ -19,9 +19,9 @@
 
                     <q-item-section>
                         <q-item-label class="text-bold">
-                            {{ getPseudoById(participant.userId) }}
+                            {{ getPseudoById(player.userId) }}
                         </q-item-label>
-                        <q-item-label caption>(score: {{ participant.score }})</q-item-label>
+                        <q-item-label caption>(score: {{ player.score }})</q-item-label>
                     </q-item-section>
 
                     <q-item-section side>
@@ -29,7 +29,7 @@
                             <q-btn
                                 color="accent"
                                 flat
-                                @click="onViewHistoryParticipant(participant)"
+                                @click="onViewHistoryPlayer(player)"
                             >View history
                             </q-btn>
                         </div>
@@ -40,7 +40,7 @@
 
         <list-answers-history-item
             v-model="listAnswerHistoryItem.display"
-            :answers-history-item="listAnswerHistoryItem.participant.answersHistoryItem"
+            :answers-history-item="listAnswerHistoryItem.player.answersHistoryItem"
         ></list-answers-history-item>
     </div>
 </template>
@@ -49,7 +49,7 @@
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
-import Participant, { createDefaultParticipant } from '../../models/Participant';
+import Player, { createDefaultPlayer } from '../../models/Player';
 import UserMixin from '../../mixins/userMixin';
 import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistoryItem.vue';
 
@@ -65,34 +65,34 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin) {
 
     // region Data
 
-    private listAnswerHistoryItem: { display: boolean, participant: Participant } = {
+    private listAnswerHistoryItem: { display: boolean, player: Player } = {
         display: false,
-        participant: createDefaultParticipant(),
+        player: createDefaultPlayer(),
     };
 
     // endregion
 
     // region Computed properties
 
-    private get participantsClassement(): Participant[] {
-        return this.room.participants.sort((a, b) => b.score - a.score);
+    private get playersClassement(): Player[] {
+        return this.room.players.sort((a, b) => b.score - a.score);
     }
 
     // endregion
 
     // region Events handlers
 
-    private onViewHistoryParticipant(participant: Participant) {
-        this.viewHistoryParticipant(participant);
+    private onViewHistoryPlayer(player: Player) {
+        this.viewHistoryPlayer(player);
     }
 
     // endregion
 
     // region Methods
 
-    private viewHistoryParticipant(participant: Participant) {
+    private viewHistoryPlayer(player: Player) {
         this.listAnswerHistoryItem = {
-            participant,
+            player,
             display: true,
         };
     }
@@ -108,10 +108,10 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin) {
     @Watch('room', { deep: true })
     private onRoomChanged() {
         if (this.listAnswerHistoryItem.display) {
-            const participantFound = this.room.participants.find(p => p.id === this.listAnswerHistoryItem.participant.id);
+            const playerFound = this.room.players.find(p => p.id === this.listAnswerHistoryItem.player.id);
 
-            if (participantFound) {
-                this.listAnswerHistoryItem.participant = participantFound;
+            if (playerFound) {
+                this.listAnswerHistoryItem.player = playerFound;
             }
         }
     }

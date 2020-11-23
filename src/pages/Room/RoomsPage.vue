@@ -1,8 +1,6 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <joined-room v-if="roomJoined" :room="roomJoined"></joined-room>
-
-        <div v-else class="row justify-center" style="max-width: 500px; width: 100%;">
+        <div class="row justify-center" style="max-width: 500px; width: 100%;">
             <card-with-title-and-action
                 :action-disable="!me || !socketStore.isConnected"
                 :center-content="false"
@@ -11,8 +9,8 @@
                 title="Rooms"
                 @action="formRoom.display = true"
             >
-                <q-card-section v-if="rooms.length > 0" class="q-pa-none">
-                    <list-rooms :rooms="rooms"></list-rooms>
+                <q-card-section v-if="roomsNotInGame.length > 0" class="q-pa-none">
+                    <list-rooms :rooms="roomsNotInGame"></list-rooms>
                 </q-card-section>
 
                 <q-card-section v-else>
@@ -26,22 +24,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator';
+import { Component, Mixins, Watch } from 'vue-property-decorator';
 import FormRoom from 'components/Room/FormRoom.vue';
 import ListRooms from 'components/Room/ListRooms.vue';
 import Room, { createDefaultRoom } from 'src/models/Room';
 import SocketMixin from 'src/mixins/socketMixin';
-import JoinedRoom from 'components/Room/JoinedRoom.vue';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import UserMixin from 'src/mixins/userMixin';
 
 @Component({
-    components: { CardWithTitleAndAction, JoinedRoom, ListRooms, FormRoom },
+    components: { CardWithTitleAndAction, ListRooms, FormRoom },
 })
 export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
     // region Data
-
-    private newRoom: Room = createDefaultRoom();
 
     private formRoom: { display: boolean, room: Room } = {
         display: false,
@@ -53,21 +48,11 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
     // region Computed properties
 
     private get rooms(): Room[] {
-        return this.roomSocketStore.roomsNotInGame;
+        return this.roomSocketStore.rooms;
     }
 
-    private get roomJoined(): Room | null {
-        let roomJoined: Room | null = null;
-
-        this.rooms.forEach(r => {
-            r.participants.forEach(p => {
-                if (p.userId === this.me?.id) {
-                    roomJoined = r;
-                }
-            });
-        });
-
-        return roomJoined;
+    private get roomsNotInGame(): Room[] {
+        return this.roomSocketStore.roomsNotInGame;
     }
 
     // endregion
@@ -76,6 +61,27 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
 
     private mounted() {
         this.roomSocketStore.getAllRooms();
+    }
+
+    // endregion
+
+    // region Watchers
+
+    /**
+     * Dès que les salles changent, vérifie que l'utilisateur n'a pas rejoint une salle pour le rediriger vers la salle.
+     * @private
+     */
+    @Watch('rooms')
+    private onRoomsChanged() {
+        this.rooms.forEach(r => {
+            r.players.forEach(p => {
+                if (p.userId === this.me?.id) {
+                    this.$router.push({
+                        path: `/room/${r.id}`,
+                    });
+                }
+            });
+        });
     }
 
     // endregion

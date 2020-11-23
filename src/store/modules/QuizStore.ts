@@ -1,6 +1,6 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import Participant, { createDefaultParticipant } from 'src/models/Participant';
+import Player, { createDefaultPlayer } from 'src/models/Player';
 
 @Module({
     dynamic: true,
@@ -11,23 +11,23 @@ import Participant, { createDefaultParticipant } from 'src/models/Participant';
 class QuizStore extends VuexModule {
     // region State
 
-    private _participant: Participant = createDefaultParticipant();
+    private _player: Player = createDefaultPlayer();
 
     // endregion
 
     // region Mutations
 
     @Mutation
-    public setParticipant(participant: Participant) {
-        this._participant = participant;
+    public setPlayer(player: Player) {
+        this._player = player;
     }
 
     // endregion
 
     // region Getters
 
-    public get participant(): Participant {
-        return this._participant;
+    public get player(): Player {
+        return this._player;
     }
 
     // endregion

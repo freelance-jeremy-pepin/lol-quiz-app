@@ -5,9 +5,9 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-            <div v-for="participant in room.participants" :key="participant.id">
-                <span :class="`${me.id === participant.userId ? 'text-bold text-accent' : ''}`">
-                    {{ getPseudoById(participant.userId) }}: {{ participant.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}
+            <div v-for="player in room.players" :key="player.id">
+                <span :class="`${me.id === player.userId ? 'text-bold text-accent' : ''}`">
+                    {{ getPseudoById(player.userId) }}: {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}
                 </span>
             </div>
         </q-card-section>

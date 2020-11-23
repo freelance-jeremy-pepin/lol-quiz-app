@@ -14,12 +14,14 @@
                     flat
                     @click="onToggleDarkMode"
                 ></q-btn>
-                <div v-if="version">LoL API v. {{ version }}</div>
+                <div v-if="versionLolApi">LoL API v. {{ versionLolApi }}</div>
             </q-toolbar>
         </q-header>
 
         <q-page-container>
             <router-view v-if="Object.values(loadings).every(loading => loading === false)" />
+
+            <div v-if="isError" class="text-negative">An error occurred.</div>
         </q-page-container>
     </q-layout>
 </template>
@@ -41,6 +43,9 @@ import User from 'src/models/User';
 export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
     // region Data
 
+    /**
+     * Chargements des différents éléments nécessaires à l'affichage de la page.
+     */
     private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = {
         me: true,
         version: true,
@@ -48,13 +53,20 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
         champions: true,
     };
 
+    // TODO: traiter et tester cas d'erreur.
+    /**
+     * Erreur de la récupération d'un élément.
+     */
     private isError: boolean = false;
 
     // endregion
 
     // region Computed properties
 
-    private get version(): string | undefined {
+    /**
+     * Version de l'API.
+     */
+    private get versionLolApi(): string | undefined {
         return VersionLolApiStore.version;
     }
 
@@ -63,6 +75,9 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
     // Region Hooks
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Lorsque que le composant est monté, récupère tous les éléments nécessaires à l'affichage de la page.
+     */
     private mounted() {
         this.loadings = { me: true, version: true, items: true, champions: true };
         this.isError = false;
@@ -80,6 +95,9 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
 
     // region Events listeners
 
+    /**
+     * Alterne entre le mode clair et le mode sombre.
+     */
     private onToggleDarkMode() {
         this.$q.dark.toggle();
 
@@ -90,9 +108,13 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
 
     // region Methods
 
+    /**
+     * Restaure l'utilisateur courant.
+     */
     private restoreMe() {
         UserStore.restoreMe()
             .then((user) => {
+                // Si l'utilisateur courant n'a pas pu être récupérer car il n'existe pas, créer un invité.
                 if (!user) {
                     UserStore.createNewGuest()
                         .catch(() => {
@@ -114,11 +136,14 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             });
     }
 
+    /**
+     * Récupère les informations liées à l'API LoL.
+     */
     private fetchDataLolApi() {
         VersionLolApiStore.fetchVersion()
             .then(() => {
-                this.fetchItems();
-                this.fetchChampions();
+                this.fetchItemsLolApi();
+                this.fetchChampionsLolApi();
             })
             .catch((e) => {
                 this.isError = true;
@@ -129,7 +154,10 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             });
     }
 
-    private fetchItems() {
+    /**
+     * Récupère les objets de l'API LoL.
+     */
+    private fetchItemsLolApi() {
         LoLApiItemsModule.fetchItems()
             .catch((e) => {
                 this.isError = true;
@@ -140,7 +168,10 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             });
     }
 
-    private fetchChampions() {
+    /**
+     * Récupère les champions de l'API LoL.
+     */
+    private fetchChampionsLolApi() {
         ChampionLolApiStore.fetchChampions()
             .catch((e) => {
                 this.isError = true;
@@ -151,16 +182,22 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             });
     }
 
+    /**
+     * Restaure l'état du mode sombre sombre stocké dans le local storage.
+     */
     private restoreDarkModeFromLocalStorage() {
         this.$q.dark.set(this.$q.localStorage.getItem('darkMode') || false);
     }
 
+    /**
+     * Sauvegarde l'état du mode sombre stocké dans le local storage.
+     */
     private saveDarkModeInLocalStorage() {
         this.$q.localStorage.set('darkMode', this.$q.dark.isActive);
     }
 
     /**
-     * Envoi l'utilisateur courant au serveur.
+     * Envoi l'utilisateur courant au serveur afin qu'il le diffuse aux autres utilisateurs.
      */
     private sendMeToServer() {
         if (this.socketStore.isConnected && this.me) {

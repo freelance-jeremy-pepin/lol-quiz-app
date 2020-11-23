@@ -2,7 +2,7 @@
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import Room from 'src/models/Room.ts';
 import { socket } from 'boot/socket.io';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import User from 'src/models/User';
 
 @Module({
@@ -84,10 +84,10 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_ROOM_JOINED(payload: { roomJoined: Room, participant: Participant }) {
+    public SOCKET_ROOM_JOINED(payload: { roomJoined: Room, player: Player }) {
         this._rooms = this._rooms.map(r => {
             if (r.id === payload.roomJoined.id) {
-                r.participants.push(payload.participant);
+                r.players.push(payload.player);
             }
 
             return r;
@@ -100,10 +100,10 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_ROOM_LEFT(payload: { roomLeft: Room, participant: Participant }) {
+    public SOCKET_ROOM_LEFT(payload: { roomLeft: Room, player: Player }) {
         this._rooms = this._rooms.map(r => {
             if (r.id === payload.roomLeft.id) {
-                r.participants = r.participants.filter(p => p.id !== payload.participant.id);
+                r.players = r.players.filter(p => p.id !== payload.player.id);
             }
 
             return r;
@@ -116,17 +116,17 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Mutation
-    public SOCKET_PARTICIPANT_UPDATED(payload: { room: Room, participantUpdated: Participant }) {
+    public SOCKET_PLAYER_UPDATED(payload: { room: Room, playerUpdated: Player }) {
         this._rooms = this._rooms.map(r => {
             if (r.id === payload.room.id) {
-                r.participants = r.participants.map(p => (p.id === payload.participantUpdated.id ? payload.participantUpdated : p));
+                r.players = r.players.map(p => (p.id === payload.playerUpdated.id ? payload.playerUpdated : p));
             }
 
             return r;
         });
 
         if (this._room && this._room.id === payload.room.id) {
-            this._room.participants = this._room.participants.map(p => (p.id === payload.participantUpdated.id ? payload.participantUpdated : p));
+            this._room.players = this._room.players.map(p => (p.id === payload.playerUpdated.id ? payload.playerUpdated : p));
         }
     }
 
@@ -136,7 +136,6 @@ export default class RoomSocketStore extends VuexModule {
 
     @Action({ rawError: true })
     public getAllRooms() {
-        this._room = undefined;
         socket.emit('get_all_rooms');
     }
 
@@ -156,18 +155,18 @@ export default class RoomSocketStore extends VuexModule {
     }
 
     @Action({ rawError: true })
-    public joinRoom(payload: { roomToJoin: Room, participant: Participant }) {
-        socket.emit('join_room', payload.roomToJoin, payload.participant);
+    public joinRoom(payload: { roomToJoin: Room, player: Player }) {
+        socket.emit('join_room', payload.roomToJoin, payload.player);
     }
 
     @Action({ rawError: true })
-    public leaveRoom(payload: { roomToLeave: Room, participant: Participant }) {
-        socket.emit('leave_room', payload.roomToLeave, payload.participant);
+    public leaveRoom(payload: { roomToLeave: Room, player: Player }) {
+        socket.emit('leave_room', payload.roomToLeave, payload.player);
     }
 
     @Action({ rawError: true })
-    public updateParticipant(payload: { room: Room, participant: Participant }) {
-        socket.emit('update_participant', payload.room, payload.participant);
+    public updatePlayer(payload: { room: Room, player: Player }) {
+        socket.emit('update_player', payload.room, payload.player);
     }
 
     // endregion

@@ -4,8 +4,8 @@
             v-if="quizStageStore.isQuizFinished"
             :is-multiplayer="isMultiplayer"
             :number-questions="quizConfiguration.numberQuestions"
-            :score="participant.score"
-            :time="quizConfiguration.withStopWatch ? participant.completeTime : null"
+            :score="player.score"
+            :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             @play-again="$emit('play-again')"
             @view-history="$emit('view-history')"
         ></result-quiz>
@@ -28,9 +28,9 @@
                 <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
 
-                    <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                    <div>{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                    <div class="text-secondary text-bold">Score: {{ participant.score }}</div>
+                    <div class="text-secondary text-bold">Score: {{ player.score }}</div>
 
                     <q-input
                         v-if="!quizStageStore.isDisplayAnswer"
@@ -95,7 +95,7 @@
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import QuizConfiguration from 'src/models/QuizConfiguration';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
 import { Time } from 'src/models/Time';
@@ -132,7 +132,7 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
     // region Data
 
     /**
-     * Réponse donnée par le participant.
+     * Réponse donnée par le jouer.
      */
     private answer: string = '';
 
@@ -156,19 +156,19 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
     }
 
     /**
-     * Récupère le participant du quiz.
+     * Récupère le joueur du joueur.
      * @private
      */
-    private get participant(): Participant {
-        return QuizStore.participant;
+    private get player(): Player {
+        return QuizStore.player;
     }
 
     /**
-     * Modifier le participant du quiz.
+     * Modifier le joueur du quiz.
      * @private
      */
-    private set participant(participant: Participant) {
-        QuizStore.setParticipant(participant);
+    private set player(player: Player) {
+        QuizStore.setPlayer(player);
     }
 
     private get room(): Room | undefined | null {
@@ -254,13 +254,13 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
     }
 
     /**
-     * Synchronise l'utilisateur et le participant.
+     * Synchronise l'utilisateur et le joueur.
      */
     @Watch('me')
     public onMeChanged(me: User) {
         if (me) {
-            QuizStore.setParticipant({
-                ...QuizStore.participant,
+            QuizStore.setPlayer({
+                ...QuizStore.player,
                 userId: me.id,
             });
         }
@@ -278,7 +278,7 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
         } else if (QuizStageStore.isQuizFinished) {
             if (this.quizConfiguration.withStopWatch) {
                 const completeTime: Time = { ...this.$refs.stopWatch.getTime };
-                this.participant = { ...this.participant, completeTime };
+                this.player = { ...this.player, completeTime };
             }
         }
     }

@@ -1,8 +1,8 @@
 <template>
     <div class="q-gutter-y-sm" style="max-width: 500px; width: 100%;">
         <card-with-title-and-action
-            :action-color="participant.isReady | formatIsReadyColor"
-            :action-label="participant.isReady | formatIsReadyLabel"
+            :action-color="player.isReady | transformIsReadyIntoColor"
+            :action-label="player.isReady | transformIsReadyIntoLabel"
             :center-content="false"
             :max-width="500"
             :title="room.name"
@@ -22,16 +22,16 @@
 
             <q-card-section class="q-pt-none">
                 <div class="text-bold text-h6">
-                    Participants ({{ room.participants.length }}):
+                    Players ({{ room.players.length }}):
                 </div>
 
-                <div v-for="participant in room.participants" :key="participant.id">
-                    {{ getPseudoById(participant.userId) }}
+                <div v-for="player in room.players" :key="player.id">
+                    {{ getPseudoById(player.userId) }}
                     <span
-                        :class="`text-${$options.filters.formatIsReadyColor(participant.isReady)}`"
+                        :class="`text-${$options.filters.transformIsReadyIntoColor(player.isReady)}`"
                         class="text-bold"
                     >
-                        ({{ participant.isReady | formatIsReadyLabel }})
+                        ({{ player.isReady | transformIsReadyIntoLabel }})
                     </span>
                 </div>
             </q-card-section>
@@ -47,14 +47,14 @@ import Room from 'src/models/Room';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
-import ParticipantMixin from 'src/mixins/participantMixin';
+import PlayerMixin from 'src/mixins/playerMixin';
 
 @Component({
     components: { CardWithTitleAndAction },
 })
-export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin, ParticipantMixin) {
+export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin, PlayerMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
@@ -63,12 +63,16 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
 
     // region Computed properties
 
-    private get participant(): Participant | undefined {
-        return this.room.participants.find(p => p.userId === this.me?.id);
+    private get player(): Player | undefined {
+        return this.room.players.find(p => p.userId === this.me?.id);
     }
 
-    private get allParticipantsAreReady(): boolean {
-        return this.room.participants.every(p => p.isReady);
+    private get allPlayersAreReady(): boolean {
+        if (this.room.players.length > 0) {
+            return this.room.players.every(p => p.isReady);
+        }
+
+        return false;
     }
 
     // endregion
@@ -88,18 +92,18 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
     // region Methods
 
     private leaveRoom() {
-        if (this.participant) {
+        if (this.player) {
             this.roomSocketStore.leaveRoom({
                 roomToLeave: this.room,
-                participant: this.participant,
+                player: this.player,
             });
         }
     }
 
     private toggleIsReady() {
-        if (this.participant) {
-            const participant = { ...this.participant, isReady: !this.participant?.isReady };
-            this.roomSocketStore.updateParticipant({ room: this.room, participant });
+        if (this.player) {
+            const player = { ...this.player, isReady: !this.player?.isReady };
+            this.roomSocketStore.updatePlayer({ room: this.room, player });
         }
     }
 
@@ -107,9 +111,9 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
 
     // region Watchers
 
-    @Watch('allParticipantsAreReady')
-    private onAllParticipantsAreReady() {
-        if (this.allParticipantsAreReady) {
+    @Watch('allPlayersAreReady', { immediate: true })
+    private onAllPlayersAreReady() {
+        if (this.allPlayersAreReady) {
             this.roomSocketStore.createOrUpdateRoom({ ...this.room, inGame: true });
 
             this.$router.push({

@@ -50,7 +50,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator';
 import Room from 'src/models/Room';
 import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
-import { createDefaultParticipant } from 'src/models/Participant';
+import { createDefaultPlayer } from 'src/models/Player';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
 
@@ -86,14 +86,14 @@ export default class ListRoom extends Mixins(SocketMixin, UserMixin) {
 
     private joinRoom(roomToJoin: Room) {
         if (this.user) {
-            let participant = createDefaultParticipant();
+            let player = createDefaultPlayer();
 
-            participant = {
-                ...participant,
+            player = {
+                ...player,
                 userId: this.user.id,
             };
 
-            this.roomSocketStore.joinRoom({ roomToJoin, participant });
+            this.roomSocketStore.joinRoom({ roomToJoin, player });
         }
     }
 

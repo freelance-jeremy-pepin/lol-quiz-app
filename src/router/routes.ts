@@ -19,10 +19,18 @@ const routes: RouteConfig[] = [
     },
 
     {
+        path: '/room/:id',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Room/RoomPage.vue') },
+        ],
+    },
+
+    {
         path: '/rooms',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/RoomsPage.vue') },
+            { path: '', component: () => import('pages/Room/RoomsPage.vue') },
         ],
     },
 
