@@ -75,6 +75,13 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
         return false;
     }
 
+    /**
+     * Permet de savoir si le joueur a été redirigé vers le quiz ou non.
+     * Cela permet d'éviter que l'utilisateur soit rediriger à plusieurs reprises.
+     * @private
+     */
+    private redirected: boolean = false;
+
     // endregion
 
     // region Event handlers
@@ -107,13 +114,10 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
         }
     }
 
-    // endregion
-
-    // region Watchers
-
-    @Watch('allPlayersAreReady', { immediate: true })
-    private onAllPlayersAreReady() {
-        if (this.allPlayersAreReady) {
+    private redirectToQuiz() {
+        // Si tous les joueurs sont prêts, ou que le joueur était en partie, redirige vers le quiz.
+        if (!this.redirected && (this.allPlayersAreReady || (this.allPlayersAreReady && this.player && this.player.isReady && !this.player.hasFinished))) {
+            this.redirected = true;
             this.roomSocketStore.createOrUpdateRoom({ ...this.room, inGame: true });
 
             this.$router.push({
@@ -123,6 +127,20 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
                 },
             });
         }
+    }
+
+    // endregion
+
+    // region Watchers
+
+    @Watch('player', { immediate: true })
+    private onPlayerChanged() {
+        this.redirectToQuiz();
+    }
+
+    @Watch('allPlayersAreReady', { immediate: true })
+    private onAllPlayersAreReadyChanged() {
+        this.redirectToQuiz();
     }
 
     // endregion

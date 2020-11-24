@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="q-gutter-y-sm">
         <card-with-title-and-action
             :center-content="false"
             :max-width="500"
@@ -37,11 +37,21 @@
                 </q-item>
             </q-list>
         </card-with-title-and-action>
+
+        <q-btn
+            class="full-width"
+            color="grey"
+            flat
+            @click="onRedirectToRooms"
+        >
+            Go to rooms
+        </q-btn>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
+import SocketMixin from 'src/mixins/socketMixin';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
 import Player from '../../models/Player';
@@ -51,7 +61,7 @@ import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistoryItem.
 @Component({
     components: { ListAnswersHistoryItem, CardWithTitleAndAction },
 })
-export default class LeaderBoardMultiplayer extends Mixins(UserMixin) {
+export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
@@ -68,6 +78,24 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin) {
         }
 
         return this.room.players.sort((a, b) => b.score - a.score);
+    }
+
+    // endregion
+
+    // region Events handlers
+
+    private onRedirectToRooms() {
+        this.redirectToRooms();
+    }
+
+    // endregion
+
+    // region Methods
+
+    private redirectToRooms() {
+        this.$router.push({
+            path: `/rooms`,
+        });
     }
 
     // endregion

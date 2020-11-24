@@ -21,7 +21,7 @@
         </div>
 
         <div v-if="quizStageStore.isUnknownRoom" class="text-center text-bold text-negative">
-            Room does not exists!
+            Room not found.
         </div>
 
         <div

@@ -1,7 +1,7 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
         <joined-room v-if="room" :room="room"></joined-room>
-        <div v-else class="text-negative text-bold">No room found.</div>
+        <div v-else class="text-negative text-bold">Room not found.</div>
     </q-page>
 </template>
 
@@ -24,23 +24,22 @@ export default class RoomPage extends Mixins(SocketMixin, UserMixin) {
 
     // endregion
 
-    // region Hooks
+    // region Watchers
 
-    // noinspection JSUnusedLocalSymbols
-    private mounted() {
+    /**
+     * Dès que l'ID de la salle dans l'URL est chargée, récupère la salle.
+     */
+    @Watch('$route.params.id', { immediate: true })
+    private onRouteParamIdChanged() {
         this.roomSocketStore.getRoomById({ id: this.$route.params.id, user: this.me });
     }
-
-    // endregion
-
-    // region Watchers
 
     /**
      * Dès que la salle change, vérifie que le joueur appartient bien à la salle.
      * @private
      */
     @Watch('room', { deep: true })
-    private onRoomsChanged() {
+    private onRoomChanged() {
         if (this.room) {
             const playerFound = this.room.players.find(p => p.userId === this.me.id);
 

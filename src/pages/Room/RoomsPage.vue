@@ -76,7 +76,7 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
     private onRoomsChanged() {
         this.rooms.forEach(r => {
             r.players.forEach(p => {
-                if (p.userId === this.me?.id) {
+                if (p.userId === this.me?.id && !p.hasFinished) {
                     this.$router.push({
                         path: `/room/${r.id}`,
                     });

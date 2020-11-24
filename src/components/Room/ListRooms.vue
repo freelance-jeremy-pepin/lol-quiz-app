@@ -12,21 +12,30 @@
                         <q-tooltip>
                             <div>Quiz: {{ room.quizConfiguration.quiz.name }}</div>
                             <div>Number of questions: {{ room.quizConfiguration.numberQuestions }}</div>
-                            <div>With stopwatch: {{ room.quizConfiguration.withStopWatch }}</div>
+                            <div>{{ room.quizConfiguration.withStopWatch | formatWithStopWatch }}</div>
                         </q-tooltip>
                     </q-icon>
                 </q-item-label>
+                <q-item-label caption>Players in room: {{ room.players.length }}</q-item-label>
             </q-item-section>
 
             <q-item-section side>
                 <div class="text-grey-8">
                     <q-btn
+                        :style="`${room.ownerId === me.id ? '' : 'margin-right: 29px'}`"
                         color="primary"
                         flat
                         @click="onJoinRoom(room)"
                     >Join room
                     </q-btn>
-                    <q-btn dense flat icon="more_vert" round size="12px">
+                    <q-btn
+                        v-if="room.ownerId === me.id"
+                        dense
+                        flat
+                        icon="more_vert"
+                        round
+                        size="12px"
+                    >
                         <q-menu>
                             <q-list style="min-width: 100px">
                                 <q-item v-close-popup clickable>
@@ -53,9 +62,10 @@ import User from 'src/models/User';
 import { createDefaultPlayer } from 'src/models/Player';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
+import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 
 @Component
-export default class ListRoom extends Mixins(SocketMixin, UserMixin) {
+export default class ListRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin) {
     // region Props
 
     @Prop({ required: true }) rooms!: Room[];

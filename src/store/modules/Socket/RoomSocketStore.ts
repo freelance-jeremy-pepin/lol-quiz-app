@@ -20,6 +20,11 @@ export default class RoomSocketStore extends VuexModule {
     // region Mutations
 
     @Mutation
+    private setRoom(room?: Room | null) {
+        this._room = room;
+    }
+
+    @Mutation
     public SOCKET_CONNECT() {
         this._rooms = [];
 
@@ -141,6 +146,7 @@ export default class RoomSocketStore extends VuexModule {
 
     @Action({ rawError: true })
     public getRoomById(payload: { id: string, user: User }) {
+        this.setRoom(undefined);
         socket.emit('get_room_by_id', payload.id, payload.user);
     }
 
