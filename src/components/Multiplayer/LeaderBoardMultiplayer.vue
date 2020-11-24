@@ -3,7 +3,6 @@
         <card-with-title-and-action
             :center-content="false"
             :max-width="500"
-            action-label="Play again!"
             title="Leader board"
             @action="$emit('play-again')"
         >
@@ -84,6 +83,10 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixi
 
     // region Events handlers
 
+    private onPlayAgain() {
+        this.playAgain();
+    }
+
     private onRedirectToRooms() {
         this.redirectToRooms();
     }
@@ -91,6 +94,10 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixi
     // endregion
 
     // region Methods
+
+    private playAgain() {
+        // TODO:
+    }
 
     private redirectToRooms() {
         this.$router.push({

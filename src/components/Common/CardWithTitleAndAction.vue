@@ -9,7 +9,7 @@
 
         <slot></slot>
 
-        <q-card-actions class="q-pa-none">
+        <q-card-actions v-if="actionLabel" class="q-pa-none">
             <q-btn
                 :color="actionColor"
                 class="full-width"
@@ -31,7 +31,7 @@ export default class CardWithTitleAndAction extends Vue {
 
     @Prop({ required: false }) title!: string;
 
-    @Prop({ required: true }) actionLabel!: string;
+    @Prop({ required: false, default: null }) actionLabel!: string;
 
     @Prop({ required: false, default: 'accent' }) actionColor!: string;
 
