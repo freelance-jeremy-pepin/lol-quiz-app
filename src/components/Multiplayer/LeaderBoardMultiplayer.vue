@@ -29,7 +29,7 @@
                             <q-btn
                                 color="accent"
                                 flat
-                                @click="onViewHistoryPlayer(player)"
+                                @click="$emit('view-history', player)"
                             >View history
                             </q-btn>
                         </div>
@@ -37,19 +37,14 @@
                 </q-item>
             </q-list>
         </card-with-title-and-action>
-
-        <list-answers-history-item
-            v-model="listAnswerHistoryItem.display"
-            :answers-history-item="listAnswerHistoryItem.player.answersHistoryItem"
-        ></list-answers-history-item>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
+import { Component, Mixins, Prop } from 'vue-property-decorator';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
-import Player, { createDefaultPlayer } from '../../models/Player';
+import Player from '../../models/Player';
 import UserMixin from '../../mixins/userMixin';
 import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistoryItem.vue';
 
@@ -61,59 +56,18 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin) {
 
     @Prop({ required: true }) room!: Room;
 
-    // endregion
-
-    // region Data
-
-    private listAnswerHistoryItem: { display: boolean, player: Player } = {
-        display: false,
-        player: createDefaultPlayer(),
-    };
+    @Prop({ required: false, default: false, type: Boolean }) winnerHasLowestScore!: Room;
 
     // endregion
 
     // region Computed properties
 
     private get playersClassement(): Player[] {
-        return this.room.players.sort((a, b) => b.score - a.score);
-    }
-
-    // endregion
-
-    // region Events handlers
-
-    private onViewHistoryPlayer(player: Player) {
-        this.viewHistoryPlayer(player);
-    }
-
-    // endregion
-
-    // region Methods
-
-    private viewHistoryPlayer(player: Player) {
-        this.listAnswerHistoryItem = {
-            player,
-            display: true,
-        };
-    }
-
-    // endregion
-
-    // region Watchers
-
-    /**
-     * Dès que la salle change et si l'historique des réponses est ouverte, met à jour l'historique.
-     * @private
-     */
-    @Watch('room', { deep: true })
-    private onRoomChanged() {
-        if (this.listAnswerHistoryItem.display) {
-            const playerFound = this.room.players.find(p => p.id === this.listAnswerHistoryItem.player.id);
-
-            if (playerFound) {
-                this.listAnswerHistoryItem.player = playerFound;
-            }
+        if (this.winnerHasLowestScore) {
+            return this.room.players.sort((a, b) => a.score - b.score);
         }
+
+        return this.room.players.sort((a, b) => b.score - a.score);
     }
 
     // endregion

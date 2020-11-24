@@ -59,6 +59,7 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.roomSocketStore.getAllRooms();
     }

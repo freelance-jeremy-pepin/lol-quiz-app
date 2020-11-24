@@ -1,7 +1,7 @@
 <template>
     <div class="full-width">
         <result-quiz
-            v-if="quizStageStore.isQuizFinished"
+            v-if="quizStageStore.isQuizFinished && !isMultiplayer"
             :is-multiplayer="isMultiplayer"
             :number-questions="quizConfiguration.numberQuestions"
             :score="player.score"
@@ -10,15 +10,24 @@
             @view-history="$emit('view-history')"
         ></result-quiz>
 
-        <div v-else-if="quizStageStore.isLoading" class="text-center">
+        <leader-board-multiplayer
+            v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
+            :room="room"
+            @view-history="(playerViewHistory) => $emit('view-history', playerViewHistory)"
+        ></leader-board-multiplayer>
+
+        <div v-if="quizStageStore.isLoading" class="text-center">
             <q-spinner color="primary" size="3em"></q-spinner>
         </div>
 
-        <div v-else-if="quizStageStore.isUnknownRoom" class="text-center text-bold text-negative">
+        <div v-if="quizStageStore.isUnknownRoom" class="text-center text-bold text-negative">
             Room does not exists!
         </div>
 
-        <div v-else class="q-gutter-y-sm">
+        <div
+            v-if="!quizStageStore.isQuizFinished && !quizStageStore.isLoading && !quizStageStore.isUnknownRoom"
+            class="q-gutter-y-sm"
+        >
             <card-with-title-and-action
                 :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
                 :action-disable="quizStageStore.isVerifyingAnswer"
@@ -107,9 +116,11 @@ import UserMixin from 'src/mixins/userMixin';
 import SocketMixin from 'src/mixins/socketMixin';
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import Room from 'src/models/Room';
+import LeaderBoardMultiplayer from 'components/Multiplayer/LeaderBoardMultiplayer.vue';
 
 @Component({
     components: {
+        LeaderBoardMultiplayer,
         ProgressQuizMultiplayer,
         CardWithTitleAndAction,
         ResultQuiz,

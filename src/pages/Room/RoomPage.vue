@@ -16,14 +16,6 @@ import UserMixin from 'src/mixins/userMixin';
     components: { JoinedRoom },
 })
 export default class RoomPage extends Mixins(SocketMixin, UserMixin) {
-    // region Props
-
-    // endregion
-
-    // region Data
-
-    // endregion
-
     // region Computed properties
 
     private get room(): Room | undefined | null {
@@ -34,17 +26,10 @@ export default class RoomPage extends Mixins(SocketMixin, UserMixin) {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.roomSocketStore.getRoomById({ id: this.$route.params.id, user: this.me });
     }
-
-    // endregion
-
-    // region Event handlers
-
-    // endregion
-
-    // region Methods
 
     // endregion
 

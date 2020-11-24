@@ -52,6 +52,7 @@ class ItemLolApiStore extends VuexModule {
 
     public get itemsFilteredForQuiz(): ItemLolApi[] {
         return this._items.filter(i => {
+            // noinspection RedundantIfStatementJS
             if (
                 i.maps && i.maps['11']
                 && (i.consumed === undefined || !i.consumed) // Enlève les consommables.

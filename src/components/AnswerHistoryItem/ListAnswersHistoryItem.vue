@@ -6,7 +6,7 @@
                     v-for="(answerHistoryItem, index) in answersHistoryItemReversed"
                     :key="answerHistoryItem.id"
                     :answer-history-item="answerHistoryItem"
-                    :is-last="index === answersHistoryItem.length - 1"
+                    :is-last="index === answerHistoryItem.length - 1"
                 ></line-answer-history-item>
             </q-list>
         </q-card>
@@ -18,21 +18,23 @@ import { Prop, Vue } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 import LineAnswerHistoryItem from 'components/AnswerHistoryItem/LineAnswerHistoryItem.vue';
+import Player from 'src/models/Player';
 
 @Component({
     components: { LineAnswerHistoryItem },
 })
-export default class AnswersHistoryList extends Vue {
+// TODO: renommer, inclure la notion de Player(voir Props)
+export default class ListAnswersHistoryItem extends Vue {
     // region Props
 
-    @Prop({ required: true }) answersHistoryItem!: AnswerHistoryItem[];
+    @Prop({ required: true }) player!: Player;
 
     // endregion
 
     // region Computed properties
 
     private get answersHistoryItemReversed(): AnswerHistoryItem[] {
-        return [...this.answersHistoryItem].reverse();
+        return [...this.player.answersHistoryItem].reverse();
     }
 
     // endregion

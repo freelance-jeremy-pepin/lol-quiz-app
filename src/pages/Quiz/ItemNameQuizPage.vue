@@ -8,9 +8,9 @@
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
-                v-on:toggle-history="answerHistoryIsVisible =! answerHistoryIsVisible"
+                v-on:toggle-history="onViewAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
-                v-on:view-history="answerHistoryIsVisible = true"
+                v-on:view-history="onViewAnswersHistory"
             >
                 <template v-slot:image>
                     <icon-item
@@ -22,8 +22,8 @@
             </icon-and-input-quiz-layout>
 
             <list-answers-history-item
-                v-model="answerHistoryIsVisible"
-                :answers-history-item="player.answersHistoryItem"
+                v-model="listAnswersHistoryItem.display"
+                :player="listAnswersHistoryItem.player"
             ></list-answers-history-item>
         </div>
     </q-page>
@@ -39,7 +39,7 @@ import { uniqueID } from 'src/utils/randomNumber';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import Player from 'src/models/Player';
+import Player, { createDefaultPlayer } from 'src/models/Player';
 import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHistoryItem.vue';
 import QuizConfigurationItem, { createDefaultQuizConfigurationItem } from 'src/models/QuizConfigurationItem';
 import QuizStore from 'src/store/modules/QuizStore';
@@ -48,6 +48,7 @@ import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import { quizList } from 'src/models/Quiz';
+import Room from 'src/models/Room';
 
 @Component({
     components: {
@@ -61,6 +62,14 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     // region Data
 
     private isMultiplayer: boolean = false;
+
+    /**
+     * Données de la modale historique des réponses.
+     */
+    private listAnswersHistoryItem: { display: boolean, player: Player } = {
+        display: false,
+        player: createDefaultPlayer(),
+    };
 
     // endregion
 
@@ -98,6 +107,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         return QuizStageStore;
     }
 
+    private get room(): Room | undefined | null {
+        return this.roomSocketStore.room;
+    }
+
     // endregion
 
     // region Data
@@ -119,12 +132,6 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      * @private
      */
     private answer: string = '';
-
-    /**
-     * Affiche l'historique des réponses.
-     * @private
-     */
-    private answerHistoryIsVisible: boolean = false;
 
     /**
      * Références des composants enfants.
@@ -206,6 +213,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
      */
     private onSkipItem() {
         this.skipItem();
+    }
+
+    private onViewAnswersHistory(player?: Player) {
+        this.viewAnswersHistory(player);
     }
 
     // endregion
@@ -290,9 +301,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         if (this.player.currentQuestionNumber >= this.quizConfigurationItem.numberQuestions) {
             QuizStageStore.setQuizFinished();
 
-            if (this.isMultiplayer && this.roomSocketStore.room) {
+            if (this.isMultiplayer && this.room) {
                 this.roomSocketStore.updatePlayer({
-                    room: this.roomSocketStore.room,
+                    room: this.room,
                     player: { ...this.player, hasFinished: true },
                 });
             }
@@ -313,9 +324,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
 
         QuizStageStore.setAnswering();
 
-        if (this.isMultiplayer && this.roomSocketStore.room) {
+        if (this.isMultiplayer && this.room) {
             this.roomSocketStore.updatePlayer({
-                room: this.roomSocketStore.room,
+                room: this.room,
                 player: this.player,
             });
         }
@@ -392,9 +403,9 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         }
 
         // TODO: faire fonction
-        if (this.isMultiplayer && this.roomSocketStore.room) {
+        if (this.isMultiplayer && this.room) {
             this.roomSocketStore.updatePlayer({
-                room: this.roomSocketStore.room,
+                room: this.room,
                 player: this.player,
             });
         }
@@ -428,6 +439,47 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         }
     }
 
+    private viewAnswersHistory(player?: Player) {
+        if (player) {
+            this.listAnswersHistoryItem.player = player;
+        } else {
+            this.listAnswersHistoryItem.player = this.player;
+        }
+
+        this.listAnswersHistoryItem.display = true;
+    }
+
+    private setQuizConfigurationItemFromRoom(room: Room) {
+        this.quizConfigurationItem = room.quizConfiguration as QuizConfigurationItem;
+
+        const playerFound = room.players.find(p => p.userId === this.me.id);
+
+        if (playerFound) {
+            this.player = playerFound;
+
+            // TODO: à revoir
+            // Si le joueur a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
+            let addEmptyAnswerToHistory = true;
+            if (this.player.currentQuestionNumber > 0 && !this.player.hasFinished) {
+                this.player = {
+                    ...this.player,
+                    currentQuestionNumber: this.player.currentQuestionNumber - 1,
+                };
+                addEmptyAnswerToHistory = false;
+            }
+
+            this.pickNextItem(addEmptyAnswerToHistory);
+        }
+    }
+
+    private refreshPlayerAnswerHistoryFromRoom(room: Room) {
+        const playerFound = room.players.find(p => p.id === this.listAnswersHistoryItem.player.id);
+
+        if (playerFound) {
+            this.listAnswersHistoryItem.player = playerFound;
+        }
+    }
+
     // endregion
 
     // region Watchers
@@ -448,29 +500,22 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         this.firstStartNewQuiz();
     }
 
-    @Watch('roomSocketStore.room')
+    /**
+     * Dès que la salle a été récupérée, initialise le quiz.
+     * Dès que la salle change et si l'historique des réponses est ouverte, met à jour l'historique.
+     * @private
+     */
+    @Watch('room', { deep: true })
     public onRoomChanged() {
         if (this.isMultiplayer) {
-            if (this.roomSocketStore.room) {
-                this.quizConfigurationItem = this.roomSocketStore.room.quizConfiguration as QuizConfigurationItem;
+            if (this.room) {
+                // Initialise la configuration du quiz seulement si elle n'a pas déjà été initialisée.
+                if (this.quizConfigurationItem.items.length < 1) {
+                    this.setQuizConfigurationItemFromRoom(this.room);
+                }
 
-                const playerFound = this.roomSocketStore.room.players.find(p => p.userId === this.me.id);
-
-                if (playerFound) {
-                    this.player = playerFound;
-
-                    // TODO: à revoir
-                    // Si le joueur a déjà commencé le quiz, on le place sur l'objet précédent pour sélectionner le suivant.
-                    let addEmptyAnswerToHistory = true;
-                    if (this.player.currentQuestionNumber > 0 && !this.player.hasFinished) {
-                        this.player = {
-                            ...this.player,
-                            currentQuestionNumber: this.player.currentQuestionNumber - 1,
-                        };
-                        addEmptyAnswerToHistory = false;
-                    }
-
-                    this.pickNextItem(addEmptyAnswerToHistory);
+                if (this.listAnswersHistoryItem.display) {
+                    this.refreshPlayerAnswerHistoryFromRoom(this.room);
                 }
             } else {
                 this.quizStageStore.setUnknownRoom();

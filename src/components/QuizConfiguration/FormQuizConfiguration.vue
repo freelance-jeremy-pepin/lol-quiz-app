@@ -66,6 +66,7 @@ export default class FormQuizConfiguration extends Vue {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.restoreFormLocalStorage();
     }

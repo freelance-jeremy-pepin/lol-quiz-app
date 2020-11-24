@@ -50,7 +50,7 @@ import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 @Component({
     components: { IconItem },
 })
-export default class AnswerHistoryLine extends Vue {
+export default class LineAnswerHistoryItem extends Vue {
     // region Props
 
     @Prop({ required: true }) answerHistoryItem!: AnswerHistoryItem;
