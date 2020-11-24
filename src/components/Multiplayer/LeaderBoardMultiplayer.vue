@@ -3,6 +3,7 @@
         <card-with-title-and-action
             :center-content="false"
             :max-width="500"
+            :subtitle="`${allPlayerHasFinished ? '' : '(provisional)'}`"
             title="Leader board"
             @action="$emit('play-again')"
         >
@@ -19,6 +20,7 @@
                     <q-item-section>
                         <q-item-label class="text-bold">
                             {{ getPseudoById(player.userId) }}
+                            <span v-if="!player.hasFinished"> (playing)</span>
                         </q-item-label>
                         <q-item-label caption>(score: {{ player.score }})</q-item-label>
                     </q-item-section>
@@ -77,6 +79,10 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixi
         }
 
         return this.room.players.sort((a, b) => b.score - a.score);
+    }
+
+    private get allPlayerHasFinished(): boolean {
+        return this.room.players.every(p => p.hasFinished);
     }
 
     // endregion

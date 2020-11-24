@@ -1,13 +1,11 @@
 <template>
-    <q-card class="q-pa-sm">
-        <q-card-section class="text-bold">
-            {{ room.name }}
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
+    <q-card class="q-pa-xs">
+        <q-card-section>
             <div v-for="player in room.players" :key="player.id">
                 <span :class="`${me.id === player.userId ? 'text-bold text-accent' : ''}`">
-                    {{ getPseudoById(player.userId) }}: {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}
+                    <span>{{ getPseudoById(player.userId) }}: </span>
+                    <span v-if="player.hasFinished">Finished</span>
+                    <span v-else> {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}</span>
                 </span>
             </div>
         </q-card-section>

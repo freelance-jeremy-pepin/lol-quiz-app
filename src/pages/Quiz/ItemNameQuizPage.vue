@@ -8,9 +8,9 @@
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
-                v-on:toggle-history="onViewAnswersHistory(null)"
+                v-on:toggle-history="onToggleAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
-                v-on:view-history="onViewAnswersHistory"
+                v-on:view-history="onToggleAnswersHistory"
             >
                 <template v-slot:image>
                     <icon-item
@@ -215,8 +215,8 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         this.skipItem();
     }
 
-    private onViewAnswersHistory(player?: Player) {
-        this.viewAnswersHistory(player);
+    private onToggleAnswersHistory(player?: Player) {
+        this.toggleAnswersHistory(player);
     }
 
     // endregion
@@ -439,14 +439,16 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         }
     }
 
-    private viewAnswersHistory(player?: Player) {
-        if (player) {
-            this.listAnswersHistoryItem.player = player;
-        } else {
-            this.listAnswersHistoryItem.player = this.player;
+    private toggleAnswersHistory(player?: Player) {
+        if (!this.listAnswersHistoryItem.display) {
+            if (player) {
+                this.listAnswersHistoryItem.player = player;
+            } else {
+                this.listAnswersHistoryItem.player = this.player;
+            }
         }
 
-        this.listAnswersHistoryItem.display = true;
+        this.listAnswersHistoryItem.display = !this.listAnswersHistoryItem.display;
     }
 
     private setQuizConfigurationItemFromRoom(room: Room) {

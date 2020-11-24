@@ -10,6 +10,7 @@
             action-label="Create room"
             title="New room"
             @action="onCreateRoom"
+            :action-disable="!me || !socketStore.isConnected"
         >
             <q-card-section>
                 <q-form @submit="onCreateRoom">

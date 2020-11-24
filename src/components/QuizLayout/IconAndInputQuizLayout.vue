@@ -86,17 +86,6 @@
         >
             <progress-quiz-multiplayer :room="room"></progress-quiz-multiplayer>
         </q-page-sticky>
-
-        <q-page-sticky
-            v-if="!quizStageStore.isQuizFinished"
-            :offset="[18, 18]"
-            position="bottom-right"
-        >
-            <q-btn
-                color="accent" fab icon="history"
-                @click="$emit('view-history')"
-            />
-        </q-page-sticky>
     </div>
 </template>
 
