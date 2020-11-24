@@ -27,6 +27,14 @@ const routes: RouteConfig[] = [
     },
 
     {
+        path: '/single-player',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/SinglePlayerPage.vue') },
+        ],
+    },
+
+    {
         path: '/rooms',
         component: () => import('layouts/MainLayout.vue'),
         children: [
