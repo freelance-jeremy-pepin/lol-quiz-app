@@ -8,7 +8,7 @@ export default interface Player extends Model {
     score: number;
     currentQuestionNumber: number;
     hasFinished: boolean;
-    answersHistoryItem: AnswerHistoryItem[]; // TODO: à remplace par AnswerHistory[]
+    answersHistoryItem: AnswerHistoryItem[]; // TODO: à remplacer par AnswerHistory[]
     completeTime: Time;
     isReady: boolean;
 }

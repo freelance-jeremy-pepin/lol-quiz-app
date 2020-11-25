@@ -10,11 +10,11 @@
             @view-history="$emit('view-history')"
         ></result-quiz>
 
-        <leader-board-multiplayer
+        <leaderboard-multiplayer
             v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
             :room="room"
             @view-history="(playerViewHistory) => $emit('view-history', playerViewHistory)"
-        ></leader-board-multiplayer>
+        ></leaderboard-multiplayer>
 
         <div v-if="quizStageStore.isLoading" class="text-center">
             <q-spinner color="primary" size="3em"></q-spinner>
@@ -105,11 +105,11 @@ import UserMixin from 'src/mixins/userMixin';
 import SocketMixin from 'src/mixins/socketMixin';
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import Room from 'src/models/Room';
-import LeaderBoardMultiplayer from 'components/Multiplayer/LeaderBoardMultiplayer.vue';
+import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
 
 @Component({
     components: {
-        LeaderBoardMultiplayer,
+        LeaderboardMultiplayer,
         ProgressQuizMultiplayer,
         CardWithTitleAndAction,
         ResultQuiz,

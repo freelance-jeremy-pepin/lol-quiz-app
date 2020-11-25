@@ -11,7 +11,7 @@
             <q-item-section>
                 <q-item-label class="text-bold">
                     <span v-if="answerHistoryItem.isAnswering">???</span>
-                    <span v-else>{{ answerHistoryItem.item.name }}</span>
+                    <span v-else>Answer: {{ answerHistoryItem.answer }}</span>
                 </q-item-label>
 
                 <q-item-label>
@@ -27,8 +27,8 @@
                         :class="answer.isRight ? 'text-positive' : 'text-negative'"
                         class="text-bold"
                     >
-                    [{{ answer.answer }}]
-                </span>
+                        [{{ answer.answer }}]
+                    </span>
                 </q-item-label>
 
                 <q-item-label v-else-if="!answerHistoryItem.isAnswering" class="text-italic">

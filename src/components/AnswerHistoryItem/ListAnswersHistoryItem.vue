@@ -18,23 +18,22 @@ import { Prop, Vue } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 import LineAnswerHistoryItem from 'components/AnswerHistoryItem/LineAnswerHistoryItem.vue';
-import Player from 'src/models/Player';
 
 @Component({
     components: { LineAnswerHistoryItem },
 })
-// TODO: renommer, inclure la notion de Player(voir Props)
+// TODO: à voir si je garde car doublon avec TableAnswersHistoryItem.
 export default class ListAnswersHistoryItem extends Vue {
     // region Props
 
-    @Prop({ required: true }) player!: Player;
+    @Prop({ required: true }) answersHistoryItem!: AnswerHistoryItem[];
 
     // endregion
 
     // region Computed properties
 
     private get answersHistoryItemReversed(): AnswerHistoryItem[] {
-        return [...this.player.answersHistoryItem].reverse();
+        return [...this.answersHistoryItem].reverse();
     }
 
     // endregion

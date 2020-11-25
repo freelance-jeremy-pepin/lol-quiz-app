@@ -4,7 +4,7 @@
             :center-content="false"
             :max-width="500"
             :subtitle="`${allPlayerHasFinished ? '' : '(provisional)'}`"
-            title="Leader board"
+            title="Leaderboard"
             @action="$emit('play-again')"
         >
             <q-list separator>
@@ -53,6 +53,7 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
 import SocketMixin from 'src/mixins/socketMixin';
+import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
 import Player from '../../models/Player';
@@ -60,9 +61,9 @@ import UserMixin from '../../mixins/userMixin';
 import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistoryItem.vue';
 
 @Component({
-    components: { ListAnswersHistoryItem, CardWithTitleAndAction },
+    components: { TableAnswerHistoryItem, ListAnswersHistoryItem, CardWithTitleAndAction },
 })
-export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixin) {
+export default class LeaderboardMultiplayer extends Mixins(UserMixin, SocketMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
@@ -74,11 +75,13 @@ export default class LeaderBoardMultiplayer extends Mixins(UserMixin, SocketMixi
     // region Computed properties
 
     private get playersClassement(): Player[] {
+        const players = [...this.room.players];
+
         if (this.winnerHasLowestScore) {
-            return this.room.players.sort((a, b) => a.score - b.score);
+            return players.sort((a, b) => a.score - b.score);
         }
 
-        return this.room.players.sort((a, b) => b.score - a.score);
+        return players.sort((a, b) => b.score - a.score);
     }
 
     private get allPlayerHasFinished(): boolean {

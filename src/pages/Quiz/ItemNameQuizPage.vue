@@ -8,9 +8,9 @@
                 :quiz-configuration="quizConfigurationItem"
                 v-on:skip="onSkipItem"
                 v-on:verify-answer="onVerifyAnswer"
-                v-on:toggle-history="onToggleAnswersHistory(null)"
+                v-on:toggle-history="onModalToggleAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
-                v-on:view-history="onToggleAnswersHistory"
+                v-on:view-history="onModalToggleAnswersHistory"
             >
                 <template v-slot:image>
                     <icon-item
@@ -22,9 +22,17 @@
             </icon-and-input-quiz-layout>
 
             <list-answers-history-item
-                v-model="listAnswersHistoryItem.display"
-                :player="listAnswersHistoryItem.player"
+                v-if="!isMultiplayer"
+                v-model="modalAnswersHistoryItem.display"
+                :answers-history-item="modalAnswersHistoryItem.player.answersHistoryItem"
             ></list-answers-history-item>
+
+            <table-answer-history-item
+                v-if="isMultiplayer && room"
+                v-model="modalAnswersHistoryItem.display"
+                :players="room.players"
+                :quiz-configuration-item="quizConfigurationItem"
+            ></table-answer-history-item>
         </div>
     </q-page>
 </template>
@@ -49,9 +57,11 @@ import UserMixin from 'src/mixins/userMixin';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import { quizList } from 'src/models/Quiz';
 import Room from 'src/models/Room';
+import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
 
 @Component({
     components: {
+        TableAnswerHistoryItem,
         ListAnswersHistoryItem,
         IconAndInputQuizLayout,
         IconItem,
@@ -66,7 +76,7 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     /**
      * Données de la modale historique des réponses.
      */
-    private listAnswersHistoryItem: { display: boolean, player: Player } = {
+    private modalAnswersHistoryItem: { display: boolean, player: Player } = {
         display: false,
         player: createDefaultPlayer(),
     };
@@ -215,8 +225,8 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         this.skipItem();
     }
 
-    private onToggleAnswersHistory(player?: Player) {
-        this.toggleAnswersHistory(player);
+    private onModalToggleAnswersHistory(player?: Player) {
+        this.toggleModalAnswersHistory(player);
     }
 
     // endregion
@@ -363,6 +373,7 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
             const emptyAnswer: AnswerHistoryItem = {
                 id: uniqueID(),
                 item: this.itemToGuess,
+                answer: this.itemToGuess.name ? this.itemToGuess.name : '',
                 found: false,
                 answers: [],
                 isAnswering: true,
@@ -439,16 +450,16 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
         }
     }
 
-    private toggleAnswersHistory(player?: Player) {
-        if (!this.listAnswersHistoryItem.display) {
+    private toggleModalAnswersHistory(player?: Player) {
+        if (!this.modalAnswersHistoryItem.display) {
             if (player) {
-                this.listAnswersHistoryItem.player = player;
+                this.modalAnswersHistoryItem.player = player;
             } else {
-                this.listAnswersHistoryItem.player = this.player;
+                this.modalAnswersHistoryItem.player = this.player;
             }
         }
 
-        this.listAnswersHistoryItem.display = !this.listAnswersHistoryItem.display;
+        this.modalAnswersHistoryItem.display = !this.modalAnswersHistoryItem.display;
     }
 
     private setQuizConfigurationItemFromRoom(room: Room) {
@@ -475,10 +486,10 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
     }
 
     private refreshPlayerAnswerHistoryFromRoom(room: Room) {
-        const playerFound = room.players.find(p => p.id === this.listAnswersHistoryItem.player.id);
+        const playerFound = room.players.find(p => p.id === this.modalAnswersHistoryItem.player.id);
 
         if (playerFound) {
-            this.listAnswersHistoryItem.player = playerFound;
+            this.modalAnswersHistoryItem.player = playerFound;
         }
     }
 
@@ -516,7 +527,7 @@ export default class ItemNameQuizPage extends Mixins(SocketMixin, UserMixin, Qui
                     this.setQuizConfigurationItemFromRoom(this.room);
                 }
 
-                if (this.listAnswersHistoryItem.display) {
+                if (this.modalAnswersHistoryItem.display) {
                     this.refreshPlayerAnswerHistoryFromRoom(this.room);
                 }
             } else {
