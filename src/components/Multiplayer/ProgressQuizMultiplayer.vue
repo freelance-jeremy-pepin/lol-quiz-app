@@ -5,7 +5,7 @@
                 <span :class="`${me.id === player.userId ? 'text-bold text-accent' : ''}`">
                     <span>{{ getPseudoById(player.userId) }}: </span>
                     <span v-if="player.hasFinished">Finished</span>
-                    <span v-else> {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}</span>
+                    <span v-else> {{ player.currentQuestionNumber === 0 ? 1 : player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}</span>
                 </span>
             </div>
         </q-card-section>
