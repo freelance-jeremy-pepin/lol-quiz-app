@@ -6,7 +6,7 @@ import { uniqueID } from 'src/utils/randomNumber';
 export default interface Room extends Model {
     name: string;
     quizConfiguration: QuizConfiguration;
-    ownerId: string; // Id d'un User.
+    ownerId: string; // ID d'un User.
     players: Player[];
     inGame: boolean;
 }

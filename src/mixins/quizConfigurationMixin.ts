@@ -7,6 +7,7 @@ import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
 import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import SocketMixin from 'src/mixins/socketMixin';
+import QuizAnswer, { createDefaultQuizAnswer } from 'src/models/QuizAnswer';
 
 @Component({
     filters: {
@@ -26,19 +27,27 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
 
                 if (ItemLolApiStore.items) {
                     const itemsToFind: ItemLolApi[] = [];
+                    const quizAnswers: QuizAnswer[] = [];
 
                     // Construit la liste des objets à deviner.
                     let itemsToPick: ItemLolApi[] = [...ItemLolApiStore.items];
                     for (let i = 0; i < quizConfigurationItem.numberQuestions; i++) {
+                        const quizAnswer = createDefaultQuizAnswer();
+
                         if (itemsToPick.length < 1) {
                             itemsToPick = [...ItemLolApiStore.items];
                         }
 
                         const randomIndex = randomNumber(0, itemsToPick.length - 1);
-                        itemsToFind.push(itemsToPick[randomIndex]);
+                        const itemToFind = itemsToPick[randomIndex];
+                        quizAnswer.value = itemToFind.name;
+
+                        itemsToFind.push(itemToFind);
+                        quizAnswers.push(quizAnswer);
                         itemsToPick.splice(randomIndex, 1);
                     }
 
+                    quizConfigurationItem.answers = quizAnswers;
                     quizConfigurationItem.items = itemsToFind;
                 }
 

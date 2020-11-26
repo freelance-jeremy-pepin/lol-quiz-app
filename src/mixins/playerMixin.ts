@@ -1,5 +1,6 @@
 import { Component, Mixins } from 'vue-property-decorator';
 import SocketMixin from 'src/mixins/socketMixin';
+import Player from 'src/models/Player';
 
 @Component({
     filters: {
@@ -21,4 +22,7 @@ import SocketMixin from 'src/mixins/socketMixin';
     },
 })
 export default class PlayerMixin extends Mixins(SocketMixin) {
+    public playerIsCurrentQuestion(numberQuestion: number, player: Player) {
+        return player.currentQuestionNumber === numberQuestion + 1 && !player.hasFinished;
+    }
 }

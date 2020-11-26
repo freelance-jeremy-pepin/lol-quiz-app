@@ -1,10 +1,11 @@
 import Model from 'src/models/Model';
 import Quiz, { createDefaultQuiz } from 'src/models/Quiz';
 import { uniqueID } from 'src/utils/randomNumber';
+import QuizAnswer from 'src/models/QuizAnswer';
 
 export default interface QuizConfiguration extends Model {
     quiz: Quiz;
-    answers: string[];
+    answers: QuizAnswer[];
     numberQuestions: number;
     withStopWatch: boolean;
 }
@@ -12,7 +13,7 @@ export default interface QuizConfiguration extends Model {
 export function createDefaultQuizConfiguration(): QuizConfiguration {
     return {
         id: uniqueID(),
-        answers: [], // TODO: stocker les réponses ici
+        answers: [],
         quiz: createDefaultQuiz(),
         numberQuestions: 5,
         withStopWatch: false,

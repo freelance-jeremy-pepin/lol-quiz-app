@@ -32,7 +32,7 @@
                 :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
                 :action-disable="quizStageStore.isVerifyingAnswer"
                 :action-label="quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
-                @action="$emit('verify-answer')"
+                @action="onVerifyAnswer"
             >
                 <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
@@ -44,14 +44,14 @@
                     <q-input
                         v-if="!quizStageStore.isDisplayAnswer"
                         ref="answerInput"
-                        v-model="answer"
+                        v-model="answerGivenByPlayer"
                         autofocus
                         borderless
                         class="full-width"
                         label="Your answer"
                         outlined
-                        @input="$emit('input', answer)"
-                        @keydown.enter.stop="$emit('verify-answer')"
+                        @input="$emit('input', answerGivenByPlayer)"
+                        @keydown.enter.stop="onVerifyAnswer"
                     ></q-input>
                 </q-card-section>
             </card-with-title-and-action>
@@ -61,7 +61,7 @@
                 class="full-width"
                 color="grey"
                 flat
-                @click="$emit('skip')"
+                @click="onSkip"
             >
                 Skip
             </q-btn>
@@ -106,6 +106,8 @@ import SocketMixin from 'src/mixins/socketMixin';
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import Room from 'src/models/Room';
 import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
+import QuizAnswer from 'src/models/QuizAnswer';
+import PlayerAnswer, { createDefaultPlayerAnswer } from 'src/models/PlayerAnswer';
 
 @Component({
     components: {
@@ -134,7 +136,7 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
     /**
      * Réponse donnée par le jouer.
      */
-    private answer: string = '';
+    private answerGivenByPlayer: string = '';
 
     /**
      * Référence des composants enfants.
@@ -179,6 +181,10 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
         return undefined;
     }
 
+    private get currentQuizAnswer(): QuizAnswer {
+        return this.quizConfiguration.answers[this.player.currentQuestionNumber - 1];
+    }
+
     // endregion
 
     // region Hooks
@@ -197,6 +203,35 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
      */
     private unmounted() {
         window.removeEventListener('keydown', this.onKeyPress);
+    }
+
+    // endregion
+
+    // region Events handlers
+
+    /**
+     * Vérifie la réponse donnée par l'utilisateur.
+     * @private
+     */
+    private onVerifyAnswer() {
+        QuizStageStore.setVerifyingAnswer();
+
+        if (this.verifyAnswer()) {
+            this.$emit('correct-answer');
+        } else {
+            QuizStageStore.setWrong();
+
+            setTimeout(() => {
+                if (QuizStageStore.isWrong) {
+                    QuizStageStore.setAnswering();
+                }
+            }, 1000);
+        }
+    }
+
+    private onSkip() {
+        this.updateLastAnswer(false, true);
+        this.$emit('skip');
     }
 
     // endregion
@@ -241,6 +276,62 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
         }
     }
 
+    /**
+     * Vérifie la réponse donnée par le joueur.
+     * @private
+     */
+    private verifyAnswer(): boolean {
+        if (this.currentQuizAnswer) {
+            // Garde seulement les caractère alphanumérique du nom de l'objet et de la réponse donnée par le joueur.
+            // Si les 2 valeurs sont identiques, le joueur a donné la bonne réponse.
+            const quizAnswer = this.currentQuizAnswer.value.replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const playerAnswer = this.answerGivenByPlayer.replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+            const answerIsRight = quizAnswer === playerAnswer;
+
+            this.updateLastAnswer(answerIsRight, false);
+
+            return answerIsRight;
+        }
+
+        return false;
+    }
+
+    /**
+     * Met à jour la dernière réponse donnée par le joueur.
+     * @param found L'objet a été trouvé.
+     * @param skipped L'objet a été passé.
+     * @private
+     */
+    private updateLastAnswer(found: boolean, skipped: boolean) {
+        const lastAnswer = this.player.answersHistory[this.player.answersHistory.length - 1];
+        lastAnswer.found = found;
+        lastAnswer.skipped = skipped;
+
+        if (this.answerGivenByPlayer.trim()) {
+            const newAnswer: PlayerAnswer = createDefaultPlayerAnswer();
+            newAnswer.value = this.answerGivenByPlayer.trim();
+            newAnswer.isRight = found;
+            lastAnswer.answers = [...lastAnswer.answers, newAnswer];
+        }
+
+        if (this.isMultiplayer && this.room) {
+            this.updatePlayer();
+        }
+    }
+
+    /**
+     * Met à jour le joueur courant.
+     */
+    private updatePlayer() {
+        if (this.room) {
+            this.roomSocketStore.updatePlayer({
+                room: this.room,
+                player: this.player,
+            });
+        }
+    }
+
     // endregion
 
     // region Watchers
@@ -250,7 +341,7 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
      */
     @Watch('$attrs.value')
     public onValueChanged(value: string) {
-        this.answer = value;
+        this.answerGivenByPlayer = value;
     }
 
     /**

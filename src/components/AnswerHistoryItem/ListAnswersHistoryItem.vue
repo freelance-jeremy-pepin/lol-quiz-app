@@ -3,10 +3,14 @@
         <q-card style="max-width: 500px; width: 100%;">
             <q-list>
                 <line-answer-history-item
-                    v-for="(answerHistoryItem, index) in answersHistoryItemReversed"
-                    :key="answerHistoryItem.id"
-                    :answer-history-item="answerHistoryItem"
-                    :is-last="index === answerHistoryItem.length - 1"
+                    v-for="(playerAnswerHistory, index) in player.answersHistory"
+                    :key="playerAnswerHistory.id"
+                    :answer-history-item="playerAnswerHistory"
+                    :is-answering="playerIsCurrentQuestion(index, player)"
+                    :is-last="index === playerAnswerHistory.length - 1"
+                    :item="quizConfigurationItem.items[index]"
+                    :player-answer-history="playerAnswerHistory"
+                    :quiz-answer="quizConfigurationItem.answers[index]"
                 ></line-answer-history-item>
             </q-list>
         </q-card>
@@ -14,27 +18,22 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue } from 'vue-property-decorator';
+import { Mixins, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
-import AnswerHistoryItem from 'src/models/AnswerHistoryItem';
 import LineAnswerHistoryItem from 'components/AnswerHistoryItem/LineAnswerHistoryItem.vue';
+import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
+import Player from 'src/models/Player';
+import PlayerMixin from 'src/mixins/playerMixin';
 
 @Component({
     components: { LineAnswerHistoryItem },
 })
-// TODO: à voir si je garde car doublon avec TableAnswersHistoryItem.
-export default class ListAnswersHistoryItem extends Vue {
+export default class ListAnswersHistoryItem extends Mixins(PlayerMixin) {
     // region Props
 
-    @Prop({ required: true }) answersHistoryItem!: AnswerHistoryItem[];
+    @Prop({ required: true }) quizConfigurationItem!: QuizConfigurationItem;
 
-    // endregion
-
-    // region Computed properties
-
-    private get answersHistoryItemReversed(): AnswerHistoryItem[] {
-        return [...this.answersHistoryItem].reverse();
-    }
+    @Prop({ required: true }) player!: Player;
 
     // endregion
 }

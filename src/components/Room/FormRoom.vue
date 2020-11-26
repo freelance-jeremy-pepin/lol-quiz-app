@@ -6,11 +6,11 @@
         @before-show="onBeforeShow"
     >
         <card-with-title-and-action
+            :action-disable="!me || !socketStore.isConnected"
             :max-width="500"
             action-label="Create room"
             title="New room"
             @action="onCreateRoom"
-            :action-disable="!me || !socketStore.isConnected"
         >
             <q-card-section>
                 <q-form @submit="onCreateRoom">
