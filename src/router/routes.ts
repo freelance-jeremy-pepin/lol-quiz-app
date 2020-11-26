@@ -11,9 +11,18 @@ const routes: RouteConfig[] = [
 
     {
         path: '/quiz/item-name-quiz',
-        component: () => import('layouts/MainLayout.vue'),
+        component: () => import('layouts/QuizLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/ItemNameQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/quiz/item-price-quiz',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ItemPriceQuizPage.vue') },
         ],
         props: true,
     },

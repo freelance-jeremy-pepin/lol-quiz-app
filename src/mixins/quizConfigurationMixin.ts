@@ -19,7 +19,8 @@ import QuizAnswer, { createDefaultQuizAnswer } from 'src/models/QuizAnswer';
 export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
     public specialiseQuizConfiguration(quizConfiguration: QuizConfiguration): QuizConfigurationItem | QuizConfigurationChampion {
         switch (quizConfiguration.quiz.internalName) {
-            case QuizListInternalName.ItemNameQuiz: {
+            case QuizListInternalName.ItemNameQuiz:
+            case QuizListInternalName.ItemPriceQuiz: {
                 const quizConfigurationItem: QuizConfigurationItem = {
                     ...quizConfiguration,
                     items: [],
@@ -40,7 +41,18 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
 
                         const randomIndex = randomNumber(0, itemsToPick.length - 1);
                         const itemToFind = itemsToPick[randomIndex];
-                        quizAnswer.value = itemToFind.name;
+
+                        switch (quizConfiguration.quiz.internalName) {
+                            case QuizListInternalName.ItemNameQuiz:
+                                quizAnswer.value = itemToFind.name;
+                                break;
+
+                            case QuizListInternalName.ItemPriceQuiz:
+                                quizAnswer.value = itemToFind.gold?.total ? itemToFind.gold.total.toString() : '0';
+                                break;
+
+                            default:
+                        }
 
                         itemsToFind.push(itemToFind);
                         quizAnswers.push(quizAnswer);
