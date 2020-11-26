@@ -1,7 +1,7 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
 import User, { createDefaultUser } from 'src/models/User';
-import { randomNumber, uniqueID } from 'src/utils/randomNumber';
+import { randomNumber, uniqueID } from 'src/utils/number';
 import { LocalStorage } from 'quasar';
 
 @Module({

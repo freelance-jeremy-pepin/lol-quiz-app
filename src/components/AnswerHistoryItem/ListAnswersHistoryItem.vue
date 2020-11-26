@@ -10,6 +10,7 @@
                     :is-last="index === playerAnswerHistory.length - 1"
                     :item="quizConfigurationItem.items[index]"
                     :player-answer-history="playerAnswerHistory"
+                    :quiz="quizConfigurationItem.quiz"
                     :quiz-answer="quizConfigurationItem.answers[index]"
                 ></line-answer-history-item>
             </q-list>

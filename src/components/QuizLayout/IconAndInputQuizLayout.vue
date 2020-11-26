@@ -3,7 +3,7 @@
         <result-quiz
             v-if="quizStageStore.isQuizFinished && !isMultiplayer"
             :is-multiplayer="isMultiplayer"
-            :number-questions="quizConfiguration.numberQuestions"
+            :number-questions="quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             :score="player.score"
             :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             @play-again="$emit('play-again')"
@@ -13,6 +13,7 @@
         <leaderboard-multiplayer
             v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
             :room="room"
+            :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
             @view-history="(playerViewHistory) => $emit('view-history', playerViewHistory)"
         ></leaderboard-multiplayer>
 
@@ -31,15 +32,16 @@
             <card-with-title-and-action
                 :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
                 :action-disable="quizStageStore.isVerifyingAnswer"
-                :action-label="quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
+                :action-label="quizConfiguration.quiz.onlyOneTry ? 'Next' : quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
+                :title="quizConfiguration.quiz.name"
                 @action="onVerifyAnswer"
             >
-                <q-card-section class="column items-center q-pa-md q-gutter-y-md">
+                <q-card-section class="column items-center q-pa-md">
                     <slot name="image"></slot>
 
-                    <div>{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                    <div class="q-mt-md">{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                    <div class="text-secondary text-bold">Score: {{ player.score }}</div>
+                    <div class="text-secondary text-bold q-mt-md">Score: {{ player.score }}</div>
 
                     <q-input
                         v-if="!quizStageStore.isDisplayAnswer"
@@ -47,7 +49,7 @@
                         v-model="answerGivenByPlayer"
                         autofocus
                         borderless
-                        class="full-width"
+                        class="full-width q-mt-md"
                         label="Your answer"
                         outlined
                         @input="$emit('input', answerGivenByPlayer)"
@@ -57,7 +59,7 @@
             </card-with-title-and-action>
 
             <q-btn
-                v-if="quizStageStore.isAnswering || quizStageStore.isWrong"
+                v-if="quizConfiguration.quiz.canSkipQuestion && (quizStageStore.isAnswering || quizStageStore.isWrong)"
                 class="full-width"
                 color="grey"
                 flat
@@ -68,7 +70,7 @@
         </div>
 
         <q-page-sticky :offset="[18, 18]" position="bottom-left">
-            <shortcuts-quiz></shortcuts-quiz>
+            <shortcuts-quiz :quiz="quizConfiguration.quiz"></shortcuts-quiz>
         </q-page-sticky>
 
         <q-page-sticky
@@ -214,18 +216,26 @@ export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixi
      * @private
      */
     private onVerifyAnswer() {
-        QuizStageStore.setVerifyingAnswer();
+        const answerIsCorrect = this.verifyAnswer();
 
-        if (this.verifyAnswer()) {
-            this.$emit('correct-answer');
+        if (this.quizConfiguration.quiz.onlyOneTry) {
+            this.$emit('answered', this.answerGivenByPlayer, this.currentQuizAnswer);
+
+            this.focusAnswerInput();
         } else {
-            QuizStageStore.setWrong();
+            QuizStageStore.setVerifyingAnswer();
 
-            setTimeout(() => {
-                if (QuizStageStore.isWrong) {
-                    QuizStageStore.setAnswering();
-                }
-            }, 1000);
+            if (answerIsCorrect) {
+                this.$emit('correct-answer');
+            } else {
+                QuizStageStore.setWrong();
+
+                setTimeout(() => {
+                    if (QuizStageStore.isWrong) {
+                        QuizStageStore.setAnswering();
+                    }
+                }, 1000);
+            }
         }
     }
 

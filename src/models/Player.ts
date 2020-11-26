@@ -1,5 +1,5 @@
 import Model from 'src/models/Model';
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 import { createDefaultTime, Time } from 'src/models/Time';
 import PlayerAnswerHistory from 'src/models/PlayerAnswerHistory';
 

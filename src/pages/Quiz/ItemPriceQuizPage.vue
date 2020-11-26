@@ -1,5 +1,5 @@
 <template>
-    <item-quiz-layout v-on:correct-answer="onCorrectAnswer"></item-quiz-layout>
+    <item-quiz-layout v-on:answered="onAnswered"></item-quiz-layout>
 </template>
 
 <script lang="ts">
@@ -11,6 +11,8 @@ import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHist
 import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
 import QuizItemMixin from 'src/mixins/quizItemMixin';
 import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';
+import { stringToInt } from 'src/utils/number';
+import QuizAnswer from 'src/models/QuizAnswer';
 
 @Component({
     components: {
@@ -22,12 +24,16 @@ import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';
         ResultQuiz,
     },
 })
-export default class ItemNameQuizPage extends Mixins(QuizItemMixin) {
+export default class ItemPriceQuizPage extends Mixins(QuizItemMixin) {
     // region Event handlers
 
-    private onCorrectAnswer() {
-        // Si la réponse est correcte, incrémente le score et passe au prochain objet.
-        this.player = { ...this.player, score: this.player.score + 1 };
+    private onAnswered(answerGivenByPlayer: string, quizAnswer: QuizAnswer) {
+        const priceItem: number = stringToInt(quizAnswer.value);
+        const priceGivenByPlayer: number = stringToInt(answerGivenByPlayer);
+
+        const score = Math.abs(priceItem - priceGivenByPlayer);
+
+        this.player = { ...this.player, score: this.player.score + score };
 
         this.onPickNextItem();
     }

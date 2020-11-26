@@ -6,6 +6,7 @@
                 v-model="answerGivenByPlayer"
                 :isMultiplayer="isMultiplayer"
                 :quiz-configuration="quizConfiguration"
+                v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
                 v-on:skip="onSkipItem"
                 v-on:correct-answer="$emit('correct-answer')"
                 v-on:toggle-history="onModalToggleAnswersHistory(null)"
@@ -22,14 +23,14 @@
             </icon-and-input-quiz-layout>
 
             <list-answers-history-item
-                v-if="!isMultiplayer"
+                v-if="true || !isMultiplayer"
                 v-model="modalAnswersHistory.display"
                 :player="modalAnswersHistory.player"
                 :quiz-configuration-item="quizConfiguration"
             ></list-answers-history-item>
 
             <table-answer-history-item
-                v-if="isMultiplayer && room"
+                v-if="false && isMultiplayer && room"
                 v-model="modalAnswersHistory.display"
                 :players="room.players"
                 :quiz-configuration-item="quizConfiguration"
@@ -51,7 +52,7 @@ import IconItem from 'components/Item/IconItem.vue';
         IconItem,
         TableAnswerHistoryItem,
         ListAnswersHistoryItem,
-        IconAndInputQuizLayout
+        IconAndInputQuizLayout,
     },
 })
 export default class ItemQuizLayout extends Mixins(QuizItemMixin) {

@@ -103,10 +103,12 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
         if (this.player.currentQuestionNumber >= this.quizConfiguration.numberQuestions) {
             QuizStageStore.setQuizFinished();
 
+            this.player = { ...this.player, hasFinished: true };
+
             if (this.isMultiplayer && this.room) {
                 this.roomSocketStore.updatePlayer({
                     room: this.room,
-                    player: { ...this.player, hasFinished: true },
+                    player: this.player,
                 });
             }
 
@@ -148,7 +150,9 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
      * @public
      */
     public skipItem() {
-        this.onPickNextItem();
+        if (this.quizConfiguration.quiz.canSkipQuestion) {
+            this.onPickNextItem();
+        }
     }
 
     /**

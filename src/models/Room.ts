@@ -1,7 +1,7 @@
 import Player from 'src/models/Player';
 import Model from 'src/models/Model';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 
 export default interface Room extends Model {
     name: string;

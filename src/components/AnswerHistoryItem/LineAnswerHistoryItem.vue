@@ -18,15 +18,24 @@
                 </q-item-label>
 
                 <q-item-label v-if="playerAnswerHistory.answers.length > 0">
-                    Your answers:
+                    Your {{ playerAnswerHistory.answers.length | pluralize('answer', 'answers') }}:
 
                     <span
                         v-for="answer in playerAnswerHistory.answers"
                         :key="answer.id"
-                        :class="answer.isRight ? 'text-positive' : 'text-negative'"
-                        class="text-bold"
                     >
-                        [{{ answer.value }}]
+                        <span
+                            :class="answer.isRight !== null ? answer.isRight ? 'text-positive' : 'text-negative' : ''"
+                            class="text-bold"
+                        >
+                            [{{ answer.value }}]
+                        </span>
+                        <span
+                            v-if="quiz.answersAreOnlyNumber"
+                            class="text-italic"
+                        >
+                            {{ difference(answer.value, quizAnswer.value) }}
+                        </span>
                     </span>
                 </q-item-label>
 
@@ -41,18 +50,23 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue } from 'vue-property-decorator';
+import { Mixins, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import IconItem from 'components/Item/IconItem.vue';
 import QuizAnswer from 'src/models/QuizAnswer';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import PlayerAnswerHistory from 'src/models/PlayerAnswerHistory';
+import Quiz from 'src/models/Quiz';
+import TextFormatMixin from 'src/mixins/textFormat';
+import { stringToInt } from 'src/utils/number';
 
 @Component({
     components: { IconItem },
 })
-export default class LineAnswerHistoryItem extends Vue {
+export default class LineAnswerHistoryItem extends Mixins(TextFormatMixin) {
     // region Props
+
+    @Prop({ required: true }) quiz!: Quiz;
 
     @Prop({ required: true }) quizAnswer!: QuizAnswer;
 
@@ -78,6 +92,23 @@ export default class LineAnswerHistoryItem extends Vue {
         }
 
         return 'bg-red-2';
+    }
+
+    // endregion
+
+    // region Methods
+
+    private difference(playerAnswer: string, quizAnswer: string): string {
+        const difference: number = stringToInt(playerAnswer) - stringToInt(quizAnswer);
+
+        if (difference > 0) {
+            return `(+${difference})`;
+        }
+        if (difference === 0) {
+            return '';
+        }
+
+        return `(${difference.toString()})`;
     }
 
     // endregion

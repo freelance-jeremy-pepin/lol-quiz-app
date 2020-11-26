@@ -4,7 +4,7 @@
         :style="`max-width: ${maxWidth}px !important; width: 100% !important;`"
     >
         <q-card-section v-if="title" align="center" class="bg-primary text-white">
-            <div class="text-h3">{{ title }}</div>
+            <div class="text-h4">{{ title }}</div>
             <div v-if="subtitle" class="text-h6">{{ subtitle }}</div>
         </q-card-section>
 

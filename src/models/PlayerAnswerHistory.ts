@@ -1,5 +1,5 @@
 import Model from 'src/models/Model';
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 import PlayerAnswer from 'src/models/PlayerAnswer';
 
 export default interface PlayerAnswerHistory extends Model {

@@ -8,7 +8,7 @@
             <q-card-section class="text-h5">
                 <div>Score</div>
                 <span class="text-bold text-primary">{{ score }} </span>
-                <span class="text-grey">/ {{ numberQuestions }}</span>
+                <span v-if="numberQuestions" class="text-grey">/ {{ numberQuestions }}</span>
             </q-card-section>
 
             <q-card-section v-if="time" class="text-h5">
@@ -43,7 +43,7 @@ export default class ResultQuiz extends Mixins(SocketMixin) {
 
     @Prop({ required: true }) score!: number;
 
-    @Prop({ required: true }) numberQuestions!: number;
+    @Prop({ required: false, default: null }) numberQuestions!: number;
 
     @Prop({ required: false, default: null }) time!: Time;
 

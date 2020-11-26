@@ -1,6 +1,6 @@
 import Model from 'src/models/Model';
 import Quiz, { createDefaultQuiz } from 'src/models/Quiz';
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 import QuizAnswer from 'src/models/QuizAnswer';
 
 export default interface QuizConfiguration extends Model {
