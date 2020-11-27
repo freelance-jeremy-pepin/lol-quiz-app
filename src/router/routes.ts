@@ -5,15 +5,57 @@ const routes: RouteConfig[] = [
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Index.vue') },
+            { path: '', component: () => import('pages/IndexPage.vue') },
         ],
     },
 
     {
-        path: '/quiz/name',
+        path: '/quiz/item-name-quiz',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ItemNameQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/quiz/item-price-quiz',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ItemPriceQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/room/:id',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Quiz/NameQuizPage.vue') },
+            { path: '', component: () => import('pages/Room/RoomPage.vue') },
+        ],
+    },
+
+    {
+        path: '/single-player',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/SinglePlayerPage.vue') },
+        ],
+    },
+
+    {
+        path: '/rooms',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Room/RoomsPage.vue') },
+        ],
+    },
+
+    {
+        path: '/collection/items',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Collections/ItemsCollectionPage.vue') },
         ],
     },
 
@@ -21,7 +63,7 @@ const routes: RouteConfig[] = [
     // but you can also remove it
     {
         path: '*',
-        component: () => import('pages/Error404.vue'),
+        component: () => import('pages/Error404Page.vue'),
     },
 ];
 
