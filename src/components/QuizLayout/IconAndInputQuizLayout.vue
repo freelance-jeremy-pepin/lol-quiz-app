@@ -36,12 +36,12 @@
                 :title="quizConfiguration.quiz.name"
                 @action="onVerifyAnswer"
             >
-                <q-card-section class="column items-center q-pa-md">
+                <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
 
-                    <div class="q-mt-md">{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                    <div>{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                    <div class="text-secondary text-bold q-mt-md">Score: {{ player.score }}</div>
+                    <div class="text-secondary text-bold">Score: {{ player.score }}</div>
 
                     <q-input
                         v-if="!quizStageStore.isDisplayAnswer"
@@ -49,7 +49,7 @@
                         v-model="answerGivenByPlayer"
                         autofocus
                         borderless
-                        class="full-width q-mt-md"
+                        class="full-width"
                         label="Your answer"
                         outlined
                         @input="$emit('input', answerGivenByPlayer)"

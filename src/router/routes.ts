@@ -51,6 +51,14 @@ const routes: RouteConfig[] = [
         ],
     },
 
+    {
+        path: '/collection/items',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Collections/ItemsCollectionPage.vue') },
+        ],
+    },
+
     // Always leave this as last one,
     // but you can also remove it
     {
