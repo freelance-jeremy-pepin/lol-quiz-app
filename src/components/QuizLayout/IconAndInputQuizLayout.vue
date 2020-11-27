@@ -1,67 +1,76 @@
 <template>
     <div class="full-width">
         <result-quiz
-            v-if="quizStageStore.isQuizFinished"
-            :number-questions="quizConfiguration.numberQuestions"
-            :score="participant.score"
-            :time="quizConfiguration.withStopWatch ? participant.completeTime : null"
+            v-if="quizStageStore.isQuizFinished && !isMultiplayer"
+            :is-multiplayer="isMultiplayer"
+            :number-questions="quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
+            :score="player.score"
+            :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             @play-again="$emit('play-again')"
             @view-history="$emit('view-history')"
         ></result-quiz>
 
-        <div v-else class="q-gutter-y-sm">
-            <q-card>
-                <q-card-section v-if="quizStageStore.isLoading" class="column items-center">
-                    <q-spinner color="primary" size="3em"></q-spinner>
-                </q-card-section>
+        <leaderboard-multiplayer
+            v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
+            :room="room"
+            :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
+            @view-history="(playerViewHistory) => $emit('view-history', playerViewHistory)"
+        ></leaderboard-multiplayer>
 
-                <q-card-section v-else class="column items-center q-pa-md q-gutter-y-md">
+        <div v-if="quizStageStore.isLoading" class="text-center">
+            <q-spinner color="primary" size="3em"></q-spinner>
+        </div>
+
+        <div v-if="quizStageStore.isUnknownRoom" class="text-center text-bold text-negative">
+            Room not found.
+        </div>
+
+        <div
+            v-if="!quizStageStore.isQuizFinished && !quizStageStore.isLoading && !quizStageStore.isUnknownRoom"
+            class="q-gutter-y-sm"
+        >
+            <card-with-title-and-action
+                :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
+                :action-disable="quizStageStore.isVerifyingAnswer"
+                :action-label="quizConfiguration.quiz.onlyOneTry ? 'Next' : quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
+                :title="quizConfiguration.quiz.name"
+                @action="onVerifyAnswer"
+            >
+                <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
 
-                    <div>{{ participant.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
+                    <div>{{ player.currentQuestionNumber }}/{{ quizConfiguration.numberQuestions }}</div>
 
-                    <div class="text-secondary text-bold">Score: {{ participant.score }}</div>
+                    <div class="text-secondary text-bold">Score: {{ player.score }}</div>
 
                     <q-input
                         v-if="!quizStageStore.isDisplayAnswer"
                         ref="answerInput"
-                        v-model="answer"
+                        v-model="answerGivenByPlayer"
                         autofocus
                         borderless
                         class="full-width"
                         label="Your answer"
                         outlined
-                        @input="$emit('input', answer)"
-                        @keydown.enter.stop="$emit('verify-answer')"
+                        @input="$emit('input', answerGivenByPlayer)"
+                        @keydown.enter.stop="onVerifyAnswer"
                     ></q-input>
-
-                    <q-btn
-                        v-if="!quizStageStore.isDisplayAnswer"
-                        :color="quizStageStore.isWrong ? 'negative' : 'primary'"
-                        :disable="quizStageStore.isVerifyingAnswer"
-                        class="full-width"
-                        @click="$emit('verify-answer')"
-                    >
-                        {{
-                            quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'
-                        }}
-                    </q-btn>
                 </q-card-section>
-            </q-card>
+            </card-with-title-and-action>
 
             <q-btn
-                v-if="quizStageStore.isAnswering || quizStageStore.isWrong"
+                v-if="quizConfiguration.quiz.canSkipQuestion && (quizStageStore.isAnswering || quizStageStore.isWrong)"
                 class="full-width"
                 color="grey"
                 flat
-                @click="$emit('skip')"
+                @click="onSkip"
             >
                 Skip
             </q-btn>
         </div>
 
         <q-page-sticky :offset="[18, 18]" position="bottom-left">
-            <shortcuts-quiz></shortcuts-quiz>
+            <shortcuts-quiz :quiz="quizConfiguration.quiz"></shortcuts-quiz>
         </q-page-sticky>
 
         <q-page-sticky
@@ -73,35 +82,46 @@
         </q-page-sticky>
 
         <q-page-sticky
-            v-if="!quizStageStore.isQuizFinished"
+            v-if="isMultiplayer && room && !quizStageStore.isQuizFinished"
             :offset="[18, 18]"
-            position="bottom-right"
+            position="top-left"
         >
-            <q-btn
-                color="accent" fab icon="history"
-                @click="$emit('view-history')"
-            />
+            <progress-quiz-multiplayer :room="room"></progress-quiz-multiplayer>
         </q-page-sticky>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import QuizConfiguration from 'src/models/QuizConfiguration';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
 import { Time } from 'src/models/Time';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import QuizStore from 'src/store/modules/QuizStore';
-import UserStore from 'src/store/modules/UserStore';
 import User from 'src/models/User';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import UserMixin from 'src/mixins/userMixin';
+import SocketMixin from 'src/mixins/socketMixin';
+import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
+import Room from 'src/models/Room';
+import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
+import QuizAnswer from 'src/models/QuizAnswer';
+import PlayerAnswer, { createDefaultPlayerAnswer } from 'src/models/PlayerAnswer';
 
 @Component({
-    components: { ResultQuiz, StopWatch, ShortcutsQuiz },
+    components: {
+        LeaderboardMultiplayer,
+        ProgressQuizMultiplayer,
+        CardWithTitleAndAction,
+        ResultQuiz,
+        StopWatch,
+        ShortcutsQuiz,
+    },
 })
-export default class IconAndInputQuizLayout extends Vue {
+export default class IconAndInputQuizLayout extends Mixins(UserMixin, SocketMixin) {
     // region Props
 
     /**
@@ -109,14 +129,16 @@ export default class IconAndInputQuizLayout extends Vue {
      */
     @Prop({ required: true }) quizConfiguration!: QuizConfiguration;
 
+    @Prop({ required: false, default: false, type: Boolean }) isMultiplayer!: boolean;
+
     // endregion
 
     // region Data
 
     /**
-     * Réponse donnée par le participant.
+     * Réponse donnée par le jouer.
      */
-    private answer: string = '';
+    private answerGivenByPlayer: string = '';
 
     /**
      * Référence des composants enfants.
@@ -138,27 +160,31 @@ export default class IconAndInputQuizLayout extends Vue {
     }
 
     /**
-     * Récupère l'utilisateur de l'application.
+     * Récupère le joueur du joueur.
      * @private
      */
-    private get user(): User | undefined {
-        return UserStore.user;
+    private get player(): Player {
+        return QuizStore.player;
     }
 
     /**
-     * Récupère le participant du quiz.
+     * Modifier le joueur du quiz.
      * @private
      */
-    private get participant(): Participant {
-        return QuizStore.participant;
+    private set player(player: Player) {
+        QuizStore.setPlayer(player);
     }
 
-    /**
-     * Modifier le participant du quiz.
-     * @private
-     */
-    private set participant(participant: Participant) {
-        QuizStore.setParticipant(participant);
+    private get room(): Room | undefined | null {
+        if (this.isMultiplayer) {
+            return this.roomSocketStore.room;
+        }
+
+        return undefined;
+    }
+
+    private get currentQuizAnswer(): QuizAnswer {
+        return this.quizConfiguration.answers[this.player.currentQuestionNumber - 1];
     }
 
     // endregion
@@ -179,6 +205,43 @@ export default class IconAndInputQuizLayout extends Vue {
      */
     private unmounted() {
         window.removeEventListener('keydown', this.onKeyPress);
+    }
+
+    // endregion
+
+    // region Events handlers
+
+    /**
+     * Vérifie la réponse donnée par l'utilisateur.
+     * @private
+     */
+    private onVerifyAnswer() {
+        const answerIsCorrect = this.verifyAnswer();
+
+        if (this.quizConfiguration.quiz.onlyOneTry) {
+            this.$emit('answered', this.answerGivenByPlayer, this.currentQuizAnswer);
+
+            this.focusAnswerInput();
+        } else {
+            QuizStageStore.setVerifyingAnswer();
+
+            if (answerIsCorrect) {
+                this.$emit('correct-answer');
+            } else {
+                QuizStageStore.setWrong();
+
+                setTimeout(() => {
+                    if (QuizStageStore.isWrong) {
+                        QuizStageStore.setAnswering();
+                    }
+                }, 1000);
+            }
+        }
+    }
+
+    private onSkip() {
+        this.updateLastAnswer(false, true);
+        this.$emit('skip');
     }
 
     // endregion
@@ -223,6 +286,62 @@ export default class IconAndInputQuizLayout extends Vue {
         }
     }
 
+    /**
+     * Vérifie la réponse donnée par le joueur.
+     * @private
+     */
+    private verifyAnswer(): boolean {
+        if (this.currentQuizAnswer) {
+            // Garde seulement les caractère alphanumérique du nom de l'objet et de la réponse donnée par le joueur.
+            // Si les 2 valeurs sont identiques, le joueur a donné la bonne réponse.
+            const quizAnswer = this.currentQuizAnswer.value.replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const playerAnswer = this.answerGivenByPlayer.replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+            const answerIsRight = quizAnswer === playerAnswer;
+
+            this.updateLastAnswer(answerIsRight, false);
+
+            return answerIsRight;
+        }
+
+        return false;
+    }
+
+    /**
+     * Met à jour la dernière réponse donnée par le joueur.
+     * @param found L'objet a été trouvé.
+     * @param skipped L'objet a été passé.
+     * @private
+     */
+    private updateLastAnswer(found: boolean, skipped: boolean) {
+        const lastAnswer = this.player.answersHistory[this.player.answersHistory.length - 1];
+        lastAnswer.found = found;
+        lastAnswer.skipped = skipped;
+
+        if (this.answerGivenByPlayer.trim()) {
+            const newAnswer: PlayerAnswer = createDefaultPlayerAnswer();
+            newAnswer.value = this.answerGivenByPlayer.trim();
+            newAnswer.isRight = found;
+            lastAnswer.answers = [...lastAnswer.answers, newAnswer];
+        }
+
+        if (this.isMultiplayer && this.room) {
+            this.updatePlayer();
+        }
+    }
+
+    /**
+     * Met à jour le joueur courant.
+     */
+    private updatePlayer() {
+        if (this.room) {
+            this.roomSocketStore.updatePlayer({
+                room: this.room,
+                player: this.player,
+            });
+        }
+    }
+
     // endregion
 
     // region Watchers
@@ -232,18 +351,18 @@ export default class IconAndInputQuizLayout extends Vue {
      */
     @Watch('$attrs.value')
     public onValueChanged(value: string) {
-        this.answer = value;
+        this.answerGivenByPlayer = value;
     }
 
     /**
-     * Synchronise l'utilisateur et le participant.
+     * Synchronise l'utilisateur et le joueur.
      */
-    @Watch('user')
-    public onUserChanged(user: User) {
-        if (user) {
-            QuizStore.setParticipant({
-                ...QuizStore.participant,
-                user,
+    @Watch('me')
+    public onMeChanged(me: User) {
+        if (me) {
+            QuizStore.setPlayer({
+                ...QuizStore.player,
+                userId: me.id,
             });
         }
     }
@@ -260,7 +379,7 @@ export default class IconAndInputQuizLayout extends Vue {
         } else if (QuizStageStore.isQuizFinished) {
             if (this.quizConfiguration.withStopWatch) {
                 const completeTime: Time = { ...this.$refs.stopWatch.getTime };
-                this.participant = { ...this.participant, completeTime };
+                this.player = { ...this.player, completeTime };
             }
         }
     }

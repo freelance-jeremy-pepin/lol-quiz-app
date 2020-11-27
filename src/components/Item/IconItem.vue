@@ -2,7 +2,6 @@
     <q-img
         :src="imageUrl"
         :style="`width: ${item.image.w}px; height: ${item.image.h};`"
-        class="q-ma-none"
     >
         <q-tooltip v-if="withTooltip" content-class="bg-black" content-style="font-size: 16px;">
             <div class="text-primary text-bold">{{ item.name }}</div>

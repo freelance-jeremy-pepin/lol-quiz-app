@@ -42,9 +42,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import SwitchKeyboard from 'components/Common/SwitchKeyboard.vue';
+import Quiz from 'src/models/Quiz';
 
 interface Shortcut {
     shortcut: string;
@@ -55,18 +56,13 @@ interface Shortcut {
     components: { SwitchKeyboard },
 })
 export default class ShortcutsQuiz extends Vue {
-    // region Data
+    // region Props
 
-    private shortcutsInAnsweringStage: Shortcut[] = [
-        {
-            shortcut: 'SHIFT + /',
-            description: 'Focus answer input.',
-        },
-        {
-            shortcut: 'F9',
-            description: 'Skip item.',
-        },
-    ];
+    @Prop({ required: true }) quiz!: Quiz;
+
+    // endregion
+
+    // region Data
 
     private shortcutsInQuizFinishedStage: Shortcut[] = [
         {
@@ -85,6 +81,23 @@ export default class ShortcutsQuiz extends Vue {
 
     public get quizStageModule(): typeof QuizStageStore {
         return QuizStageStore;
+    }
+
+    private get shortcutsInAnsweringStage(): Shortcut[] {
+        const shortcuts = [];
+        shortcuts.push({
+            shortcut: 'SHIFT + /',
+            description: 'Focus answer input.',
+        });
+
+        if (this.quiz.canSkipQuestion) {
+            shortcuts.push({
+                shortcut: 'F9',
+                description: 'Skip item.',
+            });
+        }
+
+        return shortcuts;
     }
 
     // endregion

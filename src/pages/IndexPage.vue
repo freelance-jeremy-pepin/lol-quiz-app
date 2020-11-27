@@ -1,56 +1,19 @@
 <template>
-    <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <q-card class="text-center" style="max-width: 400px; width: 100%;">
-            <q-card-section class="bg-primary text-white">
-                <div class="text-h3">Select your quiz</div>
-            </q-card-section>
-
-            <q-card-section>
-                <form-quiz-configuration v-model="internalQuizConfiguration"></form-quiz-configuration>
-            </q-card-section>
-
-            <q-card-section>
-                <q-btn class="full-width" color="primary" @click="onStartQuiz">Start</q-btn>
-            </q-card-section>
-        </q-card>
+    <q-page class="q-pa-md row items-center justify-center q-gutter-md" style="margin-top: 16px;">
+        <q-btn color="deep-purple" icon="person" size="xl" to="/single-player">Single player</q-btn>
+        <q-btn color="pink" icon="people_alt" size="xl" to="/rooms">Multi player</q-btn>
     </q-page>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 
 @Component({
-    components: { FormQuizConfiguration },
+    components: { CardWithTitleAndAction, FormQuizConfiguration },
 })
-export default class PageIndex extends Vue {
-    // region Data
+export default class IndexPage extends Vue {
 
-    private internalQuizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
-
-    // endregion
-
-    // region Events handlers
-
-    private onStartQuiz() {
-        this.redirectToQuiz();
-    }
-
-    // endregion
-
-    // region Methods
-
-    private redirectToQuiz() {
-        this.$router.push({
-            path: `/quiz/${this.internalQuizConfiguration.quiz.internalName}`,
-            query: {
-                numberQuestions: this.internalQuizConfiguration.numberQuestions.toString(),
-                withStopWatch: this.internalQuizConfiguration.withStopWatch.toString(),
-            },
-        });
-    }
-
-    // endregion
 }
 </script>

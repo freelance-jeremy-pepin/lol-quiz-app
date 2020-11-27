@@ -6,12 +6,7 @@
                     LoL Quiz
                 </q-toolbar-title>
 
-                <q-btn v-if="user" flat>
-                    {{ user.pseudo }}
-                    <q-popup-edit v-model="pseudo" auto-save>
-                        <q-input v-model="pseudo" autofocus dense />
-                    </q-popup-edit>
-                </q-btn>
+                <pseudo-user></pseudo-user>
 
                 <q-btn
                     :icon="$q.dark.isActive ? 'brightness_5' : 'brightness_4'"
@@ -19,45 +14,60 @@
                     flat
                     @click="onToggleDarkMode"
                 ></q-btn>
-                <div v-if="version">LoL API v. {{ version }}</div>
+                <div v-if="versionLolApi">LoL API v. {{ versionLolApi }}</div>
             </q-toolbar>
         </q-header>
 
         <q-page-container>
-            <router-view />
+            <router-view v-if="Object.values(loadings).every(loading => loading === false)" />
+
+            <div v-if="isError" class="text-negative">An error occurred.</div>
         </q-page-container>
     </q-layout>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins, Watch } from 'vue-property-decorator';
 import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
 import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
+import SocketMixin from 'src/mixins/socketMixin';
+import PseudoUser from 'components/User/PseudoUser.vue';
+import UserMixin from 'src/mixins/userMixin';
 import User from 'src/models/User';
 
-@Component
-export default class MainLayout extends Vue {
+@Component({
+    components: { PseudoUser },
+})
+export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
+    // region Data
+
+    /**
+     * Chargements des différents éléments nécessaires à l'affichage de la page.
+     */
+    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = {
+        me: true,
+        version: true,
+        items: true,
+        champions: true,
+    };
+
+    // TODO: traiter et tester cas d'erreur.
+    /**
+     * Erreur de la récupération d'un élément.
+     */
+    private isError: boolean = false;
+
+    // endregion
+
     // region Computed properties
 
-    private get version(): string | undefined {
+    /**
+     * Version de l'API.
+     */
+    private get versionLolApi(): string | undefined {
         return VersionLolApiStore.version;
-    }
-
-    private get user(): User | undefined {
-        return UserStore.user;
-    }
-
-    private get pseudo(): string | undefined {
-        return UserStore.user?.pseudo;
-    }
-
-    // noinspection JSUnusedLocalSymbols
-    private set pseudo(pseudo: string | undefined) {
-        if (pseudo && this.user) {
-            UserStore.setUser({ id: this.user.id, pseudo });
-        }
     }
 
     // endregion
@@ -65,30 +75,29 @@ export default class MainLayout extends Vue {
     // Region Hooks
 
     // noinspection JSUnusedLocalSymbols
+    /**
+     * Lorsque que le composant est monté, récupère tous les éléments nécessaires à l'affichage de la page.
+     */
     private mounted() {
-        UserStore.restoreUser()
-            .then((user) => {
-                if (!user) {
-                    UserStore.createNewUser();
-                }
-            });
+        this.loadings = { me: true, version: true, items: true, champions: true };
+        this.isError = false;
+
+        this.userSocketStore.getAllUsers();
+
+        this.restoreMe();
 
         this.restoreDarkModeFromLocalStorage();
 
-        VersionLolApiStore.fetchVersion()
-            .then(() => {
-                LoLApiItemsModule.fetchItems();
-                ChampionLolApiStore.fetchChampions();
-            })
-            .catch((e) => {
-                throw new Error(e);
-            });
+        this.fetchDataLolApi();
     }
 
     // endregion
 
     // region Events listeners
 
+    /**
+     * Alterne entre le mode clair et le mode sombre.
+     */
     private onToggleDarkMode() {
         this.$q.dark.toggle();
 
@@ -99,12 +108,123 @@ export default class MainLayout extends Vue {
 
     // region Methods
 
+    /**
+     * Restaure l'utilisateur courant.
+     */
+    private restoreMe() {
+        UserStore.restoreMe()
+            .then((user) => {
+                // Si l'utilisateur courant n'a pas pu être récupérer car il n'existe pas, créer un invité.
+                if (!user) {
+                    UserStore.createNewGuest()
+                        .catch(() => {
+                            this.isError = true;
+                        })
+                        .finally(() => {
+                            this.loadings.me = false;
+                        });
+                }
+            })
+            .catch(() => {
+                this.isError = true;
+            })
+            .finally(() => {
+                // Si le restoreMe a fonctionné.
+                if (this.me.id) {
+                    this.loadings.me = false;
+                }
+            });
+    }
+
+    /**
+     * Récupère les informations liées à l'API LoL.
+     */
+    private fetchDataLolApi() {
+        VersionLolApiStore.fetchVersion()
+            .then(() => {
+                this.fetchItemsLolApi();
+                this.fetchChampionsLolApi();
+            })
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.version = false;
+            });
+    }
+
+    /**
+     * Récupère les objets de l'API LoL.
+     */
+    private fetchItemsLolApi() {
+        LoLApiItemsModule.fetchItems()
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.items = false;
+            });
+    }
+
+    /**
+     * Récupère les champions de l'API LoL.
+     */
+    private fetchChampionsLolApi() {
+        ChampionLolApiStore.fetchChampions()
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.champions = false;
+            });
+    }
+
+    /**
+     * Restaure l'état du mode sombre sombre stocké dans le local storage.
+     */
     private restoreDarkModeFromLocalStorage() {
         this.$q.dark.set(this.$q.localStorage.getItem('darkMode') || false);
     }
 
+    /**
+     * Sauvegarde l'état du mode sombre stocké dans le local storage.
+     */
     private saveDarkModeInLocalStorage() {
         this.$q.localStorage.set('darkMode', this.$q.dark.isActive);
+    }
+
+    /**
+     * Envoi l'utilisateur courant au serveur afin qu'il le diffuse aux autres utilisateurs.
+     */
+    private sendMeToServer() {
+        if (this.socketStore.isConnected && this.me) {
+            this.userSocketStore.createOrUpdateUser(this.me);
+        }
+    }
+
+    // endregion
+
+    // region Watchers
+
+    /**
+     * Lorsque le serveur est connecté, envoi son l'utilisateur courant au serveur.
+     */
+    @Watch('socketStore.isConnected')
+    public onSocketIsConnectedChanged() {
+        this.sendMeToServer();
+    }
+
+    /**
+     * Lorsque l'utilisateur a changé, envoi l'utilisateur courant au serveur.
+     */
+    @Watch('me')
+    public onMeChanged(me: User, oldMe: User | undefined) {
+        if (me.id !== oldMe?.id || me.pseudo !== oldMe?.pseudo) {
+            this.sendMeToServer();
+        }
     }
 
     // endregion

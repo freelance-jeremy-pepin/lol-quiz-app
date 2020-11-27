@@ -1,4 +1,4 @@
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 import Model from 'src/models/Model';
 
 export interface Time extends Model {

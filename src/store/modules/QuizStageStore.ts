@@ -3,6 +3,7 @@ import store from 'src/store';
 
 export enum QuizStage {
     loading = 'loading',
+    unknownRoom = 'unknownRoom',
     answering = 'answering',
     right = 'right',
     wrong = 'wrong',
@@ -29,6 +30,11 @@ class QuizStageStore extends VuexModule {
     @Mutation
     public setLoading() {
         this._stage = QuizStage.loading;
+    }
+
+    @Mutation
+    public setUnknownRoom() {
+        this._stage = QuizStage.unknownRoom;
     }
 
     @Mutation
@@ -71,6 +77,10 @@ class QuizStageStore extends VuexModule {
 
     public get isLoading(): boolean {
         return this._stage === QuizStage.loading;
+    }
+
+    public get isUnknownRoom(): boolean {
+        return this._stage === QuizStage.unknownRoom;
     }
 
     public get isAnswering(): boolean {

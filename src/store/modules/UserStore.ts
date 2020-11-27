@@ -1,7 +1,7 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from 'src/store';
-import User from 'src/models/User';
-import { randomNumber, uniqueID } from 'src/utils/randomNumber';
+import User, { createDefaultUser } from 'src/models/User';
+import { randomNumber, uniqueID } from 'src/utils/number';
 import { LocalStorage } from 'quasar';
 
 @Module({
@@ -13,15 +13,15 @@ import { LocalStorage } from 'quasar';
 class UserStore extends VuexModule {
     // region State
 
-    private _user?: User = undefined;
+    private _me: User = createDefaultUser();
 
     // endregion
 
     // region Mutation
 
     @Mutation
-    public setUser(user: User) {
-        this._user = user;
+    public setMe(user: User) {
+        this._me = user;
         LocalStorage.set('user', user);
     }
 
@@ -30,14 +30,14 @@ class UserStore extends VuexModule {
     // region Actions
 
     @Action({ rawError: true })
-    public restoreUser(): Promise<User> {
+    public restoreMe(): Promise<User> {
         return new Promise<User>((resolve) => {
             const userInLocalStorage = LocalStorage.getItem('user');
 
             if (typeof userInLocalStorage === 'object') {
                 const user = userInLocalStorage as User;
 
-                this.setUser(user);
+                this.setMe(user);
                 resolve(user);
             } else {
                 resolve(undefined);
@@ -45,15 +45,15 @@ class UserStore extends VuexModule {
         });
     }
 
-    @Action
-    public createNewUser(): Promise<User> {
+    @Action({ rawError: true })
+    public createNewGuest(): Promise<User> {
         return new Promise<User>((resolve) => {
             const newUser = {
                 id: uniqueID(),
                 pseudo: `Guest #${randomNumber(1000, 9999)}`,
             };
 
-            this.setUser(newUser);
+            this.setMe(newUser);
 
             LocalStorage.set('user', newUser);
 
@@ -65,8 +65,8 @@ class UserStore extends VuexModule {
 
     // region Getters
 
-    public get user(): User | undefined {
-        return this._user;
+    public get me(): User {
+        return this._me;
     }
 
     // endregion

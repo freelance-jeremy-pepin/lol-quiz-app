@@ -2,12 +2,20 @@
     <div>
         <div>
             <div class="text-bold">Quiz</div>
-            <q-btn-toggle
-                v-model="internalQuizConfiguration.quiz.internalName"
-                :options="quizList.map(q => ({ label: q.name, value: q.internalName }))"
-                toggle-color="primary"
-                @input="onInput"
-            />
+
+            <q-btn color="primary" icon-right="keyboard_arrow_down">
+                <q-menu fit>
+                    <q-list style="min-width: 100px">
+                        <div v-for="(quiz, index) in quizList" :key="quiz.id">
+                            <q-item v-close-popup clickable>
+                                <q-item-section @click="onQuizChanged(quiz)">{{ quiz.name }}</q-item-section>
+                            </q-item>
+                            <q-separator v-if="index !== quizList.length -1" />
+                        </div>
+                    </q-list>
+                </q-menu>
+                {{ internalQuizConfiguration.quiz.name }}
+            </q-btn>
         </div>
 
         <div class="q-pt-md">
@@ -15,6 +23,7 @@
             <q-btn-toggle
                 v-model="internalQuizConfiguration.numberQuestions"
                 :options="[
+                    { label: '1', value: 1 },
                     { label: '5', value: 5 },
                     { label: '10', value: 10 },
                     { label: '20', value: 20 },
@@ -58,6 +67,7 @@ export default class FormQuizConfiguration extends Vue {
 
     // region Hooks
 
+    // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.restoreFormLocalStorage();
     }
@@ -65,6 +75,12 @@ export default class FormQuizConfiguration extends Vue {
     // endregion
 
     // region Events handlers
+
+    private onQuizChanged(quiz: Quiz) {
+        this.internalQuizConfiguration.quiz = quiz;
+
+        this.onInput();
+    }
 
     private onInput() {
         this.saveInLocalStorage();

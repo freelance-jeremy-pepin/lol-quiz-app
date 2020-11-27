@@ -11,7 +11,7 @@ const routes: RouteConfig[] = [
 
     {
         path: '/quiz/item-name-quiz',
-        component: () => import('layouts/MainLayout.vue'),
+        component: () => import('layouts/QuizLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/ItemNameQuizPage.vue') },
         ],
@@ -19,10 +19,43 @@ const routes: RouteConfig[] = [
     },
 
     {
+        path: '/quiz/item-price-quiz',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ItemPriceQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/room/:id',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Room/RoomPage.vue') },
+        ],
+    },
+
+    {
+        path: '/single-player',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/SinglePlayerPage.vue') },
+        ],
+    },
+
+    {
         path: '/rooms',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/RoomsPage.vue') },
+            { path: '', component: () => import('pages/Room/RoomsPage.vue') },
+        ],
+    },
+
+    {
+        path: '/collection/items',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Collections/ItemsCollectionPage.vue') },
         ],
     },
 

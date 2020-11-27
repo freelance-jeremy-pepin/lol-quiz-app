@@ -1,14 +1,14 @@
-import User, { createDefaultUser } from 'src/models/User';
-import Participant from 'src/models/Participant';
+import Player from 'src/models/Player';
 import Model from 'src/models/Model';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
-import { uniqueID } from 'src/utils/randomNumber';
+import { uniqueID } from 'src/utils/number';
 
 export default interface Room extends Model {
     name: string;
     quizConfiguration: QuizConfiguration;
-    owner: User;
-    participants: Participant[];
+    ownerId: string; // ID d'un User.
+    players: Player[];
+    inGame: boolean;
 }
 
 export function createDefaultRoom(): Room {
@@ -16,7 +16,8 @@ export function createDefaultRoom(): Room {
         id: uniqueID(),
         quizConfiguration: createDefaultQuizConfiguration(),
         name: '',
-        owner: createDefaultUser(),
-        participants: [],
+        ownerId: '',
+        players: [],
+        inGame: false,
     };
 }

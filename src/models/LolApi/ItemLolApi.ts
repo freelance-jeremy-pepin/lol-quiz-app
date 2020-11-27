@@ -3,8 +3,8 @@ import ItemStatsLolApi from './ItemStatsLolApi';
 import ImageLolApi from './ImageLolApi';
 
 export default interface ItemLolApi {
-    id?: number;
-    name?: string;
+    id: number;
+    name: string;
     rune?: {
         isrune?: boolean;
         tier?: number;
@@ -38,5 +38,8 @@ export default interface ItemLolApi {
 }
 
 export function createDefaultLolApiItem(): ItemLolApi {
-    return {};
+    return {
+        id: 0,
+        name: '',
+    };
 }

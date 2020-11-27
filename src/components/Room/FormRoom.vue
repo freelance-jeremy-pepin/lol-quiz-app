@@ -1,62 +1,59 @@
 <template>
     <q-dialog
-        v-if="user"
         v-model="$attrs.value"
         v-bind="$attrs"
         v-on="$listeners"
         @before-show="onBeforeShow"
     >
-        <q-card style="max-width: 400px; width: 100%;">
+        <card-with-title-and-action
+            :action-disable="!me || !socketStore.isConnected"
+            :max-width="500"
+            action-label="Create room"
+            title="New room"
+            @action="onCreateRoom"
+        >
             <q-card-section>
-                <q-form class="q-gutter-y-lg" @submit="onCreateRoom">
-                    <q-input v-model="internalRoom.name" label="Room's name" outlined></q-input>
+                <q-form @submit="onCreateRoom">
+                    <q-input
+                        v-model="internalRoom.name"
+                        label="Room's name"
+                        outlined
+                        style="max-width: 250px;"
+                    ></q-input>
 
                     <form-quiz-configuration
                         v-model="internalRoom.quizConfiguration"
-                        class="text-center"
                     ></form-quiz-configuration>
-
-                    <q-btn class="full-width" color="primary" type="submit">Create room</q-btn>
                 </q-form>
             </q-card-section>
-        </q-card>
+        </card-with-title-and-action>
     </q-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
-import UserStore from 'src/store/modules/UserStore';
-import User from 'src/models/User';
-import SocketStore from 'src/store/modules/SocketStore';
-import { getModule } from 'vuex-module-decorators';
+import SocketMixin from 'src/mixins/socketMixin';
+import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component({
-    components: { FormQuizConfiguration },
+    components: { CardWithTitleAndAction, FormQuizConfiguration },
 })
-export default class FormRoom extends Vue {
+export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigurationMixin) {
     // region Data
 
     private internalRoom: Room = createDefaultRoom();
-
-    private socket: SocketStore = getModule(SocketStore, this.$store);
 
     // endregion
 
     // region Computed properties
 
-    private get user(): User | undefined {
-        return UserStore.user;
-    }
-
     public get totalRoomsOfUser(): number {
-        if (this.user?.id) {
-            const userID = this.user.id;
-            return this.socket.rooms.filter(r => r.owner.id === userID).length;
-        }
-
-        return 0;
+        const userID = this.me.id;
+        return this.roomSocketStore.rooms.filter(r => r.ownerId === userID).length;
     }
 
     // endregion
@@ -80,19 +77,18 @@ export default class FormRoom extends Vue {
     // region Methods
 
     private initRoom() {
-        if (this.user) {
-            this.internalRoom.name = `${this.user.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
-        }
+        this.internalRoom = createDefaultRoom();
+        this.internalRoom.name = `${this.me.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
     }
 
     private setOwner() {
-        if (this.user) {
-            this.internalRoom.owner = this.user;
-        }
+        this.internalRoom.ownerId = this.me.id;
     }
 
     private createRoom() {
-        this.socket.createRoom(this.internalRoom);
+        this.internalRoom.quizConfiguration = this.specialiseQuizConfiguration(this.internalRoom.quizConfiguration);
+
+        this.roomSocketStore.createOrUpdateRoom(this.internalRoom);
     }
 
     private hide() {
