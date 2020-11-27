@@ -31,12 +31,12 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                     const quizAnswers: QuizAnswer[] = [];
 
                     // Construit la liste des objets à deviner.
-                    let itemsToPick: ItemLolApi[] = [...ItemLolApiStore.items];
+                    let itemsToPick: ItemLolApi[] = [...ItemLolApiStore.itemsFilteredForQuiz];
                     while (itemsToFind.length < quizConfigurationItem.numberQuestions) {
                         const quizAnswer = createDefaultQuizAnswer();
 
                         if (itemsToPick.length < 1) {
-                            itemsToPick = [...ItemLolApiStore.items];
+                            itemsToPick = [...ItemLolApiStore.itemsFilteredForQuiz];
                         }
 
                         const randomIndex = randomNumber(0, itemsToPick.length - 1);
@@ -63,8 +63,9 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                         if (itemIsValid) {
                             itemsToFind.push(itemToFind);
                             quizAnswers.push(quizAnswer);
-                            itemsToPick.splice(randomIndex, 1);
                         }
+
+                        itemsToPick.splice(randomIndex, 1);
                     }
 
                     quizConfigurationItem.answers = quizAnswers;
