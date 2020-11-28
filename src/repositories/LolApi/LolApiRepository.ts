@@ -1,5 +1,7 @@
 import LolApiVersionStore from '../../store/modules/LolApi/VersionLolApiStore';
 
 export default abstract class LolApiRepository {
-    protected baseUrl: string = LolApiVersionStore.version ? `http://ddragon.leagueoflegends.com/cdn/${LolApiVersionStore.version}` : '';
+    protected baseUrlWithoutVersion: string = 'http://ddragon.leagueoflegends.com/cdn';
+
+    protected baseUrl: string = LolApiVersionStore.version ? `${this.baseUrlWithoutVersion}/${LolApiVersionStore.version}` : '';
 }

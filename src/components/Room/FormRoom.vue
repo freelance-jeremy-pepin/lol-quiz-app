@@ -7,7 +7,7 @@
     >
         <card-with-title-and-action
             :action-disable="!me || !socketStore.isConnected"
-            :max-width="500"
+            style="max-width: 500px;"
             action-label="Create room"
             title="New room"
             @action="onCreateRoom"

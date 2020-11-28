@@ -4,7 +4,7 @@
             <card-with-title-and-action
                 :action-disable="!me || !socketStore.isConnected"
                 :center-content="false"
-                :max-width="500"
+                style="max-width: 500px;"
                 action-label="Create room"
                 title="Rooms"
                 @action="formRoom.display = true"

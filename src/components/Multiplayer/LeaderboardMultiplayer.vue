@@ -2,7 +2,7 @@
     <div class="q-gutter-y-sm">
         <card-with-title-and-action
             :center-content="false"
-            :max-width="500"
+            style="max-width: 500px;"
             :subtitle="`${allPlayerHasFinished ? '' : '(provisional)'}`"
             title="Leaderboard"
             @action="$emit('play-again')"
@@ -58,7 +58,7 @@ import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
 import Player from '../../models/Player';
 import UserMixin from '../../mixins/userMixin';
-import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistoryItem.vue';
+import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistory.vue';
 
 @Component({
     components: { TableAnswerHistoryItem, ListAnswersHistoryItem, CardWithTitleAndAction },

@@ -2,17 +2,20 @@
     <q-dialog v-model="$attrs.value" v-bind="$attrs" v-on="$listeners">
         <q-card style="max-width: 500px; width: 100%;">
             <q-list>
-                <line-answer-history-item
+                <line-answer-history
                     v-for="(playerAnswerHistory, index) in player.answersHistory"
                     :key="playerAnswerHistory.id"
                     :answer-history-item="playerAnswerHistory"
                     :is-answering="playerIsCurrentQuestion(index, player)"
                     :is-last="index === playerAnswerHistory.length - 1"
-                    :item="quizConfigurationItem.items[index]"
                     :player-answer-history="playerAnswerHistory"
-                    :quiz="quizConfigurationItem.quiz"
-                    :quiz-answer="quizConfigurationItem.answers[index]"
-                ></line-answer-history-item>
+                    :quiz="quizConfiguration.quiz"
+                    :quiz-answer="quizConfiguration.answers[index]"
+                >
+                    <template slot="left-side">
+                        <slot :index="index" name="left-side"></slot>
+                    </template>
+                </line-answer-history>
             </q-list>
         </q-card>
     </q-dialog>
@@ -21,18 +24,19 @@
 <script lang="ts">
 import { Mixins, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
-import LineAnswerHistoryItem from 'components/AnswerHistoryItem/LineAnswerHistoryItem.vue';
-import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
+import LineAnswerHistory from 'components/AnswerHistoryItem/LineAnswerHistory.vue';
 import Player from 'src/models/Player';
 import PlayerMixin from 'src/mixins/playerMixin';
+import IconItem from 'components/Item/IconItem.vue';
+import QuizConfiguration from 'src/models/QuizConfiguration';
 
 @Component({
-    components: { LineAnswerHistoryItem },
+    components: { IconItem, LineAnswerHistory },
 })
-export default class ListAnswersHistoryItem extends Mixins(PlayerMixin) {
+export default class ListAnswersHistory extends Mixins(PlayerMixin) {
     // region Props
 
-    @Prop({ required: true }) quizConfigurationItem!: QuizConfigurationItem;
+    @Prop({ required: true }) quizConfiguration!: QuizConfiguration;
 
     @Prop({ required: true }) player!: Player;
 

@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
 import ChampionLolApi from '../../models/LolApi/ChampionLolApi';
-import LoLApiVersionModule from '../../store/modules/LolApi/VersionLolApiStore';
 import LolApiRepository from './LolApiRepository';
 
 export default class ChampionLolApiRepository extends LolApiRepository {
@@ -26,29 +25,28 @@ export default class ChampionLolApiRepository extends LolApiRepository {
         });
     }
 
-    public getSplashImageUrl(championName: string, skinNum: number = 0) {
-        return this.getImageUrl(championName, skinNum, 'splash');
+    public getSplashImageUrl(champion: ChampionLolApi, skinNum: number = 0) {
+        return this.getImageUrl(champion, skinNum, 'splash');
     }
 
-    public getLoadingImageUrl(championName: string, skinNum: number = 0) {
-        return this.getImageUrl(championName, skinNum, 'loading');
+    public getLoadingImageUrl(champion: ChampionLolApi, skinNum: number = 0) {
+        return this.getImageUrl(champion, skinNum, 'loading');
     }
 
-    public getSquareImageUrl(championName: string) {
-        if (LoLApiVersionModule.version) {
-            championName = championName.toLowerCase().charAt(0).toUpperCase();
-
-            return `${this.baseUrl}/img/champion/${championName}.png`;
+    public getSquareImageUrl(champion: ChampionLolApi) {
+        if (champion.image?.full) {
+            return `${this.baseUrlWithoutVersion}/img/champion/${champion.image.full}.png`;
         }
 
         return '';
     }
 
-    private getImageUrl(championName: string, skinNum: number, imgType: string) {
-        if (LoLApiVersionModule.version) {
-            championName = championName.toLowerCase().charAt(0).toUpperCase();
+    private getImageUrl(champion: ChampionLolApi, skinNum: number, imgType: string) {
+        if (champion.image?.full) {
+            const championName = champion.image.full.split('.')[0];
+            const extension = 'jpg';
 
-            return `${this.baseUrl}/img/champion/${imgType}/${championName}_${skinNum}.jpg`;
+            return `${this.baseUrlWithoutVersion}/img/champion/${imgType}/${championName}_${skinNum}.${extension}`;
         }
 
         return '';

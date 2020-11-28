@@ -8,6 +8,7 @@ export default interface QuizConfiguration extends Model {
     answers: QuizAnswer[];
     numberQuestions: number;
     withStopWatch: boolean;
+    totalScore: number;
 }
 
 export function createDefaultQuizConfiguration(): QuizConfiguration {
@@ -17,5 +18,6 @@ export function createDefaultQuizConfiguration(): QuizConfiguration {
         quiz: createDefaultQuiz(),
         numberQuestions: 5,
         withStopWatch: false,
+        totalScore: 0,
     };
 }

@@ -1,31 +1,31 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator';
 import QuizMixin from 'src/mixins/quizMixin';
-import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
+import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
+import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
-import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
+import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import Room from 'src/models/Room';
-import QuizItemStore from 'src/store/modules/QuizItemStore';
+import QuizChampionStore from 'src/store/modules/QuizChampionStore';
 
 @Component
-export default class QuizItemMixin extends Mixins(QuizMixin) {
+export default class QuizChampionMixin extends Mixins(QuizMixin) {
     // region Computed properties
 
-    public get itemToGuess(): ItemLolApi | null {
-        return QuizItemStore.itemToGuess;
+    public get championToGuess(): ChampionLolApi | null {
+        return QuizChampionStore.championToGuess;
     }
 
-    public set itemToGuess(value: ItemLolApi | null) {
-        QuizItemStore.setItemToGuess(value);
+    public set championToGuess(value: ChampionLolApi | null) {
+        QuizChampionStore.setChampionToGuess(value);
     }
 
     /**
-     * Récupère la liste de tous les objets du jeu.
-     * Les objets tels que les consommables et nécessitant un champion sont exclus.
+     * Récupère la liste de tous les champions du jeu.
+     * Les champions tels que les consommables et nécessitant un champion sont exclus.
      * @public
      */
-    public get items(): ItemLolApi[] {
-        return ItemLolApiStore.itemsFilteredForQuiz;
+    public get champions(): ChampionLolApi[] {
+        return ChampionLolApiStore.champions;
     }
 
     // endregion
@@ -44,8 +44,8 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
      * Sélectionne le prochain objet.
      * @public
      */
-    public onPickNextItem() {
-        this.pickNextItem();
+    public onPickNextChampion() {
+        this.pickNextChampion();
 
         this.onPickNext();
     }
@@ -54,9 +54,9 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
      * Passe au prochain objet.
      * @public
      */
-    public onSkipItem() {
+    public onSkipChampion() {
         this.onSkip();
-        this.skipItem();
+        this.skipChampion();
     }
 
     // endregion
@@ -71,7 +71,7 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
         this.resetQuiz();
 
         if (!this.isMultiplayer) {
-            this.onPickNextItem();
+            this.onPickNextChampion();
         }
 
         QuizStageStore.setAnswering();
@@ -80,23 +80,23 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
     /**
      * Démarre le premier quiz.
      * Le quiz depuis cette est lancé seulement si le quiz est en mode chargement
-     * et que les objets ont été récupérés.
+     * et que les champions ont été récupérés.
      */
     public firstStartNewQuiz() {
-        if (QuizStageStore.isLoading && this.items) {
+        if (QuizStageStore.isLoading && this.champions) {
             this.startNewQuiz();
         }
     }
 
     /**
-     * Sélectionne le prochain objet.
+     * Sélectionne le prochain champion.
      * @public
      */
-    public pickNextItem(addEmptyAnswerToHistory: boolean = true) {
-        const itemToGuess = this.pickNext(this.quizConfiguration, addEmptyAnswerToHistory) as ItemLolApi;
+    public pickNextChampion(addEmptyAnswerToHistory: boolean = true) {
+        const championToGuess = this.pickNext(this.quizConfiguration, addEmptyAnswerToHistory) as ChampionLolApi;
 
-        if (itemToGuess) {
-            this.itemToGuess = itemToGuess;
+        if (championToGuess) {
+            this.championToGuess = championToGuess;
         }
     }
 
@@ -104,17 +104,17 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
      * Passe au prochain objet.
      * @public
      */
-    public skipItem() {
+    public skipChampion() {
         if (this.quizConfiguration.quiz.canSkipQuestion) {
-            this.onPickNextItem();
+            this.onPickNextChampion();
         }
     }
 
     /**
      * Modifie la configuration du quiz à partir d'une salle.
      */
-    public setQuizConfigurationItemFromRoom(room: Room) {
-        this.quizConfiguration = room.quizConfiguration as QuizConfigurationItem;
+    public setQuizConfigurationChampionFromRoom(room: Room) {
+        this.quizConfiguration = room.quizConfiguration as QuizConfigurationChampion;
 
         const playerFound = room.players.find(p => p.userId === this.me.id);
 
@@ -132,7 +132,7 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
                 addEmptyAnswerToHistory = false;
             }
 
-            this.pickNextItem(addEmptyAnswerToHistory);
+            this.pickNextChampion(addEmptyAnswerToHistory);
         }
     }
 
@@ -141,10 +141,10 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
     // region Watchers
 
     /**
-     * Lors du changement de la liste des objets, démarre le premier quiz.
+     * Lors du changement de la liste des champions, démarre le premier quiz.
      */
-    @Watch('items', { immediate: true })
-    public onItemsChanged() {
+    @Watch('champions', { immediate: true })
+    public onChampionsChanged() {
         this.firstStartNewQuiz();
     }
 
@@ -159,17 +159,17 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
     /**
      * Dès que la salle a été récupérée, initialise le quiz.
      * Dès que la salle change et si l'historique des réponses est ouverte, met à jour l'historique.
-     * @private
+     * @public
      */
     @Watch('room', { deep: true })
     public onRoomChanged() {
         if (this.isMultiplayer) {
             if (this.room) {
-                const quizConfiguration: QuizConfigurationItem = this.quizConfiguration as QuizConfigurationItem;
+                const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
 
                 // Initialise la configuration du quiz seulement si elle n'a pas déjà été initialisée.
-                if (!quizConfiguration.items || quizConfiguration.items.length < 1) {
-                    this.setQuizConfigurationItemFromRoom(this.room);
+                if (!quizConfiguration.champions || quizConfiguration.champions.length < 1) {
+                    this.setQuizConfigurationChampionFromRoom(this.room);
                 }
 
                 if (this.modalAnswersHistory.display) {

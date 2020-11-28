@@ -4,7 +4,7 @@
             :action-color="player.isReady | transformIsReadyIntoColor"
             :action-label="player.isReady | transformIsReadyIntoLabel"
             :center-content="false"
-            :max-width="500"
+            style="max-width: 500px;"
             :title="room.name"
             @action="onToggleIsReady"
         >

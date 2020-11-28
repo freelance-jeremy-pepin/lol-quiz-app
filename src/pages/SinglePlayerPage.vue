@@ -1,8 +1,8 @@
 <template>
     <q-page class="q-pa-md row items-center justify-center" style="margin-top: 16px;">
         <card-with-title-and-action
-            :max-width="500"
             action-label="Start"
+            style="max-width: 500px;"
             title="Select your quiz"
             @action="onStartQuiz"
         >

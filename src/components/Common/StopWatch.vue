@@ -52,17 +52,17 @@ export default class StopWatch extends Vue {
     // region Methods
 
     private running() {
-        let timeElapsed = new Date().getTime() - this.timeBegan.getTime();
+        // let timeElapsed = new Date().getTime() - this.timeBegan.getTime();
+        //
+        // const ms = timeElapsed % 1000;
+        // timeElapsed = (timeElapsed - ms) / 1000;
+        // const secs = timeElapsed % 60;
+        // timeElapsed = (timeElapsed - secs) / 60;
+        // const mins = timeElapsed % 60;
 
-        const ms = timeElapsed % 1000;
-        timeElapsed = (timeElapsed - ms) / 1000;
-        const secs = timeElapsed % 60;
-        timeElapsed = (timeElapsed - secs) / 60;
-        const mins = timeElapsed % 60;
-
-        this.time.minutes = mins.toString().padStart(2, '0');
-        this.time.seconds = secs.toString().padStart(2, '0');
-        this.time.milliseconds = ms.toString().padStart(3, '0');
+        // this.time.minutes = mins.toString().padStart(2, '0');
+        // this.time.seconds = secs.toString().padStart(2, '0');
+        // this.time.milliseconds = ms.toString().padStart(3, '0');
     }
 
     // endregion

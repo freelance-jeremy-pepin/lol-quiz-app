@@ -1,23 +1,22 @@
 <template>
     <q-page class="q-pa-md row items-center justify-evenly" style="margin-top: 16px;">
-        <div class="column items-center full-width" style="max-width: 350px;">
+        <div class="column items-center">
             <icon-and-input-quiz-layout
                 ref="quiz"
                 v-model="answerGivenByPlayer"
-                :isMultiplayer="isMultiplayer"
                 v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
-                v-on:skip="onSkipItem"
+                v-on:skip="onSkipChampion"
                 v-on:correct-answer="$emit('correct-answer')"
                 v-on:toggle-history="onModalToggleAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
                 v-on:view-history="onModalToggleAnswersHistory"
             >
                 <template v-slot:image>
-                    <icon-item
-                        v-if="itemToGuess"
-                        :item="itemToGuess"
-                        :with-tooltip="!quizStageStore.isAnswering"
-                    ></icon-item>
+                    <splash-art-champion
+                        v-if="championToGuess"
+                        :champion="championToGuess"
+                        :pixelate-value="pixelatedValue"
+                    ></splash-art-champion>
                 </template>
             </icon-and-input-quiz-layout>
 
@@ -28,37 +27,37 @@
                 :quiz-configuration="quizConfiguration"
             >
                 <template v-slot:left-side="props">
-                    <icon-item :item="quizConfiguration.items[props.index]"></icon-item>
+                    <splash-art-champion
+                        :champion="quizConfiguration.champions[props.index]"
+                        :ratio-image="0.2"
+                    ></splash-art-champion>
                 </template>
             </list-answers-history>
-
-            <table-answer-history-item
-                v-if="false && isMultiplayer && room"
-                v-model="modalAnswersHistory.display"
-                :players="room.players"
-                :quiz-configuration-item="quizConfiguration"
-            ></table-answer-history-item>
         </div>
     </q-page>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator';
-import QuizItemMixin from 'src/mixins/quizItemMixin';
+import { Component, Mixins, Prop } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import ListAnswersHistory from 'components/AnswerHistoryItem/ListAnswersHistory.vue';
-import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
 import IconItem from 'components/Item/IconItem.vue';
+import QuizChampionMixin from 'src/mixins/quizChampionMixin';
+import SplashArtChampion from 'components/Champion/SplashArtChampion.vue';
+import ListAnswersHistory from 'components/AnswerHistoryItem/ListAnswersHistory.vue';
 
 @Component({
     components: {
-        IconItem,
-        TableAnswerHistoryItem,
         ListAnswersHistory,
+        SplashArtChampion,
+        IconItem,
         IconAndInputQuizLayout,
     },
 })
-export default class ItemQuizLayout extends Mixins(QuizItemMixin) {
+export default class ChampionQuizLayout extends Mixins(QuizChampionMixin) {
+    // region Props
 
+    @Prop({ required: false, default: 1 }) pixelatedValue!: number;
+
+    // endregion
 }
 </script>

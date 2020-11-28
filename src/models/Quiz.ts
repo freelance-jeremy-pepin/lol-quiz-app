@@ -25,16 +25,16 @@ export function createDefaultQuiz(): Quiz {
 }
 
 export enum QuizListInternalName {
-    ItemNameQuiz = 'item-name-quiz',
-    ItemPriceQuiz = 'item-price-quiz',
-    AnUltraSecretQuiz = 'an-ultra-secret-quiz',
+    ItemName = 'item-name',
+    ItemPrice = 'item-price',
+    ChampionSplashArt = 'champion-splash-art',
 }
 
 export const quizList: Quiz[] = [
     {
         id: '1',
         name: `Find item's name`,
-        internalName: QuizListInternalName.ItemNameQuiz,
+        internalName: QuizListInternalName.ItemName,
         canSkipQuestion: true,
         onlyOneTry: false,
         scoreBasedOnQuestionNumber: true,
@@ -45,7 +45,7 @@ export const quizList: Quiz[] = [
     {
         id: '2',
         name: `Find item's price`,
-        internalName: QuizListInternalName.ItemPriceQuiz,
+        internalName: QuizListInternalName.ItemPrice,
         canSkipQuestion: false,
         onlyOneTry: true,
         scoreBasedOnQuestionNumber: false,
@@ -55,12 +55,41 @@ export const quizList: Quiz[] = [
 
     {
         id: '3',
-        name: `Ultra secret quiz ... chut !`,
-        internalName: QuizListInternalName.AnUltraSecretQuiz,
+        name: `Find champion's splash-art`,
+        internalName: QuizListInternalName.ChampionSplashArt,
         canSkipQuestion: true,
         onlyOneTry: false,
-        scoreBasedOnQuestionNumber: true,
+        scoreBasedOnQuestionNumber: false,
         winnerHasTheLowestScore: false,
         answersAreOnlyNumber: false,
+    },
+];
+
+export interface FindChampionWithSplashArtScoreCalculation {
+    secondMax: number;
+    pixelateValue: number;
+    score: number;
+}
+
+export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
+    {
+        secondMax: 5,
+        pixelateValue: 50,
+        score: 4,
+    },
+    {
+        secondMax: 10,
+        pixelateValue: 37.5,
+        score: 3,
+    },
+    {
+        secondMax: 15,
+        pixelateValue: 25,
+        score: 2,
+    },
+    {
+        secondMax: 20,
+        pixelateValue: 12.5,
+        score: 1,
     },
 ];

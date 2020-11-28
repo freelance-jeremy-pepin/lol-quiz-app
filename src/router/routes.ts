@@ -10,7 +10,7 @@ const routes: RouteConfig[] = [
     },
 
     {
-        path: '/quiz/item-name-quiz',
+        path: '/quiz/item-name',
         component: () => import('layouts/QuizLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/ItemNameQuizPage.vue') },
@@ -19,10 +19,19 @@ const routes: RouteConfig[] = [
     },
 
     {
-        path: '/quiz/item-price-quiz',
+        path: '/quiz/item-price',
         component: () => import('layouts/QuizLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/ItemPriceQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/quiz/champion-splash-art',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ChampionSplashArtPage.vue') },
         ],
         props: true,
     },

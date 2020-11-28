@@ -7,7 +7,7 @@ import { Component, Mixins } from 'vue-property-decorator';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHistoryItem.vue';
+import ListAnswersHistoryItem from 'components/AnswerHistoryItem/ListAnswersHistory.vue';
 import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
 import QuizItemMixin from 'src/mixins/quizItemMixin';
 import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';

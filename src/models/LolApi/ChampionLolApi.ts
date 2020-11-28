@@ -6,7 +6,7 @@ export default interface ChampionLolApi {
     version?: string;
     id?: number;
     key?: string;
-    name?: string;
+    name: string;
     title?: string;
     blurb?: string;
     info?: {

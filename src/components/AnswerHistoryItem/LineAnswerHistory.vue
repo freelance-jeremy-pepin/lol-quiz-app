@@ -2,9 +2,7 @@
     <div>
         <q-item :class="`${backgroundColor} text-black`">
             <q-item-section avatar>
-                <icon-item
-                    :item="item"
-                ></icon-item>
+                <slot name="left-side"></slot>
             </q-item-section>
 
             <q-item-section>
@@ -13,8 +11,17 @@
                     <span v-else>Answer: {{ quizAnswer.value }}</span>
                 </q-item-label>
 
-                <q-item-label>
-                    <span v-if="playerAnswerHistory.skipped">(skipped)</span>
+                <q-item-label v-if="playerAnswerHistory.skipped">
+                    <span>(skipped)</span>
+                </q-item-label>
+
+                <q-item-label v-if="playerAnswerHistory.score">
+                    <span v-if="playerAnswerHistory.score">Score: {{ playerAnswerHistory.score }}</span>
+                    <span v-if="playerAnswerHistory.totalScore"> / {{ playerAnswerHistory.totalScore }}</span>
+                </q-item-label>
+
+                <q-item-label v-if="playerAnswerHistory.timeElapsed">
+                    <span>Time: {{ playerAnswerHistory.timeElapsed | transformTimeIntoString }}</span>
                 </q-item-label>
 
                 <q-item-label v-if="playerAnswerHistory.answers.length > 0">
@@ -54,16 +61,16 @@ import { Mixins, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import IconItem from 'components/Item/IconItem.vue';
 import QuizAnswer from 'src/models/QuizAnswer';
-import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import PlayerAnswerHistory from 'src/models/PlayerAnswerHistory';
 import Quiz from 'src/models/Quiz';
 import TextFormatMixin from 'src/mixins/textFormat';
 import { stringToInt } from 'src/utils/number';
+import TimeMixin from 'src/mixins/timeMixin';
 
 @Component({
     components: { IconItem },
 })
-export default class LineAnswerHistoryItem extends Mixins(TextFormatMixin) {
+export default class LineAnswerHistory extends Mixins(TextFormatMixin, TimeMixin) {
     // region Props
 
     @Prop({ required: true }) quiz!: Quiz;
@@ -71,8 +78,6 @@ export default class LineAnswerHistoryItem extends Mixins(TextFormatMixin) {
     @Prop({ required: true }) quizAnswer!: QuizAnswer;
 
     @Prop({ required: true }) playerAnswerHistory!: PlayerAnswerHistory;
-
-    @Prop({ required: true }) item!: ItemLolApi;
 
     @Prop({ required: true }) isAnswering!: boolean;
 

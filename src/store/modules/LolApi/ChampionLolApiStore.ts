@@ -13,7 +13,7 @@ import { AxiosError } from 'axios';
 class ChampionLolApiStore extends VuexModule {
     // region State
 
-    private _champions?: ChampionLolApi[] = undefined;
+    private _champions: ChampionLolApi[] = [];
 
     // endregion
 
@@ -46,7 +46,7 @@ class ChampionLolApiStore extends VuexModule {
 
     // region Getters
 
-    public get champions(): ChampionLolApi[] | undefined {
+    public get champions(): ChampionLolApi[] {
         return this._champions;
     }
 
