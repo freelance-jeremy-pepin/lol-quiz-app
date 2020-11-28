@@ -7,9 +7,9 @@
                 v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
                 v-on:skip="onSkipChampion"
                 v-on:correct-answer="$emit('correct-answer')"
-                v-on:toggle-history="onModalToggleAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
                 v-on:view-history="onModalToggleAnswersHistory"
+                v-on:view-all-histories="onToggleModalAnswersAllHistories"
             >
                 <template v-slot:image>
                     <splash-art-champion
@@ -21,18 +21,33 @@
             </icon-and-input-quiz-layout>
 
             <list-answers-history
-                v-if="true || !isMultiplayer"
                 v-model="modalAnswersHistory.display"
                 :player="modalAnswersHistory.player"
                 :quiz-configuration="quizConfiguration"
             >
                 <template v-slot:left-side="props">
                     <splash-art-champion
+                        v-if="quizConfiguration.champions"
                         :champion="quizConfiguration.champions[props.index]"
                         :ratio-image="0.2"
                     ></splash-art-champion>
                 </template>
             </list-answers-history>
+
+            <table-answer-history
+                v-if="isMultiplayer && room"
+                v-model="modalAnswersAllHistories.display"
+                :players="room.players"
+                :quiz-configuration="quizConfiguration"
+            >
+                <template v-slot:left-side="props">
+                    <splash-art-champion
+                        v-if="quizConfiguration.champions"
+                        :champion="quizConfiguration.champions[props.index]"
+                        :ratio-image="0.2"
+                    ></splash-art-champion>
+                </template>
+            </table-answer-history>
         </div>
     </q-page>
 </template>
@@ -43,10 +58,12 @@ import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout
 import IconItem from 'components/Item/IconItem.vue';
 import QuizChampionMixin from 'src/mixins/quizChampionMixin';
 import SplashArtChampion from 'components/Champion/SplashArtChampion.vue';
-import ListAnswersHistory from 'components/AnswerHistoryItem/ListAnswersHistory.vue';
+import ListAnswersHistory from 'components/AnswerHistory/ListAnswersHistory.vue';
+import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
 
 @Component({
     components: {
+        TableAnswerHistory,
         ListAnswersHistory,
         SplashArtChampion,
         IconItem,

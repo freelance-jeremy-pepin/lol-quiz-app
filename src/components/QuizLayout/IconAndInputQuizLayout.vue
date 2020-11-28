@@ -3,9 +3,9 @@
         <result-quiz
             v-if="quizStageStore.isQuizFinished && !isMultiplayer"
             :is-multiplayer="isMultiplayer"
-            :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             :score="player.score"
             :time="quizConfiguration.withStopWatch ? player.completeTime : null"
+            :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             @play-again="$emit('play-again')"
             @view-history="$emit('view-history')"
         ></result-quiz>
@@ -71,6 +71,14 @@
 
         <q-page-sticky :offset="[18, 18]" position="bottom-left">
             <shortcuts-quiz :quiz="quizConfiguration.quiz"></shortcuts-quiz>
+        </q-page-sticky>
+
+        <q-page-sticky
+            v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
+            :offset="[18, 18]"
+            position="bottom-right"
+        >
+            <q-btn color="accent" fab icon="history" @click="$emit('view-all-histories')" />
         </q-page-sticky>
 
         <q-page-sticky

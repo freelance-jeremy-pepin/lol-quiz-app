@@ -20,7 +20,7 @@
                     <span v-if="playerAnswerHistory.totalScore"> / {{ playerAnswerHistory.totalScore }}</span>
                 </q-item-label>
 
-                <q-item-label v-if="playerAnswerHistory.timeElapsed">
+                <q-item-label v-if="!isAnswering && playerAnswerHistory.timeElapsed">
                     <span>Time: {{ playerAnswerHistory.timeElapsed | transformTimeIntoString }}</span>
                 </q-item-label>
 

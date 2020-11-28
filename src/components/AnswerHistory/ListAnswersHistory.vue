@@ -24,7 +24,7 @@
 <script lang="ts">
 import { Mixins, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
-import LineAnswerHistory from 'components/AnswerHistoryItem/LineAnswerHistory.vue';
+import LineAnswerHistory from 'components/AnswerHistory/LineAnswerHistory.vue';
 import Player from 'src/models/Player';
 import PlayerMixin from 'src/mixins/playerMixin';
 import IconItem from 'components/Item/IconItem.vue';

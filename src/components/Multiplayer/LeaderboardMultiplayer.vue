@@ -53,12 +53,12 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
 import SocketMixin from 'src/mixins/socketMixin';
-import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
+import TableAnswerHistoryItem from 'components/AnswerHistory/TableAnswerHistory.vue';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
 import Player from '../../models/Player';
 import UserMixin from '../../mixins/userMixin';
-import ListAnswersHistoryItem from '../AnswerHistoryItem/ListAnswersHistory.vue';
+import ListAnswersHistoryItem from '../AnswerHistory/ListAnswersHistory.vue';
 
 @Component({
     components: { TableAnswerHistoryItem, ListAnswersHistoryItem, CardWithTitleAndAction },

@@ -11,6 +11,7 @@
                 v-on:toggle-history="onModalToggleAnswersHistory(null)"
                 v-on:play-again="onStartNewQuiz"
                 v-on:view-history="onModalToggleAnswersHistory"
+                v-on:view-all-histories="onToggleModalAnswersAllHistories"
             >
                 <template v-slot:image>
                     <icon-item
@@ -22,22 +23,31 @@
             </icon-and-input-quiz-layout>
 
             <list-answers-history
-                v-if="true || !isMultiplayer"
                 v-model="modalAnswersHistory.display"
                 :player="modalAnswersHistory.player"
                 :quiz-configuration="quizConfiguration"
             >
                 <template v-slot:left-side="props">
-                    <icon-item :item="quizConfiguration.items[props.index]"></icon-item>
+                    <icon-item
+                        v-if="quizConfiguration.items"
+                        :item="quizConfiguration.items[props.index]"
+                    ></icon-item>
                 </template>
             </list-answers-history>
 
-            <table-answer-history-item
-                v-if="false && isMultiplayer && room"
-                v-model="modalAnswersHistory.display"
+            <table-answer-history
+                v-if="isMultiplayer && room"
+                v-model="modalAnswersAllHistories.display"
                 :players="room.players"
-                :quiz-configuration-item="quizConfiguration"
-            ></table-answer-history-item>
+                :quiz-configuration="quizConfiguration"
+            >
+                <template v-slot:left-side="props">
+                    <icon-item
+                        v-if="quizConfiguration.items"
+                        :item="quizConfiguration.items[props.index]"
+                    ></icon-item>
+                </template>
+            </table-answer-history>
         </div>
     </q-page>
 </template>
@@ -46,14 +56,14 @@
 import { Component, Mixins } from 'vue-property-decorator';
 import QuizItemMixin from 'src/mixins/quizItemMixin';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import ListAnswersHistory from 'components/AnswerHistoryItem/ListAnswersHistory.vue';
-import TableAnswerHistoryItem from 'components/AnswerHistoryItem/TableAnswerHistoryItem.vue';
+import ListAnswersHistory from 'components/AnswerHistory/ListAnswersHistory.vue';
 import IconItem from 'components/Item/IconItem.vue';
+import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
 
 @Component({
     components: {
+        TableAnswerHistory,
         IconItem,
-        TableAnswerHistoryItem,
         ListAnswersHistory,
         IconAndInputQuizLayout,
     },

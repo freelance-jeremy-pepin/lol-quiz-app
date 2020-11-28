@@ -27,7 +27,14 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public timeElapsed: Time = createDefaultTime();
 
     /**
-     * Données de la modale historique des réponses.
+     * Données de la modale historique des réponses pour tous les joueurs.
+     */
+    public modalAnswersAllHistories: { display: boolean } = {
+        display: false,
+    };
+
+    /**
+     * Données de la modale historique des réponses pour 1 joueur.
      */
     public modalAnswersHistory: { display: boolean, player: Player } = {
         display: false,
@@ -107,7 +114,13 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     }
 
     public get lastPlayerAnswerHistory(): PlayerAnswerHistory | null {
-        return this.player.answersHistory[this.player.answersHistory.length - 1];
+        const playerAnswerHistory: PlayerAnswerHistory | null = this.player.answersHistory[this.player.answersHistory.length - 1];
+
+        if (playerAnswerHistory?.startTime && typeof playerAnswerHistory.startTime === 'string') {
+            playerAnswerHistory.startTime = new Date(playerAnswerHistory.startTime);
+        }
+
+        return playerAnswerHistory;
     }
 
     // endregion
@@ -151,6 +164,10 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     public onModalToggleAnswersHistory(player?: Player) {
         this.toggleModalAnswersHistory(player);
+    }
+
+    public onToggleModalAnswersAllHistories() {
+        this.toggleModalAnswersAllHistories();
     }
 
     public onPickNext() {
@@ -231,7 +248,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     }
 
     /**
-     * Affiche ou masque la modale de l'historique des réponses.
+     * Affiche ou masque la modale de l'historique des réponses d'1 joueur.
      */
     public toggleModalAnswersHistory(player?: Player) {
         if (!this.modalAnswersHistory.display) {
@@ -243,6 +260,13 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         }
 
         this.modalAnswersHistory.display = !this.modalAnswersHistory.display;
+    }
+
+    /**
+     * Affiche ou masque la modale de l'historique des réponses de tous les joueurs.
+     */
+    public toggleModalAnswersAllHistories() {
+        this.modalAnswersAllHistories.display = !this.modalAnswersAllHistories.display;
     }
 
     public refreshPlayerAnswerHistoryFromRoom(room: Room) {
@@ -263,9 +287,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         if (this.lastPlayerAnswerHistory) {
             this.lastPlayerAnswerHistory.found = found;
             this.lastPlayerAnswerHistory.skipped = skipped;
-
-            const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startTime.getTime();
-            this.lastPlayerAnswerHistory.timeElapsed = createNewTime(timeElapsed);
+            this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
 
             if (this.answerGivenByPlayer.trim()) {
                 const newAnswer: PlayerAnswer = createDefaultPlayerAnswer();
@@ -412,7 +434,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     }
 
     public refreshSecondsElapse() {
-        if (this.lastPlayerAnswerHistory) {
+        if (this.lastPlayerAnswerHistory?.startTime) {
             const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startTime.getTime();
             this.timeElapsed = createNewTime(timeElapsed);
         }
