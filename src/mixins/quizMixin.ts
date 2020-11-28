@@ -341,7 +341,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
         if (QuizStageStore.isQuizFinished) {
             if (e.key === 'h') {
-                this.$emit('toggle-history');
+                this.toggleModalAnswersHistory();
             }
 
             if (e.key === 'r') {

@@ -7,14 +7,14 @@
             :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             @play-again="$emit('play-again')"
-            @view-history="$emit('view-history')"
+            @view-history="onModalToggleAnswersHistory"
         ></result-quiz>
 
         <leaderboard-multiplayer
             v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
-            @view-history="(playerViewHistory) => $emit('view-history', playerViewHistory)"
+            @view-history="(playerViewHistory) => onModalToggleAnswersHistory(playerViewHistory)"
         ></leaderboard-multiplayer>
 
         <div v-if="quizStageStore.isLoading" class="text-center">
@@ -69,6 +69,27 @@
             </q-btn>
         </div>
 
+        <list-answers-history
+            v-model="modalAnswersHistory.display"
+            :player="modalAnswersHistory.player"
+            :quiz-configuration="quizConfiguration"
+        >
+            <template v-slot:left-side="props">
+                <slot :index="props.index" name="icon-answer-history"></slot>
+            </template>
+        </list-answers-history>
+
+        <table-answer-history
+            v-if="isMultiplayer && room"
+            v-model="modalAnswersAllHistories.display"
+            :players="room.players"
+            :quiz-configuration="quizConfiguration"
+        >
+            <template v-slot:left-side="props">
+                <slot :index="props.index" name="icon-answer-history"></slot>
+            </template>
+        </table-answer-history>
+
         <q-page-sticky :offset="[18, 18]" position="bottom-left">
             <shortcuts-quiz :quiz="quizConfiguration.quiz"></shortcuts-quiz>
         </q-page-sticky>
@@ -78,7 +99,7 @@
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history" @click="$emit('view-all-histories')" />
+            <q-btn color="accent" fab icon="history" @click="onToggleModalAnswersAllHistories" />
         </q-page-sticky>
 
         <q-page-sticky
@@ -112,9 +133,13 @@ import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
 import QuizMixin from 'src/mixins/quizMixin';
+import ListAnswersHistory from 'components/AnswerHistory/ListAnswersHistory.vue';
+import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
 
 @Component({
     components: {
+        TableAnswerHistory,
+        ListAnswersHistory,
         LeaderboardMultiplayer,
         ProgressQuizMultiplayer,
         CardWithTitleAndAction,
