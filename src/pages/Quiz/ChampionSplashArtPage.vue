@@ -51,7 +51,7 @@ export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
 
         this.pixelateValue = scoreCalculation.pixelateValue;
 
-        if (scoreCalculation.score < 1) {
+        if (scoreCalculation.secondMax < 0) {
             this.onPickNextChampion();
         }
     }
