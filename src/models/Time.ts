@@ -6,6 +6,7 @@ export interface Time extends Model {
     seconds: number;
     milliseconds: number;
     totalSeconds: number;
+    time: number;
 }
 
 export function createDefaultTime(): Time {
@@ -15,18 +16,22 @@ export function createDefaultTime(): Time {
         seconds: 0,
         milliseconds: 0,
         totalSeconds: 0,
+        time: 0,
     };
 }
 
-export function createNewTime(timeElapsed: number): Time {
-    const milliseconds = timeElapsed % 1000;
-    timeElapsed = (timeElapsed - milliseconds) / 1000;
-    const seconds = timeElapsed % 60;
-    timeElapsed = (timeElapsed - seconds) / 60;
-    const minutes = timeElapsed % 60;
+export function createNewTime(time: number): Time {
+    const newTime = createDefaultTime();
+    newTime.time = time;
+
+    const milliseconds = time % 1000;
+    time = (time - milliseconds) / 1000;
+    const seconds = time % 60;
+    time = (time - seconds) / 60;
+    const minutes = time % 60;
 
     return {
-        id: uniqueID(),
+        ...newTime,
         minutes,
         seconds,
         milliseconds,

@@ -8,7 +8,8 @@ export default interface PlayerAnswerHistory extends Model {
     skipped: boolean;
     score: number;
     totalScore: number;
-    startTime: Date;
+    startDate: Date; // Date à laquelle le joueur a commencé à répondre à la question.
+    endDate: Date; // Date à laquelle le joueur ne peux plus répondre à la question.
     timeElapsed: Time;
     answers: PlayerAnswer[];
 }
@@ -20,7 +21,8 @@ export function createDefaultPlayerAnswerHistory(): PlayerAnswerHistory {
         skipped: false,
         score: 0,
         totalScore: 0,
-        startTime: new Date(),
+        startDate: new Date(),
+        endDate: new Date(),
         timeElapsed: createDefaultTime(),
         answers: [],
     };

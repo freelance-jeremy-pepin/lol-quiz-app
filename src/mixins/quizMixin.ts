@@ -1,4 +1,4 @@
-import { Component, Mixins } from 'vue-property-decorator';
+import { Component, Mixins, Watch } from 'vue-property-decorator';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
@@ -22,9 +22,13 @@ import { createDefaultTime, createNewTime, Time } from 'src/models/Time';
 export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixin, UserMixin) {
     // region Data
 
-    public secondsElapseIntervalId: number = 0;
+    public timeElapseIntervalId: number = 0;
+
+    public timeRemainingIntervalId: number = 0;
 
     public timeElapsed: Time = createDefaultTime();
+
+    public timeRemaining: Time = createDefaultTime();
 
     /**
      * Données de la modale historique des réponses pour tous les joueurs.
@@ -116,8 +120,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public get lastPlayerAnswerHistory(): PlayerAnswerHistory | null {
         const playerAnswerHistory: PlayerAnswerHistory | null = this.player.answersHistory[this.player.answersHistory.length - 1];
 
-        if (playerAnswerHistory?.startTime && typeof playerAnswerHistory.startTime === 'string') {
-            playerAnswerHistory.startTime = new Date(playerAnswerHistory.startTime);
+        if (playerAnswerHistory?.startDate && typeof playerAnswerHistory.startDate === 'string') {
+            playerAnswerHistory.startDate = new Date(playerAnswerHistory.startDate);
         }
 
         return playerAnswerHistory;
@@ -130,8 +134,14 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public beforeMount() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        this.secondsElapseIntervalId = setInterval(() => {
-            this.refreshSecondsElapse();
+        this.timeElapseIntervalId = setInterval(() => {
+            this.refreshTimeElapse();
+        }, 10);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.timeRemainingIntervalId = setInterval(() => {
+            this.refreshTimeRemaining();
         }, 10);
     }
 
@@ -155,7 +165,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public unmounted() {
         window.removeEventListener('keydown', this.onKeyPress);
 
-        clearInterval(this.secondsElapseIntervalId);
+        clearInterval(this.timeElapseIntervalId);
     }
 
     // endregion
@@ -244,6 +254,13 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      */
     public addEmptyAnswerToHistory() {
         const emptyAnswer = createDefaultPlayerAnswerHistory();
+
+        if (this.quizConfiguration.quiz.secondsPerQuestion) {
+            const endDate = new Date(emptyAnswer.startDate.getTime());
+            endDate.setSeconds(endDate.getSeconds() + this.quizConfiguration.quiz.secondsPerQuestion);
+            emptyAnswer.endDate = endDate;
+        }
+
         this.player.answersHistory = [...this.player.answersHistory, emptyAnswer];
     }
 
@@ -281,6 +298,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      * Met à jour la dernière réponse donnée par le joueur.
      * @param found L'objet a été trouvé.
      * @param skipped L'objet a été passé.
+     * @param addNewAnswer
      * @public
      */
     public updateLastAnswer(found: boolean, skipped: boolean, addNewAnswer: boolean = false) {
@@ -427,19 +445,47 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
             this.updateLastAnswer(answerIsRight, false, true);
 
+            if (this.quizConfiguration.quiz.clearAnswerInputAfterVerify) {
+                this.answerGivenByPlayer = '';
+                this.focusAnswerInput();
+            }
+
             return answerIsRight;
         }
 
         return false;
     }
 
-    public refreshSecondsElapse() {
-        if (this.lastPlayerAnswerHistory?.startTime) {
-            const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startTime.getTime();
+    public refreshTimeElapse() {
+        if (this.lastPlayerAnswerHistory?.startDate) {
+            const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startDate.getTime();
             this.timeElapsed = createNewTime(timeElapsed);
         }
+    }
 
-        return 0;
+    public refreshTimeRemaining() {
+        if (this.lastPlayerAnswerHistory?.startDate) {
+            if (this.lastPlayerAnswerHistory.startDate && this.lastPlayerAnswerHistory.endDate) {
+                const timeRemaining = this.lastPlayerAnswerHistory.endDate.getTime() - new Date().getTime();
+
+                if (timeRemaining < 0) {
+                    this.timeRemaining = createNewTime(0);
+                } else {
+                    this.timeRemaining = createNewTime(timeRemaining);
+                }
+            }
+        }
+    }
+
+    // endregion
+
+    // region Watchers
+
+    @Watch('room', { deep: true })
+    public onRoomChanged() {
+        if (this.isMultiplayer && this.modalAnswersHistory.display && this.room) {
+            this.refreshPlayerAnswerHistoryFromRoom(this.room);
+        }
     }
 
     // endregion

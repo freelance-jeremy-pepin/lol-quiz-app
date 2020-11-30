@@ -2,8 +2,8 @@
     <div class="q-gutter-y-sm">
         <card-with-title-and-action
             :center-content="false"
-            style="max-width: 500px;"
             :subtitle="`${allPlayerHasFinished ? '' : '(provisional)'}`"
+            style="max-width: 500px;"
             title="Leaderboard"
             @action="$emit('play-again')"
         >
@@ -20,9 +20,16 @@
                     <q-item-section>
                         <q-item-label class="text-bold">
                             {{ getPseudoById(player.userId) }}
-                            <span v-if="!player.hasFinished"> (playing)</span>
+                            <span v-if="!player.hasFinished"> (playing...)</span>
                         </q-item-label>
-                        <q-item-label caption>(score: {{ player.score }})</q-item-label>
+
+                        <q-item-label>
+                            {{ `Score: ${player.score}${room.quizConfiguration.totalScore ? ` / ${room.quizConfiguration.totalScore}` : ''}` }}
+                        </q-item-label>
+
+                        <q-item-label v-if="!player.hasFinished" caption>
+                            Current question: {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}
+                        </q-item-label>
                     </q-item-section>
 
                     <q-item-section side>

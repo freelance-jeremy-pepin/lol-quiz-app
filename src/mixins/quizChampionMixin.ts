@@ -171,10 +171,6 @@ export default class QuizChampionMixin extends Mixins(QuizMixin) {
                 if (!quizConfiguration.champions || quizConfiguration.champions.length < 1) {
                     this.setQuizConfigurationChampionFromRoom(this.room);
                 }
-
-                if (this.modalAnswersHistory.display) {
-                    this.refreshPlayerAnswerHistoryFromRoom(this.room);
-                }
             } else {
                 this.quizStageStore.setUnknownRoom();
             }

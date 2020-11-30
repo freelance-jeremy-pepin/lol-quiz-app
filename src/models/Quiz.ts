@@ -9,6 +9,8 @@ export default interface Quiz extends Model {
     scoreBasedOnQuestionNumber: boolean; // Le score est basé sur le nombre de question correcte. 1 bonne réponse = 1 point.
     winnerHasTheLowestScore: boolean;
     answersAreOnlyNumber: boolean;
+    secondsPerQuestion: number;
+    clearAnswerInputAfterVerify: boolean;
 }
 
 export function createDefaultQuiz(): Quiz {
@@ -21,6 +23,8 @@ export function createDefaultQuiz(): Quiz {
         scoreBasedOnQuestionNumber: true,
         winnerHasTheLowestScore: false,
         answersAreOnlyNumber: false,
+        secondsPerQuestion: 0,
+        clearAnswerInputAfterVerify: false,
     };
 }
 
@@ -40,6 +44,8 @@ export const quizList: Quiz[] = [
         scoreBasedOnQuestionNumber: true,
         winnerHasTheLowestScore: false,
         answersAreOnlyNumber: false,
+        secondsPerQuestion: 0,
+        clearAnswerInputAfterVerify: false,
     },
 
     {
@@ -51,6 +57,8 @@ export const quizList: Quiz[] = [
         scoreBasedOnQuestionNumber: false,
         winnerHasTheLowestScore: true,
         answersAreOnlyNumber: true,
+        secondsPerQuestion: 0,
+        clearAnswerInputAfterVerify: false,
     },
 
     {
@@ -62,6 +70,8 @@ export const quizList: Quiz[] = [
         scoreBasedOnQuestionNumber: false,
         winnerHasTheLowestScore: false,
         answersAreOnlyNumber: false,
+        secondsPerQuestion: 20,
+        clearAnswerInputAfterVerify: true,
     },
 ];
 

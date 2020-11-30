@@ -103,11 +103,14 @@
         </q-page-sticky>
 
         <q-page-sticky
-            v-if="quizConfiguration.withStopWatch && !quizStageStore.isQuizFinished && !quizStageStore.isLoading"
+            v-if="quizConfiguration.quiz.secondsPerQuestion && !quizStageStore.isQuizFinished && !quizStageStore.isLoading"
             :offset="[18, 18]"
             position="top-right"
         >
-            <stop-watch ref="stopWatch"></stop-watch>
+            <count-down
+                v-if="quizConfiguration.quiz.secondsPerQuestion"
+                :time="timeRemaining"
+            ></count-down>
         </q-page-sticky>
 
         <q-page-sticky
@@ -135,9 +138,11 @@ import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplaye
 import QuizMixin from 'src/mixins/quizMixin';
 import ListAnswersHistory from 'components/AnswerHistory/ListAnswersHistory.vue';
 import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
+import CountDown from 'components/Common/CountDown.vue';
 
 @Component({
     components: {
+        CountDown,
         TableAnswerHistory,
         ListAnswersHistory,
         LeaderboardMultiplayer,

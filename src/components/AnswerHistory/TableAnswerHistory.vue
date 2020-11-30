@@ -33,8 +33,12 @@
                                         (skipped)
                                     </div>
 
-                                    <div v-if="player.answersHistory[index].timeElapsed">
+                                    <div v-else-if="player.answersHistory[index].found && player.answersHistory[index].timeElapsed">
                                         <span>Time: {{ player.answersHistory[index].timeElapsed | transformTimeIntoString }}</span>
+                                    </div>
+
+                                    <div v-else>
+                                        Not found
                                     </div>
                                 </div>
 
@@ -47,8 +51,8 @@
                                         :class="answer.isRight ? 'text-positive' : 'text-negative'"
                                         class="text-bold"
                                     >
-                                            [{{ answer.value }}]
-                                        </span>
+                                        [{{ answer.value }}]
+                                    </span>
                                 </div>
                             </div>
                         </td>

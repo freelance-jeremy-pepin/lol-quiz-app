@@ -9,6 +9,18 @@ import { Component, Vue } from 'vue-property-decorator';
 
             return plural;
         },
+
+        formatMinutes(minutes: number): string {
+            return minutes.toString().padStart(2, '0');
+        },
+
+        formatSeconds(seconds: number): string {
+            return seconds.toString().padStart(2, '0');
+        },
+
+        formatMilliseconds(milliseconds: number): string {
+            return milliseconds.toString().padStart(3, '0');
+        },
     },
 })
 export default class TextFormatMixin extends Vue {
