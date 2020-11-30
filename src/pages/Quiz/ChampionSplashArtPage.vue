@@ -20,7 +20,7 @@ import QuizChampionMixin from 'src/mixins/quizChampionMixin';
 export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
     // region Data
 
-    private pixelateValue: number = 50;
+    private pixelateValue: number = findChampionWithSplashArtScoreCalculation[0].pixelateValue;
 
     // endregion
 
@@ -51,9 +51,9 @@ export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
 
         this.pixelateValue = scoreCalculation.pixelateValue;
 
-        // if (scoreCalculation.score < 1) {
-        //     this.onPickNextChampion();
-        // }
+        if (scoreCalculation.score < 1) {
+            this.onPickNextChampion();
+        }
     }
 
     private getScoreCalculation(totalSecondsElapsed: number): FindChampionWithSplashArtScoreCalculation {

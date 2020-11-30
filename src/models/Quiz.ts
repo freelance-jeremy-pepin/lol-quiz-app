@@ -74,22 +74,22 @@ export interface FindChampionWithSplashArtScoreCalculation {
 export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
     {
         secondMax: 5,
-        pixelateValue: 50,
+        pixelateValue: 90,
         score: 4,
     },
     {
         secondMax: 10,
-        pixelateValue: 37.5,
+        pixelateValue: 75,
         score: 3,
     },
     {
         secondMax: 15,
-        pixelateValue: 25,
+        pixelateValue: 60,
         score: 2,
     },
     {
         secondMax: 20,
-        pixelateValue: 12.5,
+        pixelateValue: 45,
         score: 1,
     },
 ];
