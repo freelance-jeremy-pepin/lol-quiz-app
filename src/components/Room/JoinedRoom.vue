@@ -4,8 +4,8 @@
             :action-color="player.isReady | transformIsReadyIntoColor"
             :action-label="player.isReady | transformIsReadyIntoLabel"
             :center-content="false"
-            style="max-width: 500px;"
             :title="room.name"
+            style="max-width: 500px;"
             @action="onToggleIsReady"
         >
             <q-card-section>
