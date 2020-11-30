@@ -283,13 +283,13 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      * @param skipped L'objet a été passé.
      * @public
      */
-    public updateLastAnswer(found: boolean, skipped: boolean) {
+    public updateLastAnswer(found: boolean, skipped: boolean, addNewAnswer: boolean = false) {
         if (this.lastPlayerAnswerHistory) {
             this.lastPlayerAnswerHistory.found = found;
             this.lastPlayerAnswerHistory.skipped = skipped;
             this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
 
-            if (this.answerGivenByPlayer.trim()) {
+            if (addNewAnswer && this.answerGivenByPlayer.trim()) {
                 const newAnswer: PlayerAnswer = createDefaultPlayerAnswer();
                 newAnswer.value = this.answerGivenByPlayer.trim();
                 newAnswer.isRight = found;
@@ -425,7 +425,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
             const answerIsRight = quizAnswer === playerAnswer;
 
-            this.updateLastAnswer(answerIsRight, false);
+            this.updateLastAnswer(answerIsRight, false, true);
 
             return answerIsRight;
         }

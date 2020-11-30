@@ -93,7 +93,7 @@ export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashAr
         score: 1,
     },
     {
-        secondMax: 21,
+        secondMax: 22,
         pixelateValue: 1,
         score: 0,
     },
