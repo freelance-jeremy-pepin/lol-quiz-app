@@ -4,7 +4,7 @@
             <q-markup-table bordered class="text-center" dense separator="cell" wrap-cells>
                 <thead>
                     <tr>
-                        <th>Item</th>
+                        <th></th>
                         <th
                             v-for="player in players"
                             :key="player.id"
@@ -31,6 +31,11 @@
                                 <div v-else>
                                     <div v-if="player.answersHistory[index].skipped">
                                         (skipped)
+                                    </div>
+
+                                    <div v-if="player.answersHistory[index].score">
+                                        <span v-if="player.answersHistory[index].score">Score: {{ player.answersHistory[index].score }}</span>
+                                        <span v-if="player.answersHistory[index].totalScore"> / {{ player.answersHistory[index].totalScore }}</span>
                                     </div>
 
                                     <div v-else-if="player.answersHistory[index].found && player.answersHistory[index].timeElapsed">
