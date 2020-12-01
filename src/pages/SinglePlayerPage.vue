@@ -18,6 +18,8 @@ import { Component, Vue } from 'vue-property-decorator';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
+import { QuizListInternalName } from 'src/models/Quiz';
+import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 
 @Component({
     components: { CardWithTitleAndAction, FormQuizConfiguration },
@@ -40,13 +42,21 @@ export default class SinglePlayerPage extends Vue {
     // region Methods
 
     private redirectToQuiz() {
+        // eslint-disable-next-line
+        const query: any = {
+            quiz: this.internalQuizConfiguration.quiz.id.toString(),
+            numberQuestions: this.internalQuizConfiguration.numberQuestions.toString(),
+            withStopWatch: this.internalQuizConfiguration.withStopWatch.toString(),
+        };
+
+        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionImage) {
+            const quizConfiguration: QuizConfigurationChampion = this.internalQuizConfiguration as QuizConfigurationChampion;
+            query.imageType = quizConfiguration.imageType;
+        }
+
         this.$router.push({
             path: `/quiz/${this.internalQuizConfiguration.quiz.internalName}`,
-            query: {
-                quiz: this.internalQuizConfiguration.quiz.id.toString(),
-                numberQuestions: this.internalQuizConfiguration.numberQuestions.toString(),
-                withStopWatch: this.internalQuizConfiguration.withStopWatch.toString(),
-            },
+            query,
         });
     }
 

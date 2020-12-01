@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import ChampionLolApi from '../../models/LolApi/ChampionLolApi';
+import ChampionLolApi, { ImageTypesChampionLolApi } from '../../models/LolApi/ChampionLolApi';
 import LolApiRepository from './LolApiRepository';
 
 export default class ChampionLolApiRepository extends LolApiRepository {
@@ -26,11 +26,11 @@ export default class ChampionLolApiRepository extends LolApiRepository {
     }
 
     public getSplashImageUrl(champion: ChampionLolApi, skinNum: number = 0) {
-        return this.getImageUrl(champion, skinNum, 'splash');
+        return this.getImageUrl(champion, skinNum, ImageTypesChampionLolApi.splash);
     }
 
     public getLoadingImageUrl(champion: ChampionLolApi, skinNum: number = 0) {
-        return this.getImageUrl(champion, skinNum, 'loading');
+        return this.getImageUrl(champion, skinNum, ImageTypesChampionLolApi.loading);
     }
 
     public getSquareImageUrl(champion: ChampionLolApi) {
@@ -41,7 +41,7 @@ export default class ChampionLolApiRepository extends LolApiRepository {
         return '';
     }
 
-    private getImageUrl(champion: ChampionLolApi, skinNum: number, imgType: string) {
+    private getImageUrl(champion: ChampionLolApi, skinNum: number, imgType: ImageTypesChampionLolApi) {
         if (champion.image?.full) {
             const championName = champion.image.full.split('.')[0];
             const extension = 'jpg';

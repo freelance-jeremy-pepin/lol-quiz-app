@@ -28,10 +28,10 @@ const routes: RouteConfig[] = [
     },
 
     {
-        path: '/quiz/champion-splash-art',
+        path: '/quiz/champion-image',
         component: () => import('layouts/QuizLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Quiz/ChampionSplashArtPage.vue') },
+            { path: '', component: () => import('pages/Quiz/ChampionImagePage.vue') },
         ],
         props: true,
     },

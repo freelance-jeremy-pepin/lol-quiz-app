@@ -1,26 +1,44 @@
 <template>
     <canvas
         :id="canvassId"
-        :height="717 * ratioImage"
-        :width="1215 * ratioImage"
+        :height="size.height * ratioImage"
+        :width="size.width * ratioImage"
     ></canvas>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { uniqueID } from 'src/utils/number';
-import ChampionLolApi from '../../models/LolApi/ChampionLolApi';
+import { ImageSize } from 'src/models/ImageSize';
+import ChampionLolApi, { ImageTypesChampionLolApi } from '../../models/LolApi/ChampionLolApi';
 import ChampionLolApiRepository from '../../repositories/LolApi/ChampionLolApiRepository';
 
 @Component
-export default class SplashArtChampion extends Vue {
+export default class ImageChampion extends Vue {
     // region Props
+
+    @Prop({ required: true }) imageType!: ImageTypesChampionLolApi;
 
     @Prop({ required: true }) champion!: ChampionLolApi;
 
-    @Prop({ required: false, default: 0.7 }) ratioImage!: number;
+    @Prop({ required: false, default: 1 }) ratioImage!: number;
 
     @Prop({ required: false, default: 1 }) pixelateValue!: number;
+
+    // endregion
+
+    // region Computed properties
+
+    private get size(): ImageSize {
+        switch (this.imageType) {
+            case ImageTypesChampionLolApi.loading:
+                return { height: 560, width: 308 };
+            case ImageTypesChampionLolApi.splash:
+                return { height: 717, width: 1215 };
+            default:
+                return { height: 0, width: 0 };
+        }
+    }
 
     // endregion
 
@@ -46,7 +64,8 @@ export default class SplashArtChampion extends Vue {
             this.ctx = this.domImg.getContext('2d');
             this.img = new Image();
             this.img.onload = this.pixelate;
-            this.img.src = new ChampionLolApiRepository().getSplashImageUrl(this.champion);
+
+            this.img.src = this.getImageUrl();
         }
     }
 
@@ -93,8 +112,19 @@ export default class SplashArtChampion extends Vue {
 
     private refreshImage() {
         if (this.img) {
-            this.img.src = new ChampionLolApiRepository().getSplashImageUrl(this.champion);
+            this.img.src = this.getImageUrl();
             this.pixelate();
+        }
+    }
+
+    private getImageUrl(): string {
+        switch (this.imageType) {
+            case ImageTypesChampionLolApi.loading:
+                return new ChampionLolApiRepository().getLoadingImageUrl(this.champion);
+            case ImageTypesChampionLolApi.splash:
+                return new ChampionLolApiRepository().getSplashImageUrl(this.champion);
+            default:
+                return '';
         }
     }
 

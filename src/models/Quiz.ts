@@ -31,7 +31,7 @@ export function createDefaultQuiz(): Quiz {
 export enum QuizListInternalName {
     ItemName = 'item-name',
     ItemPrice = 'item-price',
-    ChampionSplashArt = 'champion-splash-art',
+    ChampionImage = 'champion-image',
 }
 
 export const quizList: Quiz[] = [
@@ -63,8 +63,8 @@ export const quizList: Quiz[] = [
 
     {
         id: '3',
-        name: `Find champion's splash-art`,
-        internalName: QuizListInternalName.ChampionSplashArt,
+        name: `Find champion's image`,
+        internalName: QuizListInternalName.ChampionImage,
         canSkipQuestion: true,
         onlyOneTry: false,
         scoreBasedOnQuestionNumber: false,
@@ -77,34 +77,40 @@ export const quizList: Quiz[] = [
 
 export interface FindChampionWithSplashArtScoreCalculation {
     secondMax: number;
-    pixelateValue: number;
+    pixelateValueSplash: number;
+    pixelateValueLoading: number;
     score: number;
 }
 
 export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
     {
         secondMax: 5,
-        pixelateValue: 90,
+        pixelateValueSplash: 90,
+        pixelateValueLoading: 50,
         score: 4,
     },
     {
         secondMax: 10,
-        pixelateValue: 75,
+        pixelateValueSplash: 75,
+        pixelateValueLoading: 40,
         score: 3,
     },
     {
         secondMax: 15,
-        pixelateValue: 60,
+        pixelateValueSplash: 60,
+        pixelateValueLoading: 30,
         score: 2,
     },
     {
         secondMax: 20,
-        pixelateValue: 45,
+        pixelateValueSplash: 45,
+        pixelateValueLoading: 20,
         score: 1,
     },
     {
         secondMax: 22,
-        pixelateValue: 1,
+        pixelateValueSplash: 1,
+        pixelateValueLoading: 1,
         score: 0,
     },
 ];

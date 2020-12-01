@@ -35,14 +35,17 @@
             />
         </div>
 
-        <div class="q-pt-md">
-            <div class="text-bold">With stopwatch</div>
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Image type</div>
             <q-btn-toggle
-                v-model="internalQuizConfiguration.withStopWatch"
+                v-model="internalQuizConfiguration.imageType"
                 :options="[
-                    {label: 'Yes', value: true},
-                    {label: 'No', value: false},
-                  ]"
+                    { label: 'splash', value: 'splash' },
+                    { label: 'loading', value: 'loading' },
+                ]"
                 toggle-color="primary"
                 @input="onInput"
             />
@@ -52,14 +55,16 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import Quiz, { quizList } from 'src/models/Quiz';
+import Quiz, { quizList, QuizListInternalName } from 'src/models/Quiz';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
+import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
+import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
     // region Data
 
-    private internalQuizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+    private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion = createDefaultQuizConfiguration();
 
     private quizList: Quiz[] = quizList;
 
@@ -70,6 +75,7 @@ export default class FormQuizConfiguration extends Vue {
     // noinspection JSUnusedLocalSymbols
     private mounted() {
         this.restoreFormLocalStorage();
+        this.internalQuizConfiguration.withStopWatch = false;
     }
 
     // endregion
@@ -117,6 +123,13 @@ export default class FormQuizConfiguration extends Vue {
     @Watch('$attrs.value', { deep: true })
     public onValueChanged(value: QuizConfiguration): void {
         this.internalQuizConfiguration = value;
+    }
+
+    @Watch('internalQuizConfiguration', { deep: true, immediate: true })
+    public onInternalQuizConfiguration(): void {
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'imageType' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.imageType = undefined;
+        }
     }
 
     // endregion

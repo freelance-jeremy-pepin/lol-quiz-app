@@ -77,7 +77,7 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                 return quizConfigurationItem;
             }
 
-            case QuizListInternalName.ChampionSplashArt: {
+            case QuizListInternalName.ChampionImage: {
                 const quizConfigurationChampion: QuizConfigurationChampion = {
                     ...quizConfiguration,
                     champions: [],

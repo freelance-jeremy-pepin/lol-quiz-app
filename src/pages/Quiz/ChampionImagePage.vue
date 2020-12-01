@@ -11,16 +11,38 @@ import { Component, Mixins, Watch } from 'vue-property-decorator';
 import ChampionQuizLayout from 'components/QuizLayout/ChampionQuizLayout.vue';
 import { FindChampionWithSplashArtScoreCalculation, findChampionWithSplashArtScoreCalculation } from 'src/models/Quiz';
 import QuizChampionMixin from 'src/mixins/quizChampionMixin';
+import ImageChampion from 'components/Champion/ImageChampion.vue';
+import { ImageTypesChampionLolApi } from 'src/models/LolApi/ChampionLolApi';
+import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 
 @Component({
     components: {
+        ImageChampion,
         ChampionQuizLayout,
     },
 })
-export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
+export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
     // region Data
 
-    private pixelateValue: number = findChampionWithSplashArtScoreCalculation[0].pixelateValue;
+    private pixelateValue: number = 999;
+
+    // endregion
+
+    // region Hooks
+
+    public mounted() {
+        const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
+        switch (quizConfiguration.imageType) {
+            case ImageTypesChampionLolApi.splash:
+                this.pixelateValue = findChampionWithSplashArtScoreCalculation[0].pixelateValueSplash;
+                break;
+            case ImageTypesChampionLolApi.loading:
+                this.pixelateValue = findChampionWithSplashArtScoreCalculation[0].pixelateValueLoading;
+                break;
+            default:
+                this.pixelateValue = 999;
+        }
+    }
 
     // endregion
 
@@ -48,8 +70,18 @@ export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
 
     private updatePixelateValue(totalSecondsElapsed: number) {
         const scoreCalculation = this.getScoreCalculation(totalSecondsElapsed);
+        const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
 
-        this.pixelateValue = scoreCalculation.pixelateValue;
+        switch (quizConfiguration.imageType) {
+            case ImageTypesChampionLolApi.splash:
+                this.pixelateValue = scoreCalculation.pixelateValueSplash;
+                break;
+            case ImageTypesChampionLolApi.loading:
+                this.pixelateValue = scoreCalculation.pixelateValueLoading;
+                break;
+            default:
+                this.pixelateValue = 1;
+        }
 
         if (scoreCalculation.secondMax < 0) {
             this.onPickNextChampion();
@@ -63,7 +95,8 @@ export default class ChampionSplashArtPage extends Mixins(QuizChampionMixin) {
             return scoreCalculation;
         }
         return {
-            pixelateValue: 1,
+            pixelateValueSplash: 1,
+            pixelateValueLoading: 1,
             secondMax: -1,
             score: 0,
         };

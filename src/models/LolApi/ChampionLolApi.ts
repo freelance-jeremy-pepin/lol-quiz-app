@@ -24,3 +24,8 @@ export default interface ChampionLolApi {
     allytips?: string[];
     enemytips?: string[];
 }
+
+export enum ImageTypesChampionLolApi {
+    splash = 'splash',
+    loading = 'loading',
+}

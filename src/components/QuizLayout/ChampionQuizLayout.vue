@@ -12,19 +12,22 @@
                 v-on:view-all-histories="onToggleModalAnswersAllHistories"
             >
                 <template v-slot:image>
-                    <splash-art-champion
+                    <image-champion
                         v-if="championToGuess"
                         :champion="championToGuess"
+                        :image-type="quizConfiguration.imageType"
                         :pixelate-value="pixelatedValue"
-                    ></splash-art-champion>
+                        :ratio-image="0.7"
+                    ></image-champion>
                 </template>
 
                 <template v-slot:icon-answer-history="props">
-                    <splash-art-champion
+                    <image-champion
                         v-if="quizConfiguration.champions"
                         :champion="quizConfiguration.champions[props.index]"
+                        :image-type="quizConfiguration.imageType"
                         :ratio-image="0.2"
-                    ></splash-art-champion>
+                    ></image-champion>
                 </template>
             </icon-and-input-quiz-layout>
         </div>
@@ -36,11 +39,11 @@ import { Component, Mixins, Prop } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import QuizChampionMixin from 'src/mixins/quizChampionMixin';
-import SplashArtChampion from 'components/Champion/SplashArtChampion.vue';
+import ImageChampion from 'components/Champion/ImageChampion.vue';
 
 @Component({
     components: {
-        SplashArtChampion,
+        ImageChampion,
         IconItem,
         IconAndInputQuizLayout,
     },

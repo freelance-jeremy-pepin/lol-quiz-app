@@ -228,6 +228,11 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
                 numberQuestions: this.$route.query.numberQuestions ? parseInt(this.$route.query.numberQuestions.toString(), 10) : 5,
                 withStopWatch: this.$route.query.withStopWatch ? this.$route.query.withStopWatch.toString() === 'true' : false,
             };
+
+            if (this.$route.query.imageType) {
+                const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
+                quizConfiguration.imageType = this.$route.query.imageType.toString();
+            }
         }
     }
 

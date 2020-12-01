@@ -17,6 +17,7 @@
                     <li> {{ room.quizConfiguration.quiz.name }}</li>
                     <li> {{ room.quizConfiguration.numberQuestions }} questions</li>
                     <li> {{ room.quizConfiguration.withStopWatch | formatWithStopWatch }}</li>
+                    <li v-if="room.quizConfiguration.imageType"> Image type: {{ room.quizConfiguration.imageType }}</li>
                 </ul>
             </q-card-section>
 
