@@ -10,6 +10,7 @@ import SocketMixin from 'src/mixins/socketMixin';
 import QuizAnswer, { createDefaultQuizAnswer } from 'src/models/QuizAnswer';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
+import { shuffleArray } from 'src/utils/array';
 
 @Component({
     filters: {
@@ -29,49 +30,45 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                 };
 
                 if (ItemLolApiStore.items) {
-                    const itemsToFind: ItemLolApi[] = [];
                     const quizAnswers: QuizAnswer[] = [];
 
                     // Construit la liste des objets à deviner.
-                    let itemsToPick: ItemLolApi[] = [...ItemLolApiStore.itemsFilteredForQuiz];
-                    while (itemsToFind.length < quizConfigurationItem.numberQuestions) {
+                    let itemsPicked: ItemLolApi[] = [];
+
+                    switch (quizConfiguration.quiz.internalName) {
+                        case QuizListInternalName.ItemName:
+                            itemsPicked = this.pickRandoms(ItemLolApiStore.itemsFilteredForQuiz, quizConfigurationItem.numberQuestions) as ItemLolApi[];
+                            break;
+
+                        case QuizListInternalName.ItemPrice:
+                            itemsPicked = this.pickRandoms(ItemLolApiStore.itemsWithPrice, quizConfigurationItem.numberQuestions) as ItemLolApi[];
+                            break;
+
+                        default:
+                    }
+
+                    itemsPicked.forEach((i) => {
                         const quizAnswer = createDefaultQuizAnswer();
-
-                        if (itemsToPick.length < 1) {
-                            itemsToPick = [...ItemLolApiStore.itemsFilteredForQuiz];
-                        }
-
-                        const randomIndex = randomNumber(0, itemsToPick.length - 1);
-                        const itemToFind = itemsToPick[randomIndex];
-                        let itemIsValid: boolean = true;
 
                         switch (quizConfiguration.quiz.internalName) {
                             case QuizListInternalName.ItemName:
-                                quizAnswer.value = itemToFind.name;
+                                quizAnswer.value = i.name;
                                 break;
 
                             case QuizListInternalName.ItemPrice:
-                                if (!itemToFind.gold || !itemToFind.gold.total || itemToFind.gold.total < 1) {
-                                    itemIsValid = false;
-                                    break;
+                                if (i.gold?.total) {
+                                    quizAnswer.value = i.gold.total.toString();
                                 }
-
-                                quizAnswer.value = itemToFind.gold.total.toString();
                                 break;
 
                             default:
                         }
 
-                        if (itemIsValid) {
-                            itemsToFind.push(itemToFind);
-                            quizAnswers.push(quizAnswer);
-                        }
-
-                        itemsToPick.splice(randomIndex, 1);
-                    }
+                        quizAnswers.push(quizAnswer);
+                    });
 
                     quizConfigurationItem.answers = quizAnswers;
-                    quizConfigurationItem.items = itemsToFind;
+                    quizConfigurationItem.items = itemsPicked;
                 }
 
                 return quizConfigurationItem;
@@ -86,31 +83,19 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                 quizConfigurationChampion.totalScore = findChampionWithSplashArtScoreCalculation[0].score * quizConfigurationChampion.numberQuestions;
 
                 if (ChampionLolApiStore.champions) {
-                    const championsToFind: ChampionLolApi[] = [];
                     const quizAnswers: QuizAnswer[] = [];
 
                     // Construit la liste des champions à deviner.
-                    let championsToPick: ChampionLolApi[] = [...ChampionLolApiStore.champions];
-                    while (championsToFind.length < quizConfigurationChampion.numberQuestions) {
+                    const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampion.numberQuestions) as ChampionLolApi[];
+
+                    championsPicked.forEach(c => {
                         const quizAnswer = createDefaultQuizAnswer();
-
-                        if (championsToPick.length < 1) {
-                            championsToPick = [...ChampionLolApiStore.champions];
-                        }
-
-                        const randomIndex = randomNumber(0, championsToPick.length - 1);
-                        const championToFind = championsToPick[randomIndex];
-
-                        quizAnswer.value = championToFind.name;
-
-                        championsToFind.push(championToFind);
+                        quizAnswer.value = c.name;
                         quizAnswers.push(quizAnswer);
-
-                        championsToPick.splice(randomIndex, 1);
-                    }
+                    });
 
                     quizConfigurationChampion.answers = quizAnswers;
-                    quizConfigurationChampion.champions = championsToFind;
+                    quizConfigurationChampion.champions = championsPicked;
                 }
 
                 return quizConfigurationChampion;
@@ -119,5 +104,26 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
             default:
                 throw new Error(`Quiz ${quizConfiguration.quiz.name} : specialisation not yet implemented.`);
         }
+    }
+
+    private pickRandoms(elements: ItemLolApi[] | ChampionLolApi[], numberElementToPick: number): ItemLolApi[] | ChampionLolApi[] {
+        // Mélanges la liste des éléments.
+        let elementsShuffled = shuffleArray(elements, randomNumber(1, 5));
+        const elementsPicked: ChampionLolApi[] = [];
+
+        while (elementsPicked.length < numberElementToPick) {
+            // Si la liste des éléments est vide, la remplie avec la liste initiale.
+            if (elementsShuffled.length < 1) {
+                elementsShuffled = shuffleArray(elements, randomNumber(1, 5));
+            }
+
+            const randomIndex = randomNumber(0, elementsShuffled.length - 1);
+            elementsPicked.push(elementsShuffled[randomIndex]);
+
+            // Supprime l'élément choisi pour ne pas avoir de doublon.
+            elementsShuffled.splice(randomIndex, 1);
+        }
+
+        return elementsPicked;
     }
 }

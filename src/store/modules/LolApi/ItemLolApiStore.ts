@@ -66,6 +66,10 @@ class ItemLolApiStore extends VuexModule {
         });
     }
 
+    public get itemsWithPrice(): ItemLolApi[] {
+        return this.itemsFilteredForQuiz.filter(i => i.gold && i.gold.total && i.gold.total > 0);
+    }
+
     // endregion
 }
 
