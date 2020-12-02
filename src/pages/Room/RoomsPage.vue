@@ -9,16 +9,16 @@
                 title="Rooms"
                 @action="formRoom.display = true"
             >
-                <q-card-section v-if="roomsNotInGame.length > 0" class="q-pa-none">
-                    <list-rooms :rooms="roomsNotInGame"></list-rooms>
+                <q-card-section v-show="roomsNotInGame.length > 0" class="q-pa-none">
+                    <list-rooms ref="listRooms" :rooms="roomsNotInGame"></list-rooms>
                 </q-card-section>
 
-                <q-card-section v-else>
+                <q-card-section v-if="roomsNotInGame.length < 1">
                     <div class="text-center">No room.</div>
                 </q-card-section>
             </card-with-title-and-action>
 
-            <form-room v-model="formRoom.display"></form-room>
+            <form-room v-model="formRoom.display" v-on:creating-room="onCreatingRoom"></form-room>
         </div>
     </q-page>
 </template>
@@ -41,6 +41,15 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
     private formRoom: { display: boolean, room: Room } = {
         display: false,
         room: createDefaultRoom(),
+    };
+
+    private roomToJoin: Room | null = null;
+
+    /**
+     * Références des composants enfants.
+     */
+    public $refs!: {
+        listRooms: HTMLFormElement;
     };
 
     // endregion
@@ -66,6 +75,14 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
 
     // endregion
 
+    // region Events handlers
+
+    private onCreatingRoom(creatingRoom: Room) {
+        this.roomToJoin = creatingRoom;
+    }
+
+    // endregion
+
     // region Watchers
 
     /**
@@ -82,6 +99,11 @@ export default class RoomsPage extends Mixins(UserMixin, SocketMixin) {
                     });
                 }
             });
+
+            if (this.roomToJoin && this.$refs.listRooms && this.roomToJoin.id === r.id) {
+                this.$refs.listRooms.joinRoom(this.roomToJoin);
+                this.roomToJoin = null;
+            }
         });
     }
 

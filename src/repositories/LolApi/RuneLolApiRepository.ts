@@ -10,7 +10,9 @@ export default class RuneLolApiRepository extends LolApiRepository {
                 .then((response: AxiosResponse) => {
                     let runes: RuneLolApi[] = [];
 
+                    // eslint-disable-next-line
                     response.data.forEach((d: any) => {
+                        // eslint-disable-next-line
                         d.slots.forEach((slot: any) => {
                             runes = [...runes, ...slot.runes] as RuneLolApi[];
                         });
