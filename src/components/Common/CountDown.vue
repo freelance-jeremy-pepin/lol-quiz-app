@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
 import { Time } from 'src/models/Time';
-import TextFormatMixin from 'src/mixins/textFormat';
+import TextFormatMixin from 'src/mixins/textFormatMixin';
 
 @Component
 export default class CountDown extends Mixins(TextFormatMixin) {

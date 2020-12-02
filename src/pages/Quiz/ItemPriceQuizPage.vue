@@ -33,6 +33,10 @@ export default class ItemPriceQuizPage extends Mixins(QuizItemMixin) {
 
         const score = Math.abs(priceItem - priceGivenByPlayer);
 
+        if (this.lastPlayerAnswerHistory) {
+            this.lastPlayerAnswerHistory.score = score;
+        }
+
         this.player = { ...this.player, score: this.player.score + score };
 
         this.onPickNextItem();

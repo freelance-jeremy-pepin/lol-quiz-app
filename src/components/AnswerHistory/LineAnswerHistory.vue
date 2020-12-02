@@ -15,9 +15,18 @@
                     <span>(skipped)</span>
                 </q-item-label>
 
-                <q-item-label v-if="playerAnswerHistory.score">
-                    <span v-if="playerAnswerHistory.score">Score: {{ playerAnswerHistory.score }}</span>
+                <q-item-label v-if="playerAnswerHistory.score !== undefined">
+                    <span v-if="playerAnswerHistory.score !== undefined">Score: {{ playerAnswerHistory.score }}</span>
                     <span v-if="playerAnswerHistory.totalScore"> / {{ playerAnswerHistory.totalScore }}</span>
+                    <span v-if="answerIsPerfect(playerAnswerHistory)">
+                        <q-badge
+                            class="q-ml-xs"
+                            color="yellow"
+                            text-color="yellow-10"
+                        >
+                            Perfect!
+                        </q-badge>
+                    </span>
                 </q-item-label>
 
                 <q-item-label v-if="!isAnswering && playerAnswerHistory.found && playerAnswerHistory.timeElapsed">
@@ -38,7 +47,7 @@
                             [{{ answer.value }}]
                         </span>
                         <span
-                            v-if="quiz.answersAreOnlyNumber"
+                            v-if="false && quiz.answersAreOnlyNumber"
                             class="text-italic"
                         >
                             {{ difference(answer.value, quizAnswer.value) }}
@@ -63,14 +72,15 @@ import IconItem from 'components/Item/IconItem.vue';
 import QuizAnswer from 'src/models/QuizAnswer';
 import PlayerAnswerHistory from 'src/models/PlayerAnswerHistory';
 import Quiz from 'src/models/Quiz';
-import TextFormatMixin from 'src/mixins/textFormat';
+import TextFormatMixin from 'src/mixins/textFormatMixin';
 import { stringToInt } from 'src/utils/number';
 import TimeMixin from 'src/mixins/timeMixin';
+import PlayerAnswerMixin from 'src/mixins/playerAnswerMixin';
 
 @Component({
     components: { IconItem },
 })
-export default class LineAnswerHistory extends Mixins(TextFormatMixin, TimeMixin) {
+export default class LineAnswerHistory extends Mixins(TextFormatMixin, TimeMixin, PlayerAnswerMixin) {
     // region Props
 
     @Prop({ required: true }) quiz!: Quiz;

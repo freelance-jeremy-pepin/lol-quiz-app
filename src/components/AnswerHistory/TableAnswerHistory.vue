@@ -30,20 +30,23 @@
 
                                 <div v-else>
                                     <div v-if="player.answersHistory[index].skipped">
-                                        (skipped)
+                                        <span class="text-grey">(skipped)</span>
                                     </div>
 
-                                    <div v-if="player.answersHistory[index].score">
-                                        <span v-if="player.answersHistory[index].score">Score: {{ player.answersHistory[index].score }}</span>
+                                    <div v-if="player.answersHistory[index].score !== undefined">
+                                        <span v-if="player.answersHistory[index].score !== undefined">Score: {{ player.answersHistory[index].score }}</span>
                                         <span v-if="player.answersHistory[index].totalScore"> / {{ player.answersHistory[index].totalScore }}</span>
+                                        <span v-if="answerIsPerfect(player.answersHistory[index])">
+                                            <span class="text-yellow"> (Perfect!)</span>
+                                        </span>
                                     </div>
 
-                                    <div v-else-if="player.answersHistory[index].found && player.answersHistory[index].timeElapsed">
+                                    <div v-if="player.answersHistory[index].found && player.answersHistory[index].timeElapsed">
                                         <span>Time: {{ player.answersHistory[index].timeElapsed | transformTimeIntoString }}</span>
                                     </div>
 
                                     <div v-else>
-                                        Not found
+                                        <span class="text-negative">Not found!</span>
                                     </div>
                                 </div>
 
@@ -75,12 +78,13 @@ import UserMixin from 'src/mixins/userMixin';
 import IconItem from 'components/Item/IconItem.vue';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import TimeMixin from 'src/mixins/timeMixin';
-import TextFormatMixin from 'src/mixins/textFormat';
+import TextFormatMixin from 'src/mixins/textFormatMixin';
+import playerAnswerMixin from 'src/mixins/playerAnswerMixin';
 
 @Component({
     components: { IconItem },
 })
-export default class TableAnswerHistory extends Mixins(UserMixin, TimeMixin, TextFormatMixin) {
+export default class TableAnswerHistory extends Mixins(UserMixin, TimeMixin, TextFormatMixin, playerAnswerMixin) {
     // region Props
 
     @Prop({ required: true }) quizConfiguration!: QuizConfiguration;

@@ -20,6 +20,10 @@ export default class ItemNameQuizPage extends Mixins(QuizRuneMixin) {
     // region Event handlers
 
     private onCorrectAnswer() {
+        if (this.lastPlayerAnswerHistory) {
+            this.lastPlayerAnswerHistory.score = 1;
+        }
+
         // Si la réponse est correcte, incrémente le score et passe au prochain objet.
         this.player = { ...this.player, score: this.player.score + 1 };
 
