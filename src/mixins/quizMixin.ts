@@ -362,6 +362,12 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
             if (e.key === 'F9') {
                 this.$emit('skip');
             }
+
+            if (e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.$refs.answerInput) {
+                this.$refs.answerInput.blur();
+                this.answerGivenByPlayer = this.lastPlayerAnswerHistory.answers[this.lastPlayerAnswerHistory.answers.length - 1].value;
+                this.focusAnswerInput();
+            }
         }
 
         if (QuizStageStore.isQuizFinished) {
