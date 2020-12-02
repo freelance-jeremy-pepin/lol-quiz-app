@@ -18,7 +18,11 @@
                 </q-card-section>
             </card-with-title-and-action>
 
-            <form-room v-model="formRoom.display" v-on:creating-room="onCreatingRoom"></form-room>
+            <form-room
+                v-model="formRoom.display"
+                :room="formRoom.room"
+                v-on:creating-room="onCreatingRoom"
+            ></form-room>
         </div>
     </q-page>
 </template>

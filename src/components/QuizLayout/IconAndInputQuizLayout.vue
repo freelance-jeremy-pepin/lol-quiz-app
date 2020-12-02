@@ -12,9 +12,9 @@
 
         <leaderboard-multiplayer
             v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
+            :next-room="nextRoom"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
-            :next-room="nextRoom"
             @view-history="(playerViewHistory) => onModalToggleAnswersHistory(playerViewHistory)"
             @play-again="$emit('play-again')"
         ></leaderboard-multiplayer>

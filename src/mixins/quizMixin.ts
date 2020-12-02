@@ -183,7 +183,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         if (this.room) {
             this.roomSocketStore.updatePlayer({
                 room: this.room,
-                player: { ...this.player, hasQuitRoom: true }
+                player: { ...this.player, hasQuitRoom: true },
             });
         }
     }
@@ -381,7 +381,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
                 this.$emit('skip');
             }
 
-            if (e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.$refs.answerInput) {
+            if (!this.quizConfiguration.quiz.onlyOneTry && e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.$refs.answerInput) {
                 this.$refs.answerInput.blur();
                 this.answerGivenByPlayer = this.lastPlayerAnswerHistory.answers[this.lastPlayerAnswerHistory.answers.length - 1].value;
                 this.focusAnswerInput();

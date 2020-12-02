@@ -90,10 +90,13 @@ export default class ShortcutsQuiz extends Vue {
             shortcut: 'SHIFT + /',
             description: 'Focus answer input.',
         });
-        shortcuts.push({
-            shortcut: '↑',
-            description: 'Last answer.',
-        });
+
+        if (!this.quiz.onlyOneTry) {
+            shortcuts.push({
+                shortcut: '↑',
+                description: 'Last answer.',
+            });
+        }
 
         if (this.quiz.canSkipQuestion) {
             shortcuts.push({

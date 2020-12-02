@@ -40,26 +40,42 @@
         </card-with-title-and-action>
 
         <q-btn class="full-width" color="grey" flat @click="onLeaveRoom">Leave room</q-btn>
+
+        <q-page-sticky v-if="room.ownerId === me.id" :offset="[18, 18]" position="bottom-right">
+            <q-btn color="accent" fab icon="edit" @click="onEditRoom" />
+        </q-page-sticky>
+
+        <form-room v-model="formRoom.display" :room="formRoom.room" edit-mode></form-room>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator';
-import Room from 'src/models/Room';
+import Room, { createDefaultRoom } from 'src/models/Room';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import SocketMixin from 'src/mixins/socketMixin';
 import UserMixin from 'src/mixins/userMixin';
 import Player from 'src/models/Player';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import PlayerMixin from 'src/mixins/playerMixin';
+import FormRoom from 'components/Room/FormRoom.vue';
 
 @Component({
-    components: { CardWithTitleAndAction },
+    components: { FormRoom, CardWithTitleAndAction },
 })
 export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin, PlayerMixin) {
     // region Props
 
     @Prop({ required: true }) room!: Room;
+
+    // endregion
+
+    // region Data
+
+    private formRoom: { display: boolean, room: Room } = {
+        display: false,
+        room: createDefaultRoom(),
+    };
 
     // endregion
 
@@ -94,6 +110,13 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
 
     private onToggleIsReady() {
         this.toggleIsReady();
+    }
+
+    private onEditRoom() {
+        this.formRoom = {
+            room: this.room,
+            display: true,
+        };
     }
 
     // endregion

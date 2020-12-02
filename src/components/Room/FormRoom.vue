@@ -7,13 +7,13 @@
     >
         <card-with-title-and-action
             :action-disable="!me || !socketStore.isConnected"
-            action-label="Create room"
+            :action-label="editMode ? 'Update room' : 'Create room'"
+            :title="editMode ? 'Edit room' : 'New room'"
             style="max-width: 500px;"
-            title="New room"
-            @action="onCreateRoom"
+            @action="onCreateOrUpdateRoom"
         >
             <q-card-section>
-                <q-form @submit="onCreateRoom">
+                <q-form @submit="onCreateOrUpdateRoom">
                     <q-input
                         v-model="internalRoom.name"
                         label="Room's name"
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator';
+import { Component, Mixins, Prop } from 'vue-property-decorator';
 import Room, { createDefaultRoom } from 'src/models/Room';
 import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 import SocketMixin from 'src/mixins/socketMixin';
@@ -43,6 +43,14 @@ import UserMixin from 'src/mixins/userMixin';
     components: { CardWithTitleAndAction, FormQuizConfiguration },
 })
 export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigurationMixin) {
+    // region Props
+
+    @Prop({ required: true }) room!: Room;
+
+    @Prop({ required: false, type: Boolean, default: false }) editMode!: boolean;
+
+    // endregion
+
     // region Data
 
     private internalRoom: Room = createDefaultRoom();
@@ -66,7 +74,7 @@ export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigu
         this.setOwner();
     }
 
-    private onCreateRoom() {
+    private onCreateOrUpdateRoom() {
         this.createRoom();
 
         this.hide();
@@ -77,8 +85,11 @@ export default class FormRoom extends Mixins(UserMixin, SocketMixin, QuizConfigu
     // region Methods
 
     private initRoom() {
-        this.internalRoom = createDefaultRoom();
-        this.internalRoom.name = `${this.me.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
+        this.internalRoom = { ...this.room };
+
+        if (!this.editMode) {
+            this.internalRoom.name = `${this.me.pseudo}'s room #${this.totalRoomsOfUser + 1}`;
+        }
     }
 
     private setOwner() {
