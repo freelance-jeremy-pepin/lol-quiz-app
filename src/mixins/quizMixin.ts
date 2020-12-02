@@ -17,6 +17,8 @@ import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
 import { createDefaultTime, createNewTime, Time } from 'src/models/Time';
+import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
+import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 
 @Component
 export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixin, UserMixin) {
@@ -379,7 +381,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      * Sélectionne le prochain élément.
      * @public
      */
-    public pickNext(quizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion, addEmptyAnswerToHistory: boolean = true): ItemLolApi | ChampionLolApi | null {
+    public pickNext(quizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune, addEmptyAnswerToHistory: boolean = true): ItemLolApi | ChampionLolApi | RuneLolApi | null {
         // Si la question actuelle du joueur dépasse le nombre total de questions du quiz,
         // cela veut dire qu'il a terminé le quiz.
         // Sinon, sélectionne le prochain objet.
@@ -409,6 +411,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
             elementToGuess = quizConfiguration.items[this.player.currentQuestionNumber - 1];
         } else if ('champions' in quizConfiguration) {
             elementToGuess = quizConfiguration.champions[this.player.currentQuestionNumber - 1];
+        } else if ('runes' in quizConfiguration) {
+            elementToGuess = quizConfiguration.runes[this.player.currentQuestionNumber - 1];
         }
 
         if (addEmptyAnswerToHistory) {

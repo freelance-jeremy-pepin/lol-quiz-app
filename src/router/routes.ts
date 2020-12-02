@@ -37,6 +37,15 @@ const routes: RouteConfig[] = [
     },
 
     {
+        path: '/quiz/rune-name',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/RuneNameQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
         path: '/room/:id',
         component: () => import('layouts/MainLayout.vue'),
         children: [

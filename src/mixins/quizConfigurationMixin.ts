@@ -11,6 +11,9 @@ import QuizAnswer, { createDefaultQuizAnswer } from 'src/models/QuizAnswer';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
 import { shuffleArray } from 'src/utils/array';
+import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
+import RuneLolApiStore from 'src/store/modules/LolApi/RuneLolApiStore';
+import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 
 @Component({
     filters: {
@@ -20,7 +23,7 @@ import { shuffleArray } from 'src/utils/array';
     },
 })
 export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
-    public specialiseQuizConfiguration(quizConfiguration: QuizConfiguration): QuizConfigurationItem | QuizConfigurationChampion {
+    public specialiseQuizConfiguration(quizConfiguration: QuizConfiguration): QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune {
         switch (quizConfiguration.quiz.internalName) {
             case QuizListInternalName.ItemName:
             case QuizListInternalName.ItemPrice: {
@@ -101,15 +104,40 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                 return quizConfigurationChampion;
             }
 
+            case QuizListInternalName.RuneName: {
+                const quizConfigurationRune: QuizConfigurationRune = {
+                    ...quizConfiguration,
+                    runes: [],
+                };
+
+                if (RuneLolApiStore.runes) {
+                    const quizAnswers: QuizAnswer[] = [];
+
+                    // Construit la liste des runes à deviner.
+                    const runesPicked: RuneLolApi[] = this.pickRandoms(RuneLolApiStore.runes, quizConfigurationRune.numberQuestions) as RuneLolApi[];
+
+                    runesPicked.forEach((r) => {
+                        const quizAnswer = createDefaultQuizAnswer();
+                        quizAnswer.value = r.name;
+                        quizAnswers.push(quizAnswer);
+                    });
+
+                    quizConfigurationRune.answers = quizAnswers;
+                    quizConfigurationRune.runes = runesPicked;
+                }
+
+                return quizConfigurationRune;
+            }
+
             default:
                 throw new Error(`Quiz ${quizConfiguration.quiz.name} : specialisation not yet implemented.`);
         }
     }
 
-    private pickRandoms(elements: ItemLolApi[] | ChampionLolApi[], numberElementToPick: number): ItemLolApi[] | ChampionLolApi[] {
+    private pickRandoms(elements: ItemLolApi[] | ChampionLolApi[] | RuneLolApi[], numberElementToPick: number): ItemLolApi[] | ChampionLolApi[] | RuneLolApi[] {
         // Mélanges la liste des éléments.
         let elementsShuffled = shuffleArray(elements, randomNumber(1, 5));
-        const elementsPicked: ChampionLolApi[] = [];
+        const elementsPicked: ItemLolApi[] | ChampionLolApi[] | RuneLolApi[] = [];
 
         while (elementsPicked.length < numberElementToPick) {
             // Si la liste des éléments est vide, la remplie avec la liste initiale.
