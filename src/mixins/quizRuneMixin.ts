@@ -35,8 +35,12 @@ export default class QuizRuneMixin extends Mixins(QuizMixin) {
      * Démarre un nouveau quiz.
      * @public
      */
-    public onStartNewQuiz() {
-        this.startNewQuiz();
+    public onPlayAgain() {
+        if (this.isMultiplayer) {
+            this.playAgainMultiplayer();
+        } else {
+            this.startNewQuiz();
+        }
     }
 
     /**

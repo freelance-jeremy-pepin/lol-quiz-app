@@ -11,6 +11,7 @@ export default interface Player extends Model {
     answersHistory: PlayerAnswerHistory[];
     completeTime: Time;
     isReady: boolean;
+    hasQuitRoom: boolean;
 }
 
 export function createDefaultPlayer(): Player {
@@ -23,5 +24,6 @@ export function createDefaultPlayer(): Player {
         answersHistory: [],
         completeTime: createDefaultTime(),
         isReady: false,
+        hasQuitRoom: false,
     };
 }

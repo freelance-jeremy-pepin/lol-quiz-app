@@ -14,7 +14,9 @@
             v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
+            :next-room="nextRoom"
             @view-history="(playerViewHistory) => onModalToggleAnswersHistory(playerViewHistory)"
+            @play-again="$emit('play-again')"
         ></leaderboard-multiplayer>
 
         <div v-if="quizStageStore.isLoading" class="text-center">

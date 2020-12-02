@@ -18,7 +18,8 @@
                 size="lg"
                 style="border-top-left-radius: 0; border-top-right-radius: 0;"
                 @click="$emit('action')"
-            >{{ actionLabel }}
+            >
+                {{ actionLabel }}
             </q-btn>
         </q-card-actions>
     </q-card>

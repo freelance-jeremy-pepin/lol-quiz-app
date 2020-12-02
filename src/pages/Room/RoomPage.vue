@@ -24,6 +24,14 @@ export default class RoomPage extends Mixins(SocketMixin, UserMixin) {
 
     // endregion
 
+    // region Hooks
+
+    public mounted() {
+        this.roomSocketStore.getAllRooms();
+    }
+
+    // endregion
+
     // region Watchers
 
     /**

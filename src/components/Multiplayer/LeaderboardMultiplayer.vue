@@ -3,6 +3,7 @@
         <card-with-title-and-action
             :center-content="false"
             :subtitle="`${allPlayerHasFinished ? '' : '(provisional)'}`"
+            action-label="Play again!"
             style="max-width: 500px;"
             title="Leaderboard"
             @action="$emit('play-again')"
@@ -18,7 +19,10 @@
                     </q-item-section>
 
                     <q-item-section>
-                        <q-item-label class="text-bold">
+                        <q-item-label
+                            :class="{ 'text-green': playerJoinedNextRoom(player), 'text-red': nextRoom && player.hasQuitRoom && !playerJoinedNextRoom(player) }"
+                            class="text-bold"
+                        >
                             {{ getPseudoById(player.userId) }}
                             <span v-if="!player.hasFinished"> (playing...)</span>
                         </q-item-label>
@@ -38,7 +42,8 @@
                                 color="accent"
                                 flat
                                 @click="$emit('view-history', player)"
-                            >View history
+                            >
+                                View history
                             </q-btn>
                         </div>
                     </q-item-section>
@@ -75,6 +80,8 @@ export default class LeaderboardMultiplayer extends Mixins(UserMixin, SocketMixi
 
     @Prop({ required: true }) room!: Room;
 
+    @Prop({ required: true }) nextRoom!: Room;
+
     @Prop({ required: false, default: false, type: Boolean }) winnerHasLowestScore!: Room;
 
     // endregion
@@ -99,10 +106,6 @@ export default class LeaderboardMultiplayer extends Mixins(UserMixin, SocketMixi
 
     // region Events handlers
 
-    private onPlayAgain() {
-        this.playAgain();
-    }
-
     private onRedirectToRooms() {
         this.redirectToRooms();
     }
@@ -111,8 +114,12 @@ export default class LeaderboardMultiplayer extends Mixins(UserMixin, SocketMixi
 
     // region Methods
 
-    private playAgain() {
-        // TODO:
+    private playerJoinedNextRoom(player: Player) {
+        if (this.nextRoom) {
+            return !!this.nextRoom.players.find(p => p.userId === player.userId);
+        }
+
+        return false;
     }
 
     private redirectToRooms() {

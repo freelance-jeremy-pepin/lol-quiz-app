@@ -9,6 +9,7 @@ export default interface Room extends Model {
     ownerId: string; // ID d'un User.
     players: Player[];
     inGame: boolean;
+    nextRoomId?: string;
 }
 
 export function createDefaultRoom(): Room {

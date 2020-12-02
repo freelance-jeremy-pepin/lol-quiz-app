@@ -43,7 +43,8 @@
                                     <q-item-section
                                         class="text-negative"
                                         @click="onDeleteRoom(room)"
-                                    >Delete room
+                                    >
+                                        Delete room
                                     </q-item-section>
                                 </q-item>
                             </q-list>

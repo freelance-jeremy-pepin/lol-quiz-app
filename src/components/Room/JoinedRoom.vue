@@ -1,6 +1,7 @@
 <template>
     <div class="q-gutter-y-sm" style="max-width: 500px; width: 100%;">
         <card-with-title-and-action
+            v-if="player"
             :action-color="player.isReady | transformIsReadyIntoColor"
             :action-label="player.isReady | transformIsReadyIntoLabel"
             :center-content="false"

@@ -19,6 +19,7 @@ import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
 import { createDefaultTime, createNewTime, Time } from 'src/models/Time';
 import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
+import { uniqueID } from 'src/utils/number';
 
 @Component
 export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixin, UserMixin) {
@@ -91,6 +92,14 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         return undefined;
     }
 
+    public get nextRoom(): Room | null | undefined {
+        if (this.room?.nextRoomId) {
+            return this.roomSocketStore.rooms.find(r => r.id === this.room?.nextRoomId && !r.inGame);
+        }
+
+        return null;
+    }
+
     public get currentQuizAnswer(): QuizAnswer {
         return this.quizConfiguration.answers[this.player.currentQuestionNumber - 1];
     }
@@ -145,6 +154,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         this.timeRemainingIntervalId = setInterval(() => {
             this.refreshTimeRemaining();
         }, 10);
+
+        this.roomSocketStore.getAllRooms();
     }
 
     // noinspection JSUnusedLocalSymbols
@@ -162,12 +173,19 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     // noinspection JSUnusedLocalSymbols
     /**
-     * Lorsque le composant est démonté, supprime les raccourcis liés au quiz.
+     * Avant que le composant soit détruit, supprime les raccourcis liés au quiz.
      */
-    public unmounted() {
+    public beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyPress);
 
         clearInterval(this.timeElapseIntervalId);
+
+        if (this.room) {
+            this.roomSocketStore.updatePlayer({
+                room: this.room,
+                player: { ...this.player, hasQuitRoom: true }
+            });
+        }
     }
 
     // endregion
@@ -472,7 +490,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     }
 
     public refreshTimeElapse() {
-        if (this.lastPlayerAnswerHistory?.startDate) {
+        // noinspection SuspiciousTypeOfGuard
+        if (this.lastPlayerAnswerHistory?.startDate && this.lastPlayerAnswerHistory.startDate instanceof Date) {
             const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startDate.getTime();
             this.timeElapsed = createNewTime(timeElapsed);
         }
@@ -480,7 +499,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     public refreshTimeRemaining() {
         if (this.lastPlayerAnswerHistory?.startDate) {
-            if (this.lastPlayerAnswerHistory.startDate && this.lastPlayerAnswerHistory.endDate) {
+            // noinspection SuspiciousTypeOfGuard
+            if (this.lastPlayerAnswerHistory.startDate && this.lastPlayerAnswerHistory.endDate && this.lastPlayerAnswerHistory.endDate instanceof Date) {
                 const timeRemaining = this.lastPlayerAnswerHistory.endDate.getTime() - new Date().getTime();
 
                 if (timeRemaining < 0) {
@@ -488,6 +508,37 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
                 } else {
                     this.timeRemaining = createNewTime(timeRemaining);
                 }
+            }
+        }
+    }
+
+    public playAgainMultiplayer() {
+        if (this.room) {
+            let nextRoom: Room | undefined | null = null;
+
+            if (this.nextRoom) {
+                nextRoom = this.nextRoom;
+            } else {
+                // Créer la prochaine salle.
+                nextRoom = { ...this.room, id: uniqueID(), inGame: false, players: [] };
+                nextRoom.quizConfiguration = this.specialiseQuizConfiguration(this.quizConfiguration);
+                this.roomSocketStore.createOrUpdateRoom(nextRoom);
+                this.roomSocketStore.createOrUpdateRoom({ ...this.room, nextRoomId: nextRoom.id });
+            }
+
+            if (nextRoom) {
+                let player = createDefaultPlayer();
+
+                player = {
+                    ...player,
+                    userId: this.player.userId,
+                };
+
+                this.roomSocketStore.joinRoom({ roomToJoin: nextRoom, player });
+
+                this.$router.push({
+                    path: `/room/${nextRoom.id}`,
+                });
             }
         }
     }

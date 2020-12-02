@@ -8,7 +8,7 @@
                 v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
                 v-on:skip="onSkipRune"
                 v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="onStartNewQuiz"
+                v-on:play-again="onPlayAgain"
             >
                 <template v-slot:image>
                     <icon-rune
