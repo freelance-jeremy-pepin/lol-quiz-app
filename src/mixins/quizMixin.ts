@@ -1,4 +1,4 @@
-import { Component, Mixins, Watch } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
@@ -33,20 +33,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     public timeRemaining: Time = createDefaultTime();
 
-    /**
-     * Données de la modale historique des réponses pour tous les joueurs.
-     */
-    public modalAnswersAllHistories: { display: boolean } = {
-        display: false,
-    };
-
-    /**
-     * Données de la modale historique des réponses pour 1 joueur.
-     */
-    public modalAnswersHistory: { display: boolean, player: Player } = {
-        display: false,
-        player: createDefaultPlayer(),
-    };
+    public displayAnswersHistories: boolean = false;
 
     /**
      * Références des composants enfants.
@@ -74,6 +61,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      * @public
      */
     public set player(player: Player) {
+        player = { ...player, userId: this.me.id };
         QuizStore.setPlayer(player);
     }
 
@@ -190,15 +178,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     // endregion
 
-    // region Events handlers
-
-    public onModalToggleAnswersHistory(player?: Player) {
-        this.toggleModalAnswersHistory(player);
-    }
-
-    public onToggleModalAnswersAllHistories() {
-        this.toggleModalAnswersAllHistories();
-    }
+    // region Events handlersx
 
     public onPickNext() {
         this.answerGivenByPlayer = '';
@@ -290,36 +270,6 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     }
 
     /**
-     * Affiche ou masque la modale de l'historique des réponses d'1 joueur.
-     */
-    public toggleModalAnswersHistory(player?: Player) {
-        if (!this.modalAnswersHistory.display) {
-            if (player) {
-                this.modalAnswersHistory.player = player;
-            } else {
-                this.modalAnswersHistory.player = this.player;
-            }
-        }
-
-        this.modalAnswersHistory.display = !this.modalAnswersHistory.display;
-    }
-
-    /**
-     * Affiche ou masque la modale de l'historique des réponses de tous les joueurs.
-     */
-    public toggleModalAnswersAllHistories() {
-        this.modalAnswersAllHistories.display = !this.modalAnswersAllHistories.display;
-    }
-
-    public refreshPlayerAnswerHistoryFromRoom(room: Room) {
-        const playerFound = room.players.find(p => p.id === this.modalAnswersHistory.player.id);
-
-        if (playerFound) {
-            this.modalAnswersHistory.player = playerFound;
-        }
-    }
-
-    /**
      * Met à jour la dernière réponse donnée par le joueur.
      * @param found L'objet a été trouvé.
      * @param skipped L'objet a été passé.
@@ -390,7 +340,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
         if (QuizStageStore.isQuizFinished) {
             if (e.key === 'h') {
-                this.toggleModalAnswersHistory();
+                this.displayAnswersHistories = !this.displayAnswersHistories;
             }
 
             if (e.key === 'r') {
@@ -540,17 +490,6 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
                     path: `/room/${nextRoom.id}`,
                 });
             }
-        }
-    }
-
-    // endregion
-
-    // region Watchers
-
-    @Watch('room', { deep: true })
-    public onRoomChanged() {
-        if (this.isMultiplayer && this.modalAnswersHistory.display && this.room) {
-            this.refreshPlayerAnswerHistoryFromRoom(this.room);
         }
     }
 

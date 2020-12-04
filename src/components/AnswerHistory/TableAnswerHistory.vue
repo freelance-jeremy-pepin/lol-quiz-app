@@ -1,90 +1,70 @@
 <template>
     <q-dialog v-model="$attrs.value" v-bind="$attrs" v-on="$listeners" full-width>
-        <div class="full-width">
-            <q-markup-table bordered class="text-center" dense separator="cell" wrap-cells>
-                <thead>
+        <q-card :style="`width: ${500 * players.length}px !important;`">
+            <q-markup-table bordered dense separator="cell" wrap-cells>
+                <thead v-if="!(players.length === 1 && players[0].userId === me.id)">
                     <tr>
-                        <th></th>
                         <th
-                            v-for="player in players"
+                            v-for="player in playersOrdered"
                             :key="player.id"
+                            class="cell"
                         >
-                            {{ getPseudoById(player.userId) }}
+                            <div>
+                                {{ getPseudoById(player.userId, true) }}
+
+                                <span v-if="!player.hasFinished">
+                                    (playing...)
+                                </span>
+                            </div>
+
+                            <div>
+                                Score: {{ player.score }}
+                            </div>
                         </th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr v-for="(item, index) in quizConfiguration.answers" :key="item.id">
-                        <td class="quiz-answer">
-                            <slot :index="index" name="left-side"></slot>
-                            <br />
-                            <span class="text-bold">Answer: {{ quizConfiguration.answers[index].value }}</span>
-                        </td>
-
-                        <td v-for="player in players" :key="player.id" class="player-answer">
-                            <div v-if="player.answersHistory[index]">
-                                <div v-if="isAnswering(player, index)" class="text-bold">
-                                    Answering...
-                                </div>
-
-                                <div v-else>
-                                    <div v-if="player.answersHistory[index].skipped">
-                                        <span class="text-grey">(skipped)</span>
-                                    </div>
-
-                                    <div v-if="player.answersHistory[index].score !== undefined">
-                                        <span v-if="player.answersHistory[index].score !== undefined">Score: {{ player.answersHistory[index].score }}</span>
-                                        <span v-if="player.answersHistory[index].totalScore"> / {{ player.answersHistory[index].totalScore }}</span>
-                                        <span v-if="answerIsPerfect(player.answersHistory[index])">
-                                            <span class="text-yellow"> (Perfect!)</span>
-                                        </span>
-                                    </div>
-
-                                    <div v-if="player.answersHistory[index].found && player.answersHistory[index].timeElapsed">
-                                        <span>Time: {{ player.answersHistory[index].timeElapsed | transformTimeIntoString }}</span>
-                                    </div>
-
-                                    <div v-else>
-                                        <span class="text-negative">Not found!</span>
-                                    </div>
-                                </div>
-
-                                <div v-if="player.answersHistory[index].answers.length > 0">
-                                    Player's {{ player.answersHistory[index].answers.length | pluralize('answer', 'answers') }}:
-
-                                    <span
-                                        v-for="answer in player.answersHistory[index].answers"
-                                        :key="answer.id"
-                                        :class="answer.isRight ? 'text-positive' : 'text-negative'"
-                                        class="text-bold"
-                                    >
-                                        [{{ answer.value }}]
-                                    </span>
-                                </div>
-                            </div>
+                    <tr
+                        v-for="(quizAnswer, questionNumber) in quizConfiguration.answers"
+                        :key="quizAnswer.id"
+                    >
+                        <td
+                            v-for="player in playersOrdered"
+                            :key="player.id"
+                            class="cell"
+                            style="padding: 0 !important;"
+                        >
+                            <row-answer-history
+                                :player="player"
+                                :player-answer-history="player.answersHistory[questionNumber]"
+                                :question-number="questionNumber"
+                                :quiz-answer="quizAnswer"
+                                class="full-height"
+                            >
+                                <template slot="left-side">
+                                    <slot :index="questionNumber" name="left-side"></slot>
+                                </template>
+                            </row-answer-history>
                         </td>
                     </tr>
                 </tbody>
             </q-markup-table>
-        </div>
+        </q-card>
     </q-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
-import Player from 'src/models/Player';
 import UserMixin from 'src/mixins/userMixin';
-import IconItem from 'components/Item/IconItem.vue';
-import QuizConfiguration from 'src/models/QuizConfiguration';
-import TimeMixin from 'src/mixins/timeMixin';
-import TextFormatMixin from 'src/mixins/textFormatMixin';
-import playerAnswerMixin from 'src/mixins/playerAnswerMixin';
+import RowAnswerHistory from 'components/AnswerHistory/RowAnswerHistory.vue';
+import QuizConfiguration from '../../models/QuizConfiguration';
+import Player from '../../models/Player';
 
 @Component({
-    components: { IconItem },
+    components: { RowAnswerHistory },
 })
-export default class TableAnswerHistory extends Mixins(UserMixin, TimeMixin, TextFormatMixin, playerAnswerMixin) {
+export default class TableAnswerHistory extends Mixins(UserMixin) {
     // region Props
 
     @Prop({ required: true }) quizConfiguration!: QuizConfiguration;
@@ -93,10 +73,28 @@ export default class TableAnswerHistory extends Mixins(UserMixin, TimeMixin, Tex
 
     // endregion
 
-    // region Methods
+    // region Computed properties
 
-    private isAnswering(player: Player, questionNumber: number): boolean {
-        return !player.hasFinished && player.currentQuestionNumber === questionNumber + 1;
+    private get playersOrdered(): Player[] {
+        // Place le joueur courant en premier.
+        const currentPlayer = this.players.filter(p => p.userId === this.me.id);
+
+        const otherPlayers = this.players.filter(p => p.userId !== this.me.id).sort((a, b) => {
+            const aPseudo = this.getPseudoById(a.userId);
+            const bPseudo = this.getPseudoById(b.userId);
+
+            if (aPseudo < bPseudo) {
+                return -1;
+            }
+
+            if (aPseudo > bPseudo) {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return [...currentPlayer, ...otherPlayers];
     }
 
     // endregion
@@ -104,11 +102,7 @@ export default class TableAnswerHistory extends Mixins(UserMixin, TimeMixin, Tex
 </script>
 
 <style scoped>
-    .player-answer {
-        max-width: 100px;
-    }
-
-    .quiz-answer {
-        width: 250px !important;
+    table td, table th {
+        width: 500px;
     }
 </style>

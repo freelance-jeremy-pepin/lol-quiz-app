@@ -65,15 +65,13 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator';
 import SocketMixin from 'src/mixins/socketMixin';
-import TableAnswerHistoryItem from 'components/AnswerHistory/TableAnswerHistory.vue';
 import Room from '../../models/Room';
 import CardWithTitleAndAction from '../Common/CardWithTitleAndAction.vue';
 import Player from '../../models/Player';
 import UserMixin from '../../mixins/userMixin';
-import ListAnswersHistoryItem from '../AnswerHistory/ListAnswersHistory.vue';
 
 @Component({
-    components: { TableAnswerHistoryItem, ListAnswersHistoryItem, CardWithTitleAndAction },
+    components: { CardWithTitleAndAction },
 })
 export default class LeaderboardMultiplayer extends Mixins(UserMixin, SocketMixin) {
     // region Props

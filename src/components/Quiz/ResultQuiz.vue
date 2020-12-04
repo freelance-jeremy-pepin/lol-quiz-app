@@ -17,15 +17,6 @@
                 <span class="text-grey">:{{ time.milliseconds }}</span>
             </q-card-section>
         </card-with-title-and-action>
-
-        <q-btn
-            class="full-width"
-            color="grey"
-            flat
-            @click="$emit('view-history')"
-        >
-            View history
-        </q-btn>
     </div>
 </template>
 

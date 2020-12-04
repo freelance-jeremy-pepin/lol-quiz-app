@@ -23,8 +23,12 @@ export default class UserMixin extends Mixins(SocketMixin) {
         return this.userSocketStore.users.find(u => u.id === id) || undefined;
     }
 
-    public getPseudoById(id: string): string {
+    public getPseudoById(id: string, replaceWithYou: boolean = false): string {
         if (id) {
+            if (replaceWithYou && id === this.me.id) {
+                return 'You';
+            }
+
             return this.findUserById(id)?.pseudo || 'Unknown';
         }
 

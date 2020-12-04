@@ -7,7 +7,7 @@
             :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             @play-again="$emit('play-again')"
-            @view-history="onModalToggleAnswersHistory"
+            @view-history="displayAnswersHistories = true"
         ></result-quiz>
 
         <leaderboard-multiplayer
@@ -15,7 +15,7 @@
             :next-room="nextRoom"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
-            @view-history="(playerViewHistory) => onModalToggleAnswersHistory(playerViewHistory)"
+            @view-history="displayAnswersHistories = true"
             @play-again="$emit('play-again')"
         ></leaderboard-multiplayer>
 
@@ -71,20 +71,10 @@
             </q-btn>
         </div>
 
-        <list-answers-history
-            v-model="modalAnswersHistory.display"
-            :player="modalAnswersHistory.player"
-            :quiz-configuration="quizConfiguration"
-        >
-            <template v-slot:left-side="props">
-                <slot :index="props.index" name="icon-answer-history"></slot>
-            </template>
-        </list-answers-history>
-
         <table-answer-history
-            v-if="isMultiplayer && room"
-            v-model="modalAnswersAllHistories.display"
-            :players="room.players"
+            v-if="players.length > 0"
+            v-model="displayAnswersHistories"
+            :players="players"
             :quiz-configuration="quizConfiguration"
         >
             <template v-slot:left-side="props">
@@ -97,11 +87,11 @@
         </q-page-sticky>
 
         <q-page-sticky
-            v-if="quizStageStore.isQuizFinished && isMultiplayer && room"
+            v-if="quizStageStore.isQuizFinished && players.length > 0"
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history" @click="onToggleModalAnswersAllHistories" />
+            <q-btn color="accent" fab icon="history" @click="displayAnswersHistories = true" />
         </q-page-sticky>
 
         <q-page-sticky
@@ -138,15 +128,14 @@ import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
 import QuizMixin from 'src/mixins/quizMixin';
-import ListAnswersHistory from 'components/AnswerHistory/ListAnswersHistory.vue';
-import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
 import CountDown from 'components/Common/CountDown.vue';
+import Player from 'src/models/Player';
+import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
 
 @Component({
     components: {
-        CountDown,
         TableAnswerHistory,
-        ListAnswersHistory,
+        CountDown,
         LeaderboardMultiplayer,
         ProgressQuizMultiplayer,
         CardWithTitleAndAction,
@@ -156,10 +145,6 @@ import CountDown from 'components/Common/CountDown.vue';
     },
 })
 export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
-    // region Data
-
-    // endregion
-
     // region Computed properties
 
     /**
@@ -167,6 +152,18 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
      */
     public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
+    }
+
+    public get players(): Player[] {
+        if (this.isMultiplayer && this.room) {
+            return this.room.players;
+        }
+
+        if (this.player) {
+            return [this.player];
+        }
+
+        return [];
     }
 
     // endregion

@@ -7,16 +7,12 @@ import { Component, Mixins } from 'vue-property-decorator';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import ListAnswersHistoryItem from 'components/AnswerHistory/ListAnswersHistory.vue';
-import TableAnswerHistoryItem from 'components/AnswerHistory/TableAnswerHistory.vue';
 import QuizItemMixin from 'src/mixins/quizItemMixin';
 import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';
 
 @Component({
     components: {
         ItemQuizLayout,
-        TableAnswerHistoryItem,
-        ListAnswersHistoryItem,
         IconAndInputQuizLayout,
         IconItem,
         ResultQuiz,
