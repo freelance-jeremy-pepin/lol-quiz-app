@@ -1,6 +1,6 @@
 <template>
     <q-dialog v-model="$attrs.value" v-bind="$attrs" v-on="$listeners" full-width>
-        <q-card :style="`width: ${500 * players.length}px !important;`" class="tableFixHead">
+        <q-card :style="`width: ${500 * players.length}px !important;`">
             <q-markup-table bordered dense separator="cell" wrap-cells>
                 <thead v-if="!(players.length === 1 && players[0].userId === me.id)">
                     <tr>
@@ -107,7 +107,7 @@ export default class TableAnswerHistory extends Mixins(UserMixin) {
     }
 
     td {
-        width: 655px;
+        width: 600px;
     }
 
     table tbody, table thead {
