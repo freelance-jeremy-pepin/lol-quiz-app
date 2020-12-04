@@ -3,12 +3,12 @@
         <div class="column items-center full-width" style="max-width: 350px;">
             <icon-and-input-quiz-layout
                 ref="quiz"
-                v-model="answerGivenByPlayer"
-                :isMultiplayer="isMultiplayer"
-                v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
-                v-on:skip="onSkipItem"
+                v-on:answered="$emit('answered')"
+                v-on:skip="$emit('skip')"
                 v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="onPlayAgain"
+                v-on:play-again="$emit('play-again')"
+                v-on:focus-answer-input="$emit('focus-answer-input')"
+                v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
                     <icon-item
@@ -30,10 +30,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator';
-import QuizItemMixin from 'src/mixins/quizItemMixin';
+import { Component, Vue } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import IconItem from 'components/Item/IconItem.vue';
+import ItemLolApi from 'src/models/LolApi/ItemLolApi';
+import QuizItemStore from 'src/store/modules/QuizItemStore';
+import QuizConfiguration from 'src/models/QuizConfiguration';
+import QuizStore from 'src/store/modules/QuizStore';
+import QuizStageStore from 'src/store/modules/QuizStageStore';
 
 @Component({
     components: {
@@ -41,7 +45,21 @@ import IconItem from 'components/Item/IconItem.vue';
         IconAndInputQuizLayout,
     },
 })
-export default class ItemQuizLayout extends Mixins(QuizItemMixin) {
+export default class ItemQuizLayout extends Vue {
+    // region Computed properties
 
+    private get quizConfiguration(): QuizConfiguration {
+        return QuizStore.quizConfiguration;
+    }
+
+    private get quizStageStore(): typeof QuizStageStore {
+        return QuizStageStore;
+    }
+
+    private get itemToGuess(): ItemLolApi | null {
+        return QuizItemStore.itemToGuess;
+    }
+
+    // endregion
 }
 </script>

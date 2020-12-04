@@ -7,7 +7,6 @@
             :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
             @play-again="$emit('play-again')"
-            @view-history="displayAnswersHistories = true"
         ></result-quiz>
 
         <leaderboard-multiplayer
@@ -15,7 +14,6 @@
             :next-room="nextRoom"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
-            @view-history="displayAnswersHistories = true"
             @play-again="$emit('play-again')"
         ></leaderboard-multiplayer>
 
@@ -36,7 +34,7 @@
                 :action-disable="quizStageStore.isVerifyingAnswer"
                 :action-label="quizConfiguration.quiz.onlyOneTry ? 'Next' : quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
                 :title="quizConfiguration.quiz.name"
-                @action="onVerifyAnswer"
+                @action="$emit('verify-answer')"
             >
                 <q-card-section class="column items-center q-pa-md q-gutter-y-md">
                     <slot name="image"></slot>
@@ -54,8 +52,7 @@
                         class="full-width"
                         label="Your answer"
                         outlined
-                        @input="$emit('input', answerGivenByPlayer)"
-                        @keydown.enter.stop="onVerifyAnswer"
+                        @keydown.enter.stop="$emit('verify-answer')"
                     ></q-input>
                 </q-card-section>
             </card-with-title-and-action>
@@ -65,7 +62,7 @@
                 class="full-width"
                 color="grey"
                 flat
-                @click="onSkip"
+                @click="$emit('skip')"
             >
                 Skip
             </q-btn>
@@ -73,7 +70,7 @@
 
         <table-answer-history
             v-if="players.length > 0"
-            v-model="displayAnswersHistories"
+            v-model="displayPlayersAnswersHistories"
             :players="players"
             :quiz-configuration="quizConfiguration"
         >
@@ -91,7 +88,7 @@
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history" @click="displayAnswersHistories = true" />
+            <q-btn color="accent" fab icon="history" @click="displayPlayersAnswersHistories = true" />
         </q-page-sticky>
 
         <q-page-sticky
@@ -127,10 +124,12 @@ import User from 'src/models/User';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
-import QuizMixin from 'src/mixins/quizMixin';
 import CountDown from 'components/Common/CountDown.vue';
 import Player from 'src/models/Player';
 import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
+import Room from 'src/models/Room';
+import QuizConfiguration from 'src/models/QuizConfiguration';
+import SocketMixin from 'src/mixins/socketMixin';
 
 @Component({
     components: {
@@ -144,17 +143,69 @@ import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue'
         ShortcutsQuiz,
     },
 })
-export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
+export default class IconAndInputQuizLayout extends Mixins(SocketMixin) {
     // region Computed properties
+
+    /**
+     * Récupère le joueur du quiz.
+     * @private
+     */
+    private get player(): Player {
+        return QuizStore.player;
+    }
+
+    private get isMultiplayer(): boolean {
+        return QuizStore.isMultiplayer;
+    }
+
+    private get quizConfiguration(): QuizConfiguration {
+        return QuizStore.quizConfiguration;
+    }
+
+    private get answerGivenByPlayer(): string {
+        return QuizStore.answerGivenByPlayer;
+    }
+
+    private set answerGivenByPlayer(value: string) {
+        QuizStore.setAnswerGivenByPlayer(value);
+    }
+
+    private get room(): Room | undefined | null {
+        if (this.isMultiplayer) {
+            return this.roomSocketStore.room;
+        }
+
+        return undefined;
+    }
+
+    private get nextRoom(): Room | null | undefined {
+        if (this.room?.nextRoomId) {
+            return this.roomSocketStore.rooms.find(r => r.id === this.room?.nextRoomId && !r.inGame);
+        }
+
+        return null;
+    }
+
+    private get timeRemaining(): Time {
+        return QuizStore.timeRemaining;
+    }
+
+    private get displayPlayersAnswersHistories(): boolean {
+        return QuizStore.displayPlayersAnswersHistories;
+    }
+
+    private set displayPlayersAnswersHistories(value: boolean) {
+        QuizStore.setDisplayPlayersAnswersHistories(value);
+    }
 
     /**
      * Store détenant l'état du quiz.
      */
-    public get quizStageStore(): typeof QuizStageStore {
+    private get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
     }
 
-    public get players(): Player[] {
+    private get players(): Player[] {
         if (this.isMultiplayer && this.room) {
             return this.room.players;
         }
@@ -168,34 +219,10 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
 
     // endregion
 
-    // region Events handlers
+    // region Computed properties
 
-    /**
-     * Vérifie la réponse donnée par l'utilisateur.
-     * @private
-     */
-    private onVerifyAnswer() {
-        const answerIsCorrect = this.verifyAnswer();
-
-        if (this.quizConfiguration.quiz.onlyOneTry) {
-            this.$emit('answered', this.answerGivenByPlayer, this.currentQuizAnswer);
-
-            this.focusAnswerInput();
-        } else {
-            QuizStageStore.setVerifyingAnswer();
-
-            if (answerIsCorrect) {
-                this.$emit('correct-answer');
-            } else {
-                QuizStageStore.setWrong();
-
-                setTimeout(() => {
-                    if (QuizStageStore.isWrong) {
-                        QuizStageStore.setAnswering();
-                    }
-                }, 1000);
-            }
-        }
+    public mounted() {
+        QuizStore.setRefAnswerInput(this.$refs.answerInput);
     }
 
     // endregion
@@ -203,18 +230,10 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
     // region Watchers
 
     /**
-     * Synchronise le v-model et this.answer.
-     */
-    @Watch('$attrs.value')
-    public onValueChanged(value: string) {
-        this.answerGivenByPlayer = value;
-    }
-
-    /**
      * Synchronise l'utilisateur et le joueur.
      */
     @Watch('me')
-    public onMeChanged(me: User) {
+    private onMeChanged(me: User) {
         if (me) {
             QuizStore.setPlayer({
                 ...QuizStore.player,
@@ -229,14 +248,9 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
      *  - démarre un nouveau quiz s'il était en mode de chargement.
      */
     @Watch('quizStageStore.stage', { deep: true })
-    public onQuizStateChanged() {
+    private onQuizStateChanged() {
         if (QuizStageStore.isAnswering) {
-            this.focusAnswerInput();
-        } else if (QuizStageStore.isQuizFinished) {
-            if (this.quizConfiguration.withStopWatch) {
-                const completeTime: Time = { ...this.$refs.stopWatch.getTime };
-                this.player = { ...this.player, completeTime };
-            }
+            this.$emit('focus-answer-input');
         }
     }
 

@@ -35,18 +35,6 @@
                             Current question: {{ player.currentQuestionNumber }} / {{ room.quizConfiguration.numberQuestions }}
                         </q-item-label>
                     </q-item-section>
-
-                    <q-item-section side>
-                        <div class="text-grey-8">
-                            <q-btn
-                                color="accent"
-                                flat
-                                @click="$emit('view-history', player)"
-                            >
-                                View history
-                            </q-btn>
-                        </div>
-                    </q-item-section>
                 </q-item>
             </q-list>
         </card-with-title-and-action>

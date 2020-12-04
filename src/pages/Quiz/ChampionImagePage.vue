@@ -2,7 +2,10 @@
     <champion-quiz-layout
         :pixelated-value="pixelateValue"
         @skip="pixelateValue = 50"
-        v-on:correct-answer="onCorrectAnswer"
+        v-on:focus-answer-input="focusAnswerInput"
+        v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
+        v-on:skip="onSkipChampion"
+        v-on:play-again="onPlayAgain"
     ></champion-quiz-layout>
 </template>
 

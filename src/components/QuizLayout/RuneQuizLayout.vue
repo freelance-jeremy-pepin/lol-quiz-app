@@ -3,12 +3,12 @@
         <div class="column items-center full-width" style="max-width: 350px;">
             <icon-and-input-quiz-layout
                 ref="quiz"
-                v-model="answerGivenByPlayer"
-                :isMultiplayer="isMultiplayer"
-                v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
-                v-on:skip="onSkipRune"
+                v-on:answered="$emit('answered')"
+                v-on:skip="$emit('skip')"
                 v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="onPlayAgain"
+                v-on:play-again="$emit('play-again')"
+                v-on:focus-answer-input="$emit('focus-answer-input')"
+                v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
                     <icon-rune
@@ -29,10 +29,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import IconRune from 'components/Rune/IconRune.vue';
-import QuizRuneMixin from 'src/mixins/quizRuneMixin';
+import RuneLolApi from 'src/models/LolApi/RuneLolApi';
+import QuizRuneStore from 'src/store/modules/QuizRuneStore';
+import QuizConfiguration from 'src/models/QuizConfiguration';
+import QuizStore from 'src/store/modules/QuizStore';
 
 @Component({
     components: {
@@ -40,7 +43,17 @@ import QuizRuneMixin from 'src/mixins/quizRuneMixin';
         IconAndInputQuizLayout,
     },
 })
-export default class RuneQuizLayout extends Mixins(QuizRuneMixin) {
+export default class RuneQuizLayout extends Vue {
+    // region Computed properties
 
+    private get quizConfiguration(): QuizConfiguration {
+        return QuizStore.quizConfiguration;
+    }
+
+    private get runeToGuess(): RuneLolApi | null {
+        return QuizRuneStore.runeToGuess;
+    }
+
+    // endregion
 }
 </script>

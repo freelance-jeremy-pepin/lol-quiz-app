@@ -1,5 +1,10 @@
 <template>
-    <item-quiz-layout v-on:correct-answer="onCorrectAnswer"></item-quiz-layout>
+    <item-quiz-layout
+        v-on:skip="onSkipItem"
+        v-on:focus-answer-input="focusAnswerInput"
+        v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
+        v-on:play-again="onPlayAgain"
+    ></item-quiz-layout>
 </template>
 
 <script lang="ts">

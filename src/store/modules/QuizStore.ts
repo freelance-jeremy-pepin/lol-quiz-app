@@ -2,6 +2,7 @@ import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 import store from 'src/store';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
+import { createDefaultTime, Time } from 'src/models/Time';
 
 @Module({
     dynamic: true,
@@ -14,9 +15,9 @@ class QuizStore extends VuexModule {
 
     /**
      * Réponse donnée par le joueur.
-     * @public
+     * @private
      */
-    public _answerGivenByPlayer: string = '';
+    private _answerGivenByPlayer: string = '';
 
     /**
      * Joueur du quiz.
@@ -32,9 +33,17 @@ class QuizStore extends VuexModule {
 
     /**
      * Configuration du quiz.
-     * @public
+     * @private
      */
-    public _quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+    private _quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+
+    private _timeElapsed: Time = createDefaultTime();
+
+    private _timeRemaining: Time = createDefaultTime();
+
+    private _displayPlayersAnswersHistories: boolean = false;
+
+    private _refAnswerInput: HTMLElement | null = null;
 
     // endregion
 
@@ -60,6 +69,26 @@ class QuizStore extends VuexModule {
         this._quizConfiguration = quizConfiguration;
     }
 
+    @Mutation
+    public setTimeElapsed(timeElapsed: Time) {
+        this._timeElapsed = timeElapsed;
+    }
+
+    @Mutation
+    public setTimeRemaining(timeRemaining: Time) {
+        this._timeRemaining = timeRemaining;
+    }
+
+    @Mutation
+    public setDisplayPlayersAnswersHistories(displayPlayersAnswersHistories: boolean) {
+        this._displayPlayersAnswersHistories = displayPlayersAnswersHistories;
+    }
+
+    @Mutation
+    public setRefAnswerInput(refAnswerInput: HTMLElement) {
+        this._refAnswerInput = refAnswerInput;
+    }
+
     // endregion
 
     // region Getters
@@ -78,6 +107,22 @@ class QuizStore extends VuexModule {
 
     public get quizConfiguration(): QuizConfiguration {
         return this._quizConfiguration;
+    }
+
+    public get timeElapsed(): Time {
+        return this._timeElapsed;
+    }
+
+    public get timeRemaining(): Time {
+        return this._timeRemaining;
+    }
+
+    public get displayPlayersAnswersHistories(): boolean {
+        return this._displayPlayersAnswersHistories;
+    }
+
+    public get refAnswerInput(): HTMLElement | null {
+        return this._refAnswerInput;
     }
 
     // endregion

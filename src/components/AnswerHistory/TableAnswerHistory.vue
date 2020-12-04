@@ -102,20 +102,7 @@ export default class TableAnswerHistory extends Mixins(UserMixin) {
 </script>
 
 <style scoped>
-    th {
+    th, td {
         width: 500px;
-    }
-
-    td {
-        width: 600px;
-    }
-
-    table tbody, table thead {
-        display: block;
-    }
-
-    table tbody {
-        overflow: auto;
-        height: 500px;
     }
 </style>

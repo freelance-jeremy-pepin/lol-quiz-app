@@ -1,5 +1,10 @@
 <template>
-    <item-quiz-layout v-on:answered="onAnswered"></item-quiz-layout>
+    <item-quiz-layout
+        v-on:skip="onSkipItem"
+        v-on:focus-answer-input="focusAnswerInput"
+        v-on:verify-answer="onVerifyAnswer(null, onAnswered)"
+        v-on:play-again="onPlayAgain"
+    ></item-quiz-layout>
 </template>
 
 <script lang="ts">
@@ -10,7 +15,6 @@ import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout
 import QuizItemMixin from 'src/mixins/quizItemMixin';
 import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';
 import { stringToInt } from 'src/utils/number';
-import QuizAnswer from 'src/models/QuizAnswer';
 
 @Component({
     components: {
@@ -23,9 +27,9 @@ import QuizAnswer from 'src/models/QuizAnswer';
 export default class ItemPriceQuizPage extends Mixins(QuizItemMixin) {
     // region Event handlers
 
-    private onAnswered(answerGivenByPlayer: string, quizAnswer: QuizAnswer) {
-        const priceItem: number = stringToInt(quizAnswer.value);
-        const priceGivenByPlayer: number = stringToInt(answerGivenByPlayer);
+    private onAnswered() {
+        const priceItem: number = stringToInt(this.currentQuizAnswer.value);
+        const priceGivenByPlayer: number = stringToInt(this.answerGivenByPlayer);
 
         const score = Math.abs(priceItem - priceGivenByPlayer);
 

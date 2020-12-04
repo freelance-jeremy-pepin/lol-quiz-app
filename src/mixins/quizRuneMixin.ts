@@ -29,6 +29,15 @@ export default class QuizRuneMixin extends Mixins(QuizMixin) {
 
     // endregion
 
+    // region Hooks
+
+    public mounted() {
+        this.playAgain = this.onPlayAgain;
+        this.skip = this.onSkipRune;
+    }
+
+    // endregion
+
     // region Events handlers
 
     /**

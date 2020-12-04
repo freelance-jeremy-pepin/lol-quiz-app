@@ -1,5 +1,10 @@
 <template>
-    <rune-quiz-layout v-on:correct-answer="onCorrectAnswer"></rune-quiz-layout>
+    <rune-quiz-layout
+        v-on:skip="onSkipRune"
+        v-on:focus-answer-input="focusAnswerInput"
+        v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
+        v-on:play-again="onPlayAgain"
+    ></rune-quiz-layout>
 </template>
 
 <script lang="ts">

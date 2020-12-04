@@ -30,6 +30,15 @@ export default class QuizItemMixin extends Mixins(QuizMixin) {
 
     // endregion
 
+    // region Hooks
+
+    public mounted() {
+        this.playAgain = this.onPlayAgain;
+        this.skip = this.onSkipItem;
+    }
+
+    // endregion
+
     // region Events handlers
 
     /**

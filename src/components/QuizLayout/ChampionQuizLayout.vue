@@ -3,13 +3,12 @@
         <div class="column items-center">
             <icon-and-input-quiz-layout
                 ref="quiz"
-                v-model="answerGivenByPlayer"
-                v-on:answered="(playerAnswer, quizAnswer) => $emit('answered', playerAnswer, quizAnswer)"
-                v-on:skip="onSkipChampion"
+                v-on:answered="$emit('answered')"
+                v-on:skip="$emit('skip')"
                 v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="onPlayAgain"
-                v-on:view-history="onModalToggleAnswersHistory"
-                v-on:view-all-histories="onToggleModalAnswersAllHistories"
+                v-on:play-again="$emit('play-again')"
+                v-on:focus-answer-input="$emit('focus-answer-input')"
+                v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
                     <image-champion
@@ -35,23 +34,36 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import IconItem from 'components/Item/IconItem.vue';
-import QuizChampionMixin from 'src/mixins/quizChampionMixin';
 import ImageChampion from 'components/Champion/ImageChampion.vue';
+import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
+import QuizChampionStore from 'src/store/modules/QuizChampionStore';
+import QuizConfiguration from 'src/models/QuizConfiguration';
+import QuizStore from 'src/store/modules/QuizStore';
 
 @Component({
     components: {
         ImageChampion,
-        IconItem,
         IconAndInputQuizLayout,
     },
 })
-export default class ChampionQuizLayout extends Mixins(QuizChampionMixin) {
+export default class ChampionQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: false, default: 1 }) pixelatedValue!: number;
+
+    // endregion
+
+    // region Computed properties
+
+    private get quizConfiguration(): QuizConfiguration {
+        return QuizStore.quizConfiguration;
+    }
+
+    private get championToGuess(): ChampionLolApi | null {
+        return QuizChampionStore.championToGuess;
+    }
 
     // endregion
 }

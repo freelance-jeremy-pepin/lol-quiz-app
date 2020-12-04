@@ -16,7 +16,7 @@ import { copyToClipboard } from 'quasar';
 import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
-import { createDefaultTime, createNewTime, Time } from 'src/models/Time';
+import { createNewTime, Time } from 'src/models/Time';
 import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import { uniqueID } from 'src/utils/number';
@@ -25,24 +25,11 @@ import { uniqueID } from 'src/utils/number';
 export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixin, UserMixin) {
     // region Data
 
-    public timeElapseIntervalId: number = 0;
+    public timesIntervalId: number = 0;
 
-    public timeRemainingIntervalId: number = 0;
+    public playAgain: (() => void) | null = null;
 
-    public timeElapsed: Time = createDefaultTime();
-
-    public timeRemaining: Time = createDefaultTime();
-
-    public displayAnswersHistories: boolean = false;
-
-    /**
-     * Références des composants enfants.
-     */
-    public $refs!: {
-        quiz: HTMLFormElement;
-        answerInput: HTMLFormElement;
-        stopWatch: HTMLFormElement;
-    };
+    public skip: (() => void) | null = null;
 
     // endregion
 
@@ -126,6 +113,26 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         return playerAnswerHistory;
     }
 
+    public get timeElapsed(): Time {
+        return QuizStore.timeElapsed;
+    }
+
+    public set timeElapsed(value: Time) {
+        QuizStore.setTimeElapsed(value);
+    }
+
+    public get timeRemaining(): Time {
+        return QuizStore.timeRemaining;
+    }
+
+    public set timeRemaining(value: Time) {
+        QuizStore.setTimeRemaining(value);
+    }
+
+    public get refAnswerInput(): HTMLElement | null {
+        return QuizStore.refAnswerInput;
+    }
+
     // endregion
 
     // region Hooks
@@ -133,13 +140,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public beforeMount() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        this.timeElapseIntervalId = setInterval(() => {
+        this.timesIntervalId = setInterval(() => {
             this.refreshTimeElapse();
-        }, 10);
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this.timeRemainingIntervalId = setInterval(() => {
             this.refreshTimeRemaining();
         }, 10);
 
@@ -166,7 +168,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyPress);
 
-        clearInterval(this.timeElapseIntervalId);
+        clearInterval(this.timesIntervalId);
 
         if (this.room) {
             this.roomSocketStore.updatePlayer({
@@ -178,19 +180,48 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
     // endregion
 
-    // region Events handlersx
+    // region Events handlers
 
     public onPickNext() {
         this.answerGivenByPlayer = '';
 
-        if (this.$refs.quiz) {
-            this.$refs.quiz.focusAnswerInput();
-        }
+        this.focusAnswerInput();
     }
 
     public onSkip() {
         this.updateLastAnswer(false, true);
-        this.$emit('skip');
+    }
+
+    /**
+     * Vérifie la réponse donnée par l'utilisateur.
+     * @private
+     */
+    private onVerifyAnswer(onCorrectAnswerCallback: (() => void) | null = null, onAnsweredCallback: (() => void) | null = null) {
+        const answerIsCorrect = this.verifyAnswer();
+
+        if (this.quizConfiguration.quiz.onlyOneTry) {
+            if (onAnsweredCallback) {
+                onAnsweredCallback();
+            }
+
+            this.focusAnswerInput();
+        } else {
+            QuizStageStore.setVerifyingAnswer();
+
+            if (answerIsCorrect) {
+                if (onCorrectAnswerCallback) {
+                    onCorrectAnswerCallback();
+                }
+            } else {
+                QuizStageStore.setWrong();
+
+                setTimeout(() => {
+                    if (QuizStageStore.isWrong) {
+                        QuizStageStore.setAnswering();
+                    }
+                }, 1000);
+            }
+        }
     }
 
     // endregion
@@ -312,8 +343,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      */
     public focusAnswerInput() {
         setTimeout(() => {
-            if (this.$refs.answerInput) {
-                this.$refs.answerInput.focus();
+            if (this.refAnswerInput) {
+                this.refAnswerInput.focus();
             }
         }, 20);
     }
@@ -328,11 +359,15 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
             }
 
             if (e.key === 'F9') {
-                this.$emit('skip');
+                if (this.skip) {
+                    this.skip();
+                }
             }
+        }
 
-            if (!this.quizConfiguration.quiz.onlyOneTry && e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.$refs.answerInput) {
-                this.$refs.answerInput.blur();
+        if (QuizStageStore.isAnswering || QuizStageStore.isWrong) {
+            if (!this.quizConfiguration.quiz.onlyOneTry && e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.refAnswerInput) {
+                this.refAnswerInput.blur();
                 this.answerGivenByPlayer = this.lastPlayerAnswerHistory.answers[this.lastPlayerAnswerHistory.answers.length - 1].value;
                 this.focusAnswerInput();
             }
@@ -340,12 +375,14 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
 
         if (QuizStageStore.isQuizFinished) {
             if (e.key === 'h') {
-                this.displayAnswersHistories = !this.displayAnswersHistories;
+                QuizStore.setDisplayPlayersAnswersHistories(!QuizStore.displayPlayersAnswersHistories);
             }
 
             if (e.key === 'r') {
                 setTimeout(() => {
-                    this.$emit('play-again');
+                    if (this.playAgain) {
+                        this.playAgain();
+                    }
                 }, 20);
             }
         }
