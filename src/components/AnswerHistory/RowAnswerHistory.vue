@@ -33,7 +33,13 @@
             </q-item-label>
 
             <q-item-label v-if="playerAnswerHistory.answers.length > 0">
-                Player's {{ playerAnswerHistory.answers.length | pluralize('answer', 'answers') }}:
+                <span v-if="player.userId === me.id">
+                    Your
+                </span>
+                <span v-else>
+                    {{ getPseudoById(player.userId) }}'s
+                </span>
+                {{ playerAnswerHistory.answers.length | pluralize('answer', 'answers') }}:
 
                 <span
                     v-for="answer in playerAnswerHistory.answers"
@@ -59,9 +65,10 @@ import PlayerMixin from 'src/mixins/playerMixin';
 import TextFormatMixin from 'src/mixins/textFormatMixin';
 import TimeMixin from 'src/mixins/timeMixin';
 import QuizAnswer from 'src/models/QuizAnswer';
+import UserMixin from 'src/mixins/userMixin';
 
 @Component
-export default class extends Mixins(PlayerMixin, TextFormatMixin, TimeMixin) {
+export default class extends Mixins(PlayerMixin, TextFormatMixin, TimeMixin, UserMixin) {
     // region Props
 
     @Prop({ required: true }) player!: Player;

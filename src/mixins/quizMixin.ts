@@ -1,4 +1,4 @@
-import { Component, Mixins } from 'vue-property-decorator';
+import { Component, Mixins, Watch } from 'vue-property-decorator';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
@@ -8,7 +8,7 @@ import SocketMixin from 'src/mixins/socketMixin';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import PlayerAnswerHistory, { createDefaultPlayerAnswerHistory } from 'src/models/PlayerAnswerHistory';
-import { quizList } from 'src/models/Quiz';
+import Quiz, { quizList } from 'src/models/Quiz';
 import UserMixin from 'src/mixins/userMixin';
 import PlayerAnswer, { createDefaultPlayerAnswer } from 'src/models/PlayerAnswer';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
@@ -25,7 +25,9 @@ import { uniqueID } from 'src/utils/number';
 export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixin, UserMixin) {
     // region Data
 
-    public timesIntervalId: number = 0;
+    private timeRemainingIntervalId: number = 0;
+
+    private timeElapsedIntervalId: number = 0;
 
     public playAgain: (() => void) | null = null;
 
@@ -57,6 +59,10 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
      */
     public get quizStageStore(): typeof QuizStageStore {
         return QuizStageStore;
+    }
+
+    private get quizStageIsFinished(): boolean {
+        return QuizStageStore.isQuizFinished;
     }
 
     public get room(): Room | undefined | null {
@@ -138,13 +144,6 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     // region Hooks
 
     public beforeMount() {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        this.timesIntervalId = setInterval(() => {
-            this.refreshTimeElapse();
-            this.refreshTimeRemaining();
-        }, 10);
-
         this.roomSocketStore.getAllRooms();
     }
 
@@ -168,7 +167,7 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
     public beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyPress);
 
-        clearInterval(this.timesIntervalId);
+        this.clearIntervals();
 
         if (this.room) {
             this.roomSocketStore.updatePlayer({
@@ -282,6 +281,8 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         if (!this.isMultiplayer) {
             this.quizConfiguration = this.specialiseQuizConfiguration(this.quizConfiguration);
         }
+
+        this.startIntervals();
     }
 
     /**
@@ -311,7 +312,10 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         if (this.lastPlayerAnswerHistory) {
             this.lastPlayerAnswerHistory.found = found;
             this.lastPlayerAnswerHistory.skipped = skipped;
-            this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
+
+            if (this.quizConfiguration.quiz.enableTimeElapsed) {
+                this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
+            }
 
             if (addNewAnswer && this.answerGivenByPlayer.trim()) {
                 const newAnswer: PlayerAnswer = createDefaultPlayerAnswer();
@@ -476,26 +480,18 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
         return false;
     }
 
-    public refreshTimeElapse() {
+    public refreshTimeElapsed() {
         // noinspection SuspiciousTypeOfGuard
         if (this.lastPlayerAnswerHistory?.startDate && this.lastPlayerAnswerHistory.startDate instanceof Date) {
-            const timeElapsed = new Date().getTime() - this.lastPlayerAnswerHistory.startDate.getTime();
-            this.timeElapsed = createNewTime(timeElapsed);
+            this.timeElapsed = createNewTime(new Date().getTime() - this.lastPlayerAnswerHistory.startDate.getTime());
         }
     }
 
     public refreshTimeRemaining() {
-        if (this.lastPlayerAnswerHistory?.startDate) {
-            // noinspection SuspiciousTypeOfGuard
-            if (this.lastPlayerAnswerHistory.startDate && this.lastPlayerAnswerHistory.endDate && this.lastPlayerAnswerHistory.endDate instanceof Date) {
-                const timeRemaining = this.lastPlayerAnswerHistory.endDate.getTime() - new Date().getTime();
-
-                if (timeRemaining < 0) {
-                    this.timeRemaining = createNewTime(0);
-                } else {
-                    this.timeRemaining = createNewTime(timeRemaining);
-                }
-            }
+        console.log('refreshTimeRemaining', this.timeRemainingIntervalId);
+        // noinspection SuspiciousTypeOfGuard
+        if (this.lastPlayerAnswerHistory?.endDate && this.lastPlayerAnswerHistory.endDate instanceof Date) {
+            this.timeRemaining = createNewTime(this.lastPlayerAnswerHistory.endDate.getTime() - new Date().getTime());
         }
     }
 
@@ -527,6 +523,46 @@ export default class QuizMixin extends Mixins(SocketMixin, QuizConfigurationMixi
                     path: `/room/${nextRoom.id}`,
                 });
             }
+        }
+    }
+
+    private startIntervals() {
+        console.log('startIntervals', this.quizConfiguration.quiz);
+        if (this.quizConfiguration.quiz.enableTimeRemaining) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.timeRemainingIntervalId = setInterval(() => {
+                this.refreshTimeRemaining();
+            }, 50);
+        }
+
+        if (this.quizConfiguration.quiz.enableTimeElapsed) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.timeElapsedIntervalId = setInterval(() => {
+                this.refreshTimeElapsed();
+            }, 50);
+        }
+    }
+
+    private clearIntervals() {
+        if (this.timeRemainingIntervalId !== 0) {
+            clearInterval(this.timeRemainingIntervalId);
+        }
+
+        if (this.timeElapsedIntervalId !== 0) {
+            clearInterval(this.timeElapsedIntervalId);
+        }
+    }
+
+    // endregion
+
+    // region Watchers
+
+    @Watch('quizStageIsFinished')
+    private onQuizStageIsFinishedChanged(isQuizFinished: boolean) {
+        if (isQuizFinished) {
+            this.clearIntervals();
         }
     }
 

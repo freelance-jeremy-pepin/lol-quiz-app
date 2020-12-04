@@ -10,7 +10,7 @@ export default interface PlayerAnswerHistory extends Model {
     totalScore: number;
     startDate: Date; // Date à laquelle le joueur a commencé à répondre à la question.
     endDate: Date; // Date à laquelle le joueur ne peux plus répondre à la question.
-    timeElapsed: Time;
+    timeElapsed?: Time;
     answers: PlayerAnswer[];
 }
 

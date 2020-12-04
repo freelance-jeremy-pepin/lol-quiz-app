@@ -1,7 +1,4 @@
-import { uniqueID } from 'src/utils/number';
-import Model from 'src/models/Model';
-
-export interface Time extends Model {
+export interface Time {
     minutes: number;
     seconds: number;
     milliseconds: number;
@@ -11,7 +8,6 @@ export interface Time extends Model {
 
 export function createDefaultTime(): Time {
     return {
-        id: uniqueID(),
         minutes: 0,
         seconds: 0,
         milliseconds: 0,

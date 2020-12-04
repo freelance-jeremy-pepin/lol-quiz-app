@@ -2,9 +2,9 @@
     <champion-quiz-layout
         :pixelated-value="pixelateValue"
         @skip="pixelateValue = 50"
+        v-on:skip="onSkipChampion"
         v-on:focus-answer-input="focusAnswerInput"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
-        v-on:skip="onSkipChampion"
         v-on:play-again="onPlayAgain"
     ></champion-quiz-layout>
 </template>
@@ -35,12 +35,14 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
 
     public mounted() {
         const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
+        const scoreCalculation = findChampionWithSplashArtScoreCalculation[0];
+
         switch (quizConfiguration.imageType) {
             case ImageTypesChampionLolApi.splash:
-                this.pixelateValue = findChampionWithSplashArtScoreCalculation[0].pixelateValueSplash;
+                this.pixelateValue = scoreCalculation.pixelateValueSplash;
                 break;
             case ImageTypesChampionLolApi.loading:
-                this.pixelateValue = findChampionWithSplashArtScoreCalculation[0].pixelateValueLoading;
+                this.pixelateValue = scoreCalculation.pixelateValueLoading;
                 break;
             default:
                 this.pixelateValue = 999;
@@ -53,8 +55,8 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
 
     private onCorrectAnswer() {
         // Si la réponse est correcte, incrémente le score et passe au prochain champion.
-        const totalSecondsElapsed = this.timeElapsed.totalSeconds;
-        const scoreCalculation = this.getScoreCalculation(totalSecondsElapsed);
+        const totalSecondsRemaining = this.timeRemaining.totalSeconds;
+        const scoreCalculation = this.getScoreCalculation(totalSecondsRemaining);
 
         if (this.lastPlayerAnswerHistory) {
             this.lastPlayerAnswerHistory.score = scoreCalculation.score;
@@ -71,8 +73,8 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
 
     // region Methods
 
-    private updatePixelateValue(totalSecondsElapsed: number) {
-        const scoreCalculation = this.getScoreCalculation(totalSecondsElapsed);
+    private updatePixelateValue(totalSecondsRemaining: number) {
+        const scoreCalculation = this.getScoreCalculation(totalSecondsRemaining);
         const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
 
         switch (quizConfiguration.imageType) {
@@ -86,22 +88,23 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
                 this.pixelateValue = 1;
         }
 
-        if (scoreCalculation.secondMax < 0) {
+        if (scoreCalculation.score < 0) {
             this.onPickNextChampion();
         }
     }
 
-    private getScoreCalculation(totalSecondsElapsed: number): FindChampionWithSplashArtScoreCalculation {
-        const scoreCalculation = findChampionWithSplashArtScoreCalculation.find(sc => totalSecondsElapsed < sc.secondMax);
+    private getScoreCalculation(totalSecondsRemaining: number): FindChampionWithSplashArtScoreCalculation {
+        const scoreCalculation = findChampionWithSplashArtScoreCalculation.find(sc => totalSecondsRemaining > sc.secondMin);
 
         if (scoreCalculation) {
             return scoreCalculation;
         }
+
         return {
             pixelateValueSplash: 1,
             pixelateValueLoading: 1,
-            secondMax: -1,
-            score: 0,
+            secondMin: -1,
+            score: -1,
         };
     }
 
@@ -109,8 +112,8 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
 
     // region Watchers
 
-    @Watch('timeElapsed.totalSeconds')
-    private onTimeElapsedChanged(value: number) {
+    @Watch('timeRemaining.totalSeconds')
+    private onTimeRemainingChanged(value: number) {
         this.updatePixelateValue(value);
     }
 

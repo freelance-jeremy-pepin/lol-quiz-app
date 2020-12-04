@@ -11,6 +11,8 @@ export default interface Quiz extends Model {
     answersAreOnlyNumber: boolean;
     secondsPerQuestion: number;
     clearAnswerInputAfterVerify: boolean;
+    enableTimeRemaining: boolean;
+    enableTimeElapsed: boolean;
 }
 
 export function createDefaultQuiz(): Quiz {
@@ -25,6 +27,8 @@ export function createDefaultQuiz(): Quiz {
         answersAreOnlyNumber: false,
         secondsPerQuestion: 0,
         clearAnswerInputAfterVerify: false,
+        enableTimeRemaining: false,
+        enableTimeElapsed: false,
     };
 }
 
@@ -47,6 +51,8 @@ export const quizList: Quiz[] = [
         answersAreOnlyNumber: false,
         secondsPerQuestion: 0,
         clearAnswerInputAfterVerify: false,
+        enableTimeRemaining: false,
+        enableTimeElapsed: false,
     },
     {
         id: '2',
@@ -59,6 +65,8 @@ export const quizList: Quiz[] = [
         answersAreOnlyNumber: true,
         secondsPerQuestion: 0,
         clearAnswerInputAfterVerify: false,
+        enableTimeRemaining: false,
+        enableTimeElapsed: false,
     },
     {
         id: '3',
@@ -71,6 +79,8 @@ export const quizList: Quiz[] = [
         answersAreOnlyNumber: false,
         secondsPerQuestion: 20,
         clearAnswerInputAfterVerify: true,
+        enableTimeRemaining: true,
+        enableTimeElapsed: false,
     },
     {
         id: '4',
@@ -83,11 +93,13 @@ export const quizList: Quiz[] = [
         answersAreOnlyNumber: false,
         secondsPerQuestion: 0,
         clearAnswerInputAfterVerify: false,
+        enableTimeRemaining: false,
+        enableTimeElapsed: false,
     },
 ];
 
 export interface FindChampionWithSplashArtScoreCalculation {
-    secondMax: number;
+    secondMin: number;
     pixelateValueSplash: number;
     pixelateValueLoading: number;
     score: number;
@@ -95,31 +107,31 @@ export interface FindChampionWithSplashArtScoreCalculation {
 
 export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
     {
-        secondMax: 5,
+        secondMin: 15,
         pixelateValueSplash: 90,
         pixelateValueLoading: 40,
         score: 4,
     },
     {
-        secondMax: 10,
+        secondMin: 10,
         pixelateValueSplash: 75,
         pixelateValueLoading: 30,
         score: 3,
     },
     {
-        secondMax: 15,
+        secondMin: 5,
         pixelateValueSplash: 60,
         pixelateValueLoading: 20,
         score: 2,
     },
     {
-        secondMax: 20,
+        secondMin: 0,
         pixelateValueSplash: 45,
         pixelateValueLoading: 10,
         score: 1,
     },
     {
-        secondMax: 22,
+        secondMin: -1,
         pixelateValueSplash: 1,
         pixelateValueLoading: 1,
         score: 0,

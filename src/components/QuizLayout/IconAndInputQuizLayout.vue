@@ -92,13 +92,14 @@
         </q-page-sticky>
 
         <q-page-sticky
-            v-if="quizConfiguration.quiz.secondsPerQuestion && !quizStageStore.isQuizFinished && !quizStageStore.isLoading"
+            v-if="quizConfiguration.quiz.enableTimeRemaining && quizConfiguration.quiz.secondsPerQuestion && !quizStageStore.isQuizFinished && !quizStageStore.isLoading"
             :offset="[18, 18]"
             position="top-right"
         >
             <count-down
                 v-if="quizConfiguration.quiz.secondsPerQuestion"
                 :time="timeRemaining"
+                only-seconds
             ></count-down>
         </q-page-sticky>
 
@@ -130,9 +131,11 @@ import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue'
 import Room from 'src/models/Room';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import SocketMixin from 'src/mixins/socketMixin';
+import SecondsCountDown from 'components/Common/CountDown.vue';
 
 @Component({
     components: {
+        SecondsCountDown,
         TableAnswerHistory,
         CountDown,
         LeaderboardMultiplayer,
