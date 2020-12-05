@@ -148,6 +148,11 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
                 quizConfiguration.imageType = this.$route.query.imageType.toString();
             }
 
+            if (this.$route.query.skins) {
+                const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
+                quizConfiguration.skins = this.$route.query.skins.toString();
+            }
+
             this.startQuiz();
         }
     }

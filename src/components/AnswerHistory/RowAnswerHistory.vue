@@ -6,8 +6,14 @@
 
         <q-item-section>
             <q-item-label class="text-bold">
-                <span v-if="playerIsCurrentQuestion">???</span>
-                <span v-else>Answer: {{ quizAnswer.value }}</span>
+                <div v-if="playerIsCurrentQuestion">???</div>
+                <span v-else>
+                    Answer: {{ quizAnswer.value }}
+                    <span
+                        v-if="quizAnswer.description"
+                        class="text-caption text-grey-14"
+                    >({{ quizAnswer.description }})</span>
+                </span>
             </q-item-label>
 
             <q-item-label v-if="playerAnswerHistory.skipped">

@@ -9,11 +9,12 @@ import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import SocketMixin from 'src/mixins/socketMixin';
 import QuizAnswer, { createDefaultQuizAnswer } from 'src/models/QuizAnswer';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
-import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
+import ChampionLolApi, { SkinTypes } from 'src/models/LolApi/ChampionLolApi';
 import { shuffleArray } from 'src/utils/array';
 import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
 import RuneLolApiStore from 'src/store/modules/LolApi/RuneLolApiStore';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
+import ChampionSkinLolApi from 'src/models/LolApi/ChampionSkinLolApi';
 
 @Component({
     filters: {
@@ -91,9 +92,41 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                     // Construit la liste des champions à deviner.
                     const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampion.numberQuestions) as ChampionLolApi[];
 
-                    championsPicked.forEach(c => {
+                    if (quizConfigurationChampion.skins) {
+                        quizConfigurationChampion.skinsIndex = [];
+                    }
+
+                    championsPicked.forEach((c, index) => {
+                        let answerDescription: string | null = null;
+
+                        if (quizConfigurationChampion.skins && c.skins && quizConfigurationChampion.skinsIndex) {
+                            let skin: ChampionSkinLolApi | null;
+
+                            switch (quizConfigurationChampion.skins) {
+                                case SkinTypes.allWithoutDefault:
+                                    skin = c.skins[randomNumber(1, c.skins.length - 1)];
+
+                                    break;
+
+                                case SkinTypes.all:
+                                    skin = c.skins[randomNumber(0, c.skins.length - 1)];
+                                    break;
+
+                                default:
+                                    skin = c.skins[0];
+                            }
+
+                            quizConfigurationChampion.skinsIndex[index] = skin.num;
+                            answerDescription = skin.name;
+                        }
+
                         const quizAnswer = createDefaultQuizAnswer();
                         quizAnswer.value = c.name;
+
+                        if (answerDescription) {
+                            quizAnswer.description = answerDescription;
+                        }
+
                         quizAnswers.push(quizAnswer);
                     });
 

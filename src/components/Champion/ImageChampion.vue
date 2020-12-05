@@ -19,6 +19,8 @@ export default class ImageChampion extends Vue {
 
     @Prop({ required: true }) imageType!: ImageTypesChampionLolApi;
 
+    @Prop({ required: true }) skinNumber!: number;
+
     @Prop({ required: true }) champion!: ChampionLolApi;
 
     @Prop({ required: false, default: 1 }) ratioImage!: number;
@@ -120,9 +122,9 @@ export default class ImageChampion extends Vue {
     private getImageUrl(): string {
         switch (this.imageType) {
             case ImageTypesChampionLolApi.loading:
-                return new ChampionLolApiRepository().getLoadingImageUrl(this.champion);
+                return new ChampionLolApiRepository().getLoadingImageUrl(this.champion, this.skinNumber);
             case ImageTypesChampionLolApi.splash:
-                return new ChampionLolApiRepository().getSplashImageUrl(this.champion);
+                return new ChampionLolApiRepository().getSplashImageUrl(this.champion, this.skinNumber);
             default:
                 return '';
         }

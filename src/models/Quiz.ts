@@ -100,40 +100,52 @@ export const quizList: Quiz[] = [
 
 export interface FindChampionWithSplashArtScoreCalculation {
     secondMin: number;
-    pixelateValueSplash: number;
-    pixelateValueLoading: number;
+    pixelateValueSplashDefaultSkin: number;
+    pixelateValueLoadingDefaultSkin: number;
+    pixelateValueSplashAllSkins: number;
+    pixelateValueLoadingAllSkins: number;
     score: number;
 }
 
 export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
     {
         secondMin: 15,
-        pixelateValueSplash: 90,
-        pixelateValueLoading: 40,
+        pixelateValueSplashDefaultSkin: 90,
+        pixelateValueLoadingDefaultSkin: 40,
+        pixelateValueSplashAllSkins: 25,
+        pixelateValueLoadingAllSkins: 20,
         score: 4,
     },
     {
         secondMin: 10,
-        pixelateValueSplash: 75,
-        pixelateValueLoading: 30,
+        pixelateValueSplashDefaultSkin: 75,
+        pixelateValueLoadingDefaultSkin: 30,
+        pixelateValueSplashAllSkins: 20,
+        pixelateValueLoadingAllSkins: 15,
         score: 3,
     },
     {
         secondMin: 5,
-        pixelateValueSplash: 60,
-        pixelateValueLoading: 20,
+        pixelateValueSplashDefaultSkin: 60,
+        pixelateValueLoadingDefaultSkin: 20,
+        pixelateValueSplashAllSkins: 15,
+        pixelateValueLoadingAllSkins: 10,
         score: 2,
     },
     {
         secondMin: 0,
-        pixelateValueSplash: 45,
-        pixelateValueLoading: 10,
+        pixelateValueSplashDefaultSkin: 45,
+        pixelateValueLoadingDefaultSkin: 10,
+        pixelateValueSplashAllSkins: 10,
+        pixelateValueLoadingAllSkins: 5,
         score: 1,
     },
     {
         secondMin: -1,
-        pixelateValueSplash: 1,
-        pixelateValueLoading: 1,
+        pixelateValueSplashDefaultSkin: 1,
+        pixelateValueLoadingDefaultSkin: 1,
+        pixelateValueSplashAllSkins: 1,
+        pixelateValueLoadingAllSkins: 1,
         score: 0,
     },
 ];

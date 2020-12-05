@@ -50,6 +50,23 @@
                 @input="onInput"
             />
         </div>
+
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Skins</div>
+            <q-btn-toggle
+                v-model="internalQuizConfiguration.skins"
+                :options="[
+                    { label: 'Default skins', value: 'default' },
+                    { label: 'All without default', value: 'allWithoutDefault' },
+                    { label: 'All skins', value: 'all' },
+                ]"
+                toggle-color="primary"
+                @input="onInput"
+            />
+        </div>
     </div>
 </template>
 
@@ -130,6 +147,10 @@ export default class FormQuizConfiguration extends Vue {
     public onInternalQuizConfiguration(): void {
         if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'imageType' in this.internalQuizConfiguration) {
             this.internalQuizConfiguration.imageType = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'skins' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.skins = undefined;
         }
     }
 

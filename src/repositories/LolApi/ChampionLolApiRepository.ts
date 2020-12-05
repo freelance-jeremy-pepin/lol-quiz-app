@@ -9,15 +9,34 @@ export default class ChampionLolApiRepository extends LolApiRepository {
                 .then((response: AxiosResponse) => {
                     // eslint-disable-next-line @typescript-eslint/ban-types,@typescript-eslint/no-unsafe-assignment
                     const champions: Object = response.data.data;
-                    const championsFormatted = [];
+                    const championsFormatted: ChampionLolApi[] = [];
+                    const promises: Promise<void>[] = [];
 
                     // eslint-disable-next-line no-restricted-syntax
-                    for (const [key, value] of Object.entries(champions)) {
-                        value.id = parseInt(key, 10);
-                        championsFormatted.push(value);
+                    for (const [id] of Object.entries(champions)) {
+                        promises.push(
+                            this.getById(id).then(c => {
+                                championsFormatted.push(c);
+                            }),
+                        );
                     }
 
-                    resolve(championsFormatted);
+                    Promise.all(promises).then(() => {
+                        resolve(championsFormatted);
+                    });
+                })
+                .catch(() => {
+                    reject('Unable to fetch champions.');
+                });
+        });
+    }
+
+    public getById(id: string, lang = 'en_US'): Promise<ChampionLolApi> {
+        return new Promise((resolve, reject) => {
+            axios.get(`${this.baseUrl}/data/${lang}/champion/${id}.json`)
+                .then((response: AxiosResponse) => {
+                    const champion: ChampionLolApi = Object.values(response.data.data)[0] as ChampionLolApi;
+                    resolve(champion);
                 })
                 .catch(() => {
                     reject('Unable to fetch champions.');

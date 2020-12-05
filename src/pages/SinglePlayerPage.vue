@@ -52,6 +52,7 @@ export default class SinglePlayerPage extends Vue {
         if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionImage) {
             const quizConfiguration: QuizConfigurationChampion = this.internalQuizConfiguration as QuizConfigurationChampion;
             query.imageType = quizConfiguration.imageType;
+            query.skins = quizConfiguration.skins;
         }
 
         this.$router.push({

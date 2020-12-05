@@ -29,3 +29,9 @@ export enum ImageTypesChampionLolApi {
     splash = 'splash',
     loading = 'loading',
 }
+
+export enum SkinTypes {
+    default = 'default',
+    allWithoutDefault = 'allWithoutDefault',
+    all = 'all',
+}

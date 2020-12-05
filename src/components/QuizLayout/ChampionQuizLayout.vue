@@ -12,6 +12,7 @@
                         :image-type="quizConfiguration.imageType"
                         :pixelate-value="pixelatedValue"
                         :ratio-image="0.7"
+                        :skin-number="skinNumber"
                     ></image-champion>
                 </template>
 
@@ -21,6 +22,7 @@
                         :champion="quizConfiguration.champions[props.index]"
                         :image-type="quizConfiguration.imageType"
                         :ratio-image="0.2"
+                        :skin-number="quizConfiguration.skinsIndex[props.index]"
                     ></image-champion>
                 </template>
             </icon-and-input-quiz-layout>
@@ -46,6 +48,8 @@ export default class ChampionQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: true }) championToGuess!: ChampionLolApi;
+
+    @Prop({ required: true }) skinNumber!: number;
 
     @Prop({ required: false, default: 1 }) pixelatedValue!: number;
 
