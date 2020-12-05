@@ -64,6 +64,7 @@ export default class ShortcutsQuiz extends Vue {
 
     // region Data
 
+    // noinspection JSMismatchedCollectionQueryUpdate
     private shortcutsInQuizFinishedStage: Shortcut[] = [
         {
             shortcut: 'H',

@@ -66,6 +66,7 @@ export default class FormQuizConfiguration extends Vue {
 
     private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion = createDefaultQuizConfiguration();
 
+    // noinspection JSMismatchedCollectionQueryUpdate
     private quizList: Quiz[] = quizList;
 
     // endregion

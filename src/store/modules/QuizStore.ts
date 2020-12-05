@@ -3,6 +3,7 @@ import store from 'src/store';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import { createDefaultTime, Time } from 'src/models/Time';
+import { ElementToGuess } from 'src/models/ElementToGuess';
 
 @Module({
     dynamic: true,
@@ -12,6 +13,8 @@ import { createDefaultTime, Time } from 'src/models/Time';
 })
 class QuizStore extends VuexModule {
     // region State
+
+    private _elementToGuess: ElementToGuess | null = null;
 
     /**
      * Réponse donnée par le joueur.
@@ -43,11 +46,17 @@ class QuizStore extends VuexModule {
 
     private _displayPlayersAnswersHistories: boolean = false;
 
-    private _refAnswerInput: HTMLElement | null = null;
+    // eslint-disable-next-line
+    private _refQuiz: any | null = null;
 
     // endregion
 
     // region Mutations
+
+    @Mutation
+    public setElementToGuess(elementToGuess: ElementToGuess | null) {
+        this._elementToGuess = elementToGuess;
+    }
 
     @Mutation
     public setAnswerGivenByPlayer(answerGivenByPlayer: string) {
@@ -85,13 +94,18 @@ class QuizStore extends VuexModule {
     }
 
     @Mutation
-    public setRefAnswerInput(refAnswerInput: HTMLElement) {
-        this._refAnswerInput = refAnswerInput;
+    // eslint-disable-next-line
+    public setRefQuiz(refAnswerInput: any) {
+        this._refQuiz = refAnswerInput;
     }
 
     // endregion
 
     // region Getters
+
+    public get elementToGuess(): ElementToGuess | null {
+        return this._elementToGuess;
+    }
 
     public get answerGivenByPlayer(): string {
         return this._answerGivenByPlayer;
@@ -121,8 +135,10 @@ class QuizStore extends VuexModule {
         return this._displayPlayersAnswersHistories;
     }
 
-    public get refAnswerInput(): HTMLElement | null {
-        return this._refAnswerInput;
+    // eslint-disable-next-line
+    public get refQuiz(): any | null {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._refQuiz;
     }
 
     // endregion

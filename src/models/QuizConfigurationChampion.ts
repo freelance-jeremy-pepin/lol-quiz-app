@@ -6,6 +6,7 @@ export default interface QuizConfigurationChampion extends QuizConfiguration {
     imageType?: ImageTypesChampionLolApi | string;
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function createDefaultQuizConfigurationChampion(): QuizConfigurationChampion {
     return {
         ...createDefaultQuizConfiguration(),

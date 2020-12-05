@@ -11,6 +11,7 @@ import QuizChampionStore from 'src/store/modules/QuizChampionStore';
 export default class QuizChampionMixin extends Mixins(QuizMixin) {
     // region Computed properties
 
+    // noinspection JSUnusedGlobalSymbols
     public get championToGuess(): ChampionLolApi | null {
         return QuizChampionStore.championToGuess;
     }
@@ -35,6 +36,10 @@ export default class QuizChampionMixin extends Mixins(QuizMixin) {
     public mounted() {
         this.playAgain = this.onPlayAgain;
         this.skip = this.onSkipChampion;
+
+        if (!this.isMultiplayer) {
+            this.startNewQuiz();
+        }
     }
 
     // endregion
@@ -91,17 +96,6 @@ export default class QuizChampionMixin extends Mixins(QuizMixin) {
     }
 
     /**
-     * Démarre le premier quiz.
-     * Le quiz depuis cette est lancé seulement si le quiz est en mode chargement
-     * et que les champions ont été récupérés.
-     */
-    public firstStartNewQuiz() {
-        if (QuizStageStore.isLoading && this.champions) {
-            this.startNewQuiz();
-        }
-    }
-
-    /**
      * Sélectionne le prochain champion.
      * @public
      */
@@ -152,22 +146,6 @@ export default class QuizChampionMixin extends Mixins(QuizMixin) {
     // endregion
 
     // region Watchers
-
-    /**
-     * Lors du changement de la liste des champions, démarre le premier quiz.
-     */
-    @Watch('champions', { immediate: true })
-    public onChampionsChanged() {
-        this.firstStartNewQuiz();
-    }
-
-    /**
-     * Lors du changement de l'état du quiz, démarre le premier quiz.
-     */
-    @Watch('quizStageStore.stage', { immediate: true })
-    public onQuizStageChanged() {
-        this.firstStartNewQuiz();
-    }
 
     /**
      * Dès que la salle a été récupérée, initialise le quiz.

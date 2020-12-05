@@ -1,11 +1,9 @@
 <template>
     <champion-quiz-layout
+        :champion-to-guess="elementToGuess"
         :pixelated-value="pixelateValue"
         @skip="pixelateValue = 50"
-        v-on:skip="onSkipChampion"
-        v-on:focus-answer-input="focusAnswerInput"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
-        v-on:play-again="onPlayAgain"
     ></champion-quiz-layout>
 </template>
 
@@ -13,10 +11,10 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator';
 import ChampionQuizLayout from 'components/QuizLayout/ChampionQuizLayout.vue';
 import { FindChampionWithSplashArtScoreCalculation, findChampionWithSplashArtScoreCalculation } from 'src/models/Quiz';
-import QuizChampionMixin from 'src/mixins/quizChampionMixin';
 import ImageChampion from 'components/Champion/ImageChampion.vue';
 import { ImageTypesChampionLolApi } from 'src/models/LolApi/ChampionLolApi';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
+import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
 
 @Component({
     components: {
@@ -24,7 +22,7 @@ import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
         ChampionQuizLayout,
     },
 })
-export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
+export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
     // region Data
 
     private pixelateValue: number = 999;
@@ -65,8 +63,6 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
 
         const newScore = this.player.score + scoreCalculation.score;
         this.player = { ...this.player, score: newScore };
-
-        this.onPickNextChampion();
     }
 
     // endregion
@@ -89,7 +85,7 @@ export default class ChampionImagePage extends Mixins(QuizChampionMixin) {
         }
 
         if (scoreCalculation.score < 0) {
-            this.onPickNextChampion();
+            this.onPickNext();
         }
     }
 

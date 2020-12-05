@@ -3,11 +3,6 @@
         <div class="column items-center full-width" style="max-width: 350px;">
             <icon-and-input-quiz-layout
                 ref="quiz"
-                v-on:answered="$emit('answered')"
-                v-on:skip="$emit('skip')"
-                v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="$emit('play-again')"
-                v-on:focus-answer-input="$emit('focus-answer-input')"
                 v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
@@ -30,11 +25,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import ItemLolApi from 'src/models/LolApi/ItemLolApi';
-import QuizItemStore from 'src/store/modules/QuizItemStore';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
@@ -46,6 +40,12 @@ import QuizStageStore from 'src/store/modules/QuizStageStore';
     },
 })
 export default class ItemQuizLayout extends Vue {
+    // region Props
+
+    @Prop({ required: true }) itemToGuess!: ItemLolApi;
+
+    // endregion
+
     // region Computed properties
 
     private get quizConfiguration(): QuizConfiguration {
@@ -56,8 +56,13 @@ export default class ItemQuizLayout extends Vue {
         return QuizStageStore;
     }
 
-    private get itemToGuess(): ItemLolApi | null {
-        return QuizItemStore.itemToGuess;
+    // endregion
+
+    // region Hooks
+
+    // noinspection JSUnusedLocalSymbols
+    private mounted() {
+        QuizStore.setRefQuiz(this.$refs.quiz);
     }
 
     // endregion

@@ -1,9 +1,7 @@
 <template>
     <item-quiz-layout
-        v-on:skip="onSkipItem"
-        v-on:focus-answer-input="focusAnswerInput"
+        :item-to-guess="elementToGuess"
         v-on:verify-answer="onVerifyAnswer(null, onAnswered)"
-        v-on:play-again="onPlayAgain"
     ></item-quiz-layout>
 </template>
 
@@ -12,9 +10,9 @@ import { Component, Mixins } from 'vue-property-decorator';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconItem from 'components/Item/IconItem.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import QuizItemMixin from 'src/mixins/quizItemMixin';
 import ItemQuizLayout from 'components/QuizLayout/ItemQuizLayout.vue';
 import { stringToInt } from 'src/utils/number';
+import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
 
 @Component({
     components: {
@@ -24,7 +22,7 @@ import { stringToInt } from 'src/utils/number';
         ResultQuiz,
     },
 })
-export default class ItemPriceQuizPage extends Mixins(QuizItemMixin) {
+export default class ItemPriceQuizPage extends Mixins(QuizAnswerMixin) {
     // region Event handlers
 
     private onAnswered() {
@@ -39,7 +37,7 @@ export default class ItemPriceQuizPage extends Mixins(QuizItemMixin) {
 
         this.player = { ...this.player, score: this.player.score + score };
 
-        this.onPickNextItem();
+        this.onPickNext();
     }
 
     // endregion

@@ -1,9 +1,7 @@
 <template>
     <rune-quiz-layout
-        v-on:skip="onSkipRune"
-        v-on:focus-answer-input="focusAnswerInput"
+        :rune-to-guess="elementToGuess"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
-        v-on:play-again="onPlayAgain"
     ></rune-quiz-layout>
 </template>
 
@@ -11,8 +9,8 @@
 import { Component, Mixins } from 'vue-property-decorator';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
-import QuizRuneMixin from 'src/mixins/quizRuneMixin';
 import RuneQuizLayout from 'components/QuizLayout/RuneQuizLayout.vue';
+import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
 
 @Component({
     components: {
@@ -21,7 +19,7 @@ import RuneQuizLayout from 'components/QuizLayout/RuneQuizLayout.vue';
         ResultQuiz,
     },
 })
-export default class ItemNameQuizPage extends Mixins(QuizRuneMixin) {
+export default class ItemNameQuizPage extends Mixins(QuizAnswerMixin) {
     // region Event handlers
 
     private onCorrectAnswer() {
@@ -31,8 +29,6 @@ export default class ItemNameQuizPage extends Mixins(QuizRuneMixin) {
 
         // Si la réponse est correcte, incrémente le score et passe au prochain objet.
         this.player = { ...this.player, score: this.player.score + 1 };
-
-        this.onPickNextRune();
     }
 
     // endregion

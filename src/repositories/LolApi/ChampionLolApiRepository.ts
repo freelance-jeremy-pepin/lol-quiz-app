@@ -33,6 +33,7 @@ export default class ChampionLolApiRepository extends LolApiRepository {
         return this.getImageUrl(champion, skinNum, ImageTypesChampionLolApi.loading);
     }
 
+    // noinspection JSUnusedGlobalSymbols
     public getSquareImageUrl(champion: ChampionLolApi) {
         if (champion.image?.full) {
             return `${this.baseUrlWithoutVersion}/img/champion/${champion.image.full}.png`;

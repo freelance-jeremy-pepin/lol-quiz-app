@@ -3,11 +3,6 @@
         <div class="column items-center">
             <icon-and-input-quiz-layout
                 ref="quiz"
-                v-on:answered="$emit('answered')"
-                v-on:skip="$emit('skip')"
-                v-on:correct-answer="$emit('correct-answer')"
-                v-on:play-again="$emit('play-again')"
-                v-on:focus-answer-input="$emit('focus-answer-input')"
                 v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
@@ -34,11 +29,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import ImageChampion from 'components/Champion/ImageChampion.vue';
 import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
-import QuizChampionStore from 'src/store/modules/QuizChampionStore';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
 
@@ -51,6 +45,8 @@ import QuizStore from 'src/store/modules/QuizStore';
 export default class ChampionQuizLayout extends Vue {
     // region Props
 
+    @Prop({ required: true }) championToGuess!: ChampionLolApi;
+
     @Prop({ required: false, default: 1 }) pixelatedValue!: number;
 
     // endregion
@@ -61,8 +57,13 @@ export default class ChampionQuizLayout extends Vue {
         return QuizStore.quizConfiguration;
     }
 
-    private get championToGuess(): ChampionLolApi | null {
-        return QuizChampionStore.championToGuess;
+    // endregion
+
+    // region Hooks
+
+    // noinspection JSUnusedLocalSymbols
+    private mounted() {
+        QuizStore.setRefQuiz(this.$refs.quiz);
     }
 
     // endregion

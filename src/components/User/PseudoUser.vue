@@ -18,17 +18,9 @@ import UserMixin from 'src/mixins/userMixin';
 
 @Component
 export default class extends Mixins(UserMixin) {
-    // region Props
-
-    // endregion
-
     // region Data
 
     private internalPseudo: string = '';
-
-    // endregion
-
-    // region Hooks
 
     // endregion
 
@@ -43,12 +35,9 @@ export default class extends Mixins(UserMixin) {
     // region Methods
 
     private savePseudo() {
+        // noinspection JSConstantReassignment
         this.me = { id: this.me.id, pseudo: this.internalPseudo };
     }
-
-    // endregion
-
-    // region Watchers
 
     // endregion
 }

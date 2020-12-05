@@ -1,5 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator';
 
+// noinspection JSUnusedGlobalSymbols
 @Component({
     filters: {
         pluralize(count: number, singular: string, plural: string): string {

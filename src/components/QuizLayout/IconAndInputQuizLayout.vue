@@ -4,9 +4,8 @@
             v-if="quizStageStore.isQuizFinished && !isMultiplayer"
             :is-multiplayer="isMultiplayer"
             :score="player.score"
-            :time="quizConfiguration.withStopWatch ? player.completeTime : null"
             :total-score="quizConfiguration.totalScore ? quizConfiguration.totalScore : quizConfiguration.quiz.scoreBasedOnQuestionNumber ? quizConfiguration.numberQuestions : null"
-            @play-again="$emit('play-again')"
+            @play-again="onPlayAgain"
         ></result-quiz>
 
         <leaderboard-multiplayer
@@ -14,7 +13,7 @@
             :next-room="nextRoom"
             :room="room"
             :winner-has-lowest-score="quizConfiguration.quiz.winnerHasTheLowestScore"
-            @play-again="$emit('play-again')"
+            @play-again="onPlayAgain"
         ></leaderboard-multiplayer>
 
         <div v-if="quizStageStore.isLoading" class="text-center">
@@ -62,7 +61,7 @@
                 class="full-width"
                 color="grey"
                 flat
-                @click="$emit('skip')"
+                @click="skip"
             >
                 Skip
             </q-btn>
@@ -88,7 +87,12 @@
             :offset="[18, 18]"
             position="bottom-right"
         >
-            <q-btn color="accent" fab icon="history" @click="displayPlayersAnswersHistories = true" />
+            <q-btn
+                color="accent"
+                fab
+                icon="history"
+                @click="displayPlayersAnswersHistories = true"
+            />
         </q-page-sticky>
 
         <q-page-sticky
@@ -118,7 +122,6 @@ import { Component, Mixins, Watch } from 'vue-property-decorator';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
 import ShortcutsQuiz from 'components/Quiz/ShortcutsQuiz.vue';
 import StopWatch from 'components/Common/StopWatch.vue';
-import { Time } from 'src/models/Time';
 import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import QuizStore from 'src/store/modules/QuizStore';
 import User from 'src/models/User';
@@ -126,18 +129,13 @@ import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue
 import ProgressQuizMultiplayer from 'components/Multiplayer/ProgressQuizMultiplayer.vue';
 import LeaderboardMultiplayer from 'components/Multiplayer/LeaderboardMultiplayer.vue';
 import CountDown from 'components/Common/CountDown.vue';
-import Player from 'src/models/Player';
 import TableAnswerHistory from 'components/AnswerHistory/TableAnswerHistory.vue';
-import Room from 'src/models/Room';
-import QuizConfiguration from 'src/models/QuizConfiguration';
-import SocketMixin from 'src/mixins/socketMixin';
-import SecondsCountDown from 'components/Common/CountDown.vue';
+import QuizMixin from 'src/mixins/quizMixin';
 
 @Component({
     components: {
-        SecondsCountDown,
-        TableAnswerHistory,
         CountDown,
+        TableAnswerHistory,
         LeaderboardMultiplayer,
         ProgressQuizMultiplayer,
         CardWithTitleAndAction,
@@ -146,90 +144,30 @@ import SecondsCountDown from 'components/Common/CountDown.vue';
         ShortcutsQuiz,
     },
 })
-export default class IconAndInputQuizLayout extends Mixins(SocketMixin) {
-    // region Computed properties
+export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
+    // region Data
 
-    /**
-     * Récupère le joueur du quiz.
-     * @private
-     */
-    private get player(): Player {
-        return QuizStore.player;
-    }
-
-    private get isMultiplayer(): boolean {
-        return QuizStore.isMultiplayer;
-    }
-
-    private get quizConfiguration(): QuizConfiguration {
-        return QuizStore.quizConfiguration;
-    }
-
-    private get answerGivenByPlayer(): string {
-        return QuizStore.answerGivenByPlayer;
-    }
-
-    private set answerGivenByPlayer(value: string) {
-        QuizStore.setAnswerGivenByPlayer(value);
-    }
-
-    private get room(): Room | undefined | null {
-        if (this.isMultiplayer) {
-            return this.roomSocketStore.room;
-        }
-
-        return undefined;
-    }
-
-    private get nextRoom(): Room | null | undefined {
-        if (this.room?.nextRoomId) {
-            return this.roomSocketStore.rooms.find(r => r.id === this.room?.nextRoomId && !r.inGame);
-        }
-
-        return null;
-    }
-
-    private get timeRemaining(): Time {
-        return QuizStore.timeRemaining;
-    }
-
-    private get displayPlayersAnswersHistories(): boolean {
-        return QuizStore.displayPlayersAnswersHistories;
-    }
-
-    private set displayPlayersAnswersHistories(value: boolean) {
-        QuizStore.setDisplayPlayersAnswersHistories(value);
-    }
-
-    /**
-     * Store détenant l'état du quiz.
-     */
-    private get quizStageStore(): typeof QuizStageStore {
-        return QuizStageStore;
-    }
-
-    private get players(): Player[] {
-        if (this.isMultiplayer && this.room) {
-            return this.room.players;
-        }
-
-        if (this.player) {
-            return [this.player];
-        }
-
-        return [];
-    }
+    public $refs!: {
+        answerInput: HTMLElement;
+    };
 
     // endregion
 
-    // region Computed properties
+    // region Methods
 
-    public mounted() {
-        QuizStore.setRefAnswerInput(this.$refs.answerInput);
+    public focusAnswerInput() {
+        setTimeout(() => {
+            if (this.$refs.answerInput) {
+                this.$refs.answerInput.focus();
+            }
+        }, 20);
+    }
+
+    public blurAnswerInput() {
+        this.$refs.answerInput.blur();
     }
 
     // endregion
-
     // region Watchers
 
     /**
@@ -253,7 +191,7 @@ export default class IconAndInputQuizLayout extends Mixins(SocketMixin) {
     @Watch('quizStageStore.stage', { deep: true })
     private onQuizStateChanged() {
         if (QuizStageStore.isAnswering) {
-            this.$emit('focus-answer-input');
+            this.focusAnswerInput();
         }
     }
 

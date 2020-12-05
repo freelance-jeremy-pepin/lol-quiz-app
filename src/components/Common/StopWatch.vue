@@ -26,6 +26,7 @@ export default class StopWatch extends Vue {
 
     // region Computed properties
 
+    // noinspection JSUnusedGlobalSymbols
     public get getTime(): Time {
         return this.time;
     }
