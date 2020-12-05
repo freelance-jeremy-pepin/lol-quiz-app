@@ -59,9 +59,9 @@
             <q-btn-toggle
                 v-model="internalQuizConfiguration.skins"
                 :options="[
-                    { label: 'Default skins', value: 'default' },
-                    { label: 'All without default', value: 'allWithoutDefault' },
-                    { label: 'All skins', value: 'all' },
+                    { label: 'only default', value: 'only default' },
+                    { label: 'all without default', value: 'all without default' },
+                    { label: 'all', value: 'all' },
                 ]"
                 toggle-color="primary"
                 @input="onInput"

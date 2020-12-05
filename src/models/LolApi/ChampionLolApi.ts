@@ -31,7 +31,7 @@ export enum ImageTypesChampionLolApi {
 }
 
 export enum SkinTypes {
-    default = 'default',
-    allWithoutDefault = 'allWithoutDefault',
+    onlyDefault = 'only default',
+    allWithoutDefault = 'all without default',
     all = 'all',
 }

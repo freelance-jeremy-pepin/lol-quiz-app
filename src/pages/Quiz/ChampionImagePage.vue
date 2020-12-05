@@ -32,10 +32,14 @@ export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
 
     // region Computed properties
 
+    private get quizConfigurationChampion(): QuizConfigurationChampion {
+        return this.quizConfiguration as QuizConfigurationChampion;
+    }
+
     private get skinNumber(): number {
-        if (this.quizConfiguration.skinsIndex) {
+        if (this.quizConfigurationChampion.skinsIndex) {
             // eslint-disable-next-line
-            return this.quizConfiguration.skinsIndex[this.player.currentQuestionNumber - 1];
+            return this.quizConfigurationChampion.skinsIndex[this.player.currentQuestionNumber - 1];
         }
 
         return 0;
@@ -83,27 +87,24 @@ export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
         }
     }
 
-    // eslint-disable-next-line consistent-return
     private findPixelateValue(scoreCalculation: FindChampionWithSplashArtScoreCalculation): number {
-        const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
-
-        switch (quizConfiguration.imageType) {
+        switch (this.quizConfigurationChampion.imageType) {
             case ImageTypesChampionLolApi.splash:
-                if (this.quizConfiguration.skins === SkinTypes.default) {
+                if (this.quizConfigurationChampion.skins === SkinTypes.onlyDefault) {
                     return scoreCalculation.pixelateValueSplashDefaultSkin;
                 }
 
-                if (this.quizConfiguration.skins === SkinTypes.allWithoutDefault || this.quizConfiguration.skins === SkinTypes.all) {
+                if (this.quizConfigurationChampion.skins === SkinTypes.allWithoutDefault || this.quizConfigurationChampion.skins === SkinTypes.all) {
                     return scoreCalculation.pixelateValueSplashAllSkins;
                 }
 
                 break;
             case ImageTypesChampionLolApi.loading:
-                if (this.quizConfiguration.skins === SkinTypes.default) {
+                if (this.quizConfigurationChampion.skins === SkinTypes.onlyDefault) {
                     return scoreCalculation.pixelateValueLoadingDefaultSkin;
                 }
 
-                if (this.quizConfiguration.skins === SkinTypes.allWithoutDefault || this.quizConfiguration.skins === SkinTypes.all) {
+                if (this.quizConfigurationChampion.skins === SkinTypes.allWithoutDefault || this.quizConfigurationChampion.skins === SkinTypes.all) {
                     return scoreCalculation.pixelateValueLoadingAllSkins;
                 }
 
@@ -111,6 +112,8 @@ export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
             default:
                 return 999;
         }
+
+        return 999;
     }
 
     private getScoreCalculation(totalSecondsRemaining: number): FindChampionWithSplashArtScoreCalculation {
