@@ -2,7 +2,7 @@ import { Component, Mixins, Watch } from 'vue-property-decorator';
 import { createDefaultPlayer } from 'src/models/Player';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
-import Room from 'src/models/Room';
+import Room, { createDefaultRoom } from 'src/models/Room';
 import { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import QuizConfigurationMixin from 'src/mixins/quizConfigurationMixin';
 import { quizList } from 'src/models/Quiz';
@@ -242,8 +242,16 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             if (this.nextRoom) {
                 nextRoom = this.nextRoom;
             } else {
+                const newRoom = createDefaultRoom();
+
                 // Créer la prochaine salle.
-                nextRoom = { ...this.room, id: uniqueID(), inGame: false, players: [] };
+                nextRoom = {
+                    ...this.room,
+                    id: uniqueID(),
+                    inGame: false,
+                    players: [],
+                    expiresAt: newRoom.expiresAt,
+                };
                 nextRoom.quizConfiguration = this.specialiseQuizConfiguration(this.quizConfiguration);
                 this.roomSocketStore.createOrUpdateRoom(nextRoom);
                 this.roomSocketStore.createOrUpdateRoom({ ...this.room, nextRoomId: nextRoom.id });
