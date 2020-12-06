@@ -11,6 +11,7 @@ import ChampionLolApi from 'src/models/LolApi/ChampionLolApi';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import { copyToClipboard } from 'quasar';
 import { createDefaultPlayerAnswerHistory } from 'src/models/PlayerAnswerHistory';
+import { createNewTime } from 'src/models/Time';
 
 @Component
 export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
@@ -104,8 +105,12 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
             this.lastPlayerAnswerHistory.found = found;
             this.lastPlayerAnswerHistory.skipped = skipped;
 
-            if (this.quizConfiguration.quiz.enableTimeElapsed) {
+            if (found && this.quizConfiguration.quiz.enableTimeElapsed) {
                 this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
+            }
+
+            if (found && this.quizConfiguration.quiz.enableTimeRemaining) {
+                this.lastPlayerAnswerHistory.timeElapsed = createNewTime(new Date().getTime() - this.lastPlayerAnswerHistory.startDate.getTime());
             }
 
             if (addNewAnswer && this.answerGivenByPlayer.trim()) {

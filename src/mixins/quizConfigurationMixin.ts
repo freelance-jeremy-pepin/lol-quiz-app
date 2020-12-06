@@ -117,7 +117,10 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                             }
 
                             quizConfigurationChampion.skinsIndex[index] = skin.num;
-                            answerDescription = skin.name;
+
+                            if (skin.num > 0) {
+                                answerDescription = skin.name;
+                            }
                         }
 
                         const quizAnswer = createDefaultQuizAnswer();

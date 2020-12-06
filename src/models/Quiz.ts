@@ -36,6 +36,7 @@ export enum QuizListInternalName {
     ItemName = 'item-name',
     ItemPrice = 'item-price',
     ChampionImage = 'champion-image',
+    ChampionSpell = 'champion-spell',
     RuneName = 'rune-name',
 }
 
@@ -84,6 +85,20 @@ export const quizList: Quiz[] = [
     },
     {
         id: '4',
+        name: `Find champion's spell`,
+        internalName: QuizListInternalName.ChampionImage,
+        canSkipQuestion: true,
+        onlyOneTry: false,
+        scoreBasedOnQuestionNumber: false,
+        winnerHasTheLowestScore: false,
+        answersAreOnlyNumber: false,
+        secondsPerQuestion: 20,
+        clearAnswerInputAfterVerify: true,
+        enableTimeRemaining: true,
+        enableTimeElapsed: false,
+    },
+    {
+        id: '5',
         name: `Find rune's name`,
         internalName: QuizListInternalName.RuneName,
         canSkipQuestion: true,
