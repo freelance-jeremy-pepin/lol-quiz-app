@@ -168,6 +168,7 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
     }
 
     // endregion
+
     // region Watchers
 
     /**

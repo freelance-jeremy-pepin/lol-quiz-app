@@ -31,8 +31,6 @@ export default class ItemNameQuizPage extends Mixins(QuizAnswerMixin) {
 
         // Si la réponse est correcte, incrémente le score et passe au prochain objet.
         this.player = { ...this.player, score: this.player.score + 1 };
-
-        this.onPickNext();
     }
 
     // endregion

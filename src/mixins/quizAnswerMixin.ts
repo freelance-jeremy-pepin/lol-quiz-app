@@ -29,7 +29,7 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
                 onAnsweredCallback();
             }
 
-            this.focusAnswerInput();
+            this.onPickNext();
         } else {
             QuizStageStore.setVerifyingAnswer();
 
@@ -157,7 +157,7 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
             currentQuestionNumber: this.player.currentQuestionNumber + 1,
         };
 
-        let elementToGuess: ItemLolApi | ChampionLolApi | null = null;
+        let elementToGuess: ItemLolApi | ChampionLolApi | RuneLolApi | null = null;
 
         if ('items' in quizConfiguration) {
             elementToGuess = quizConfiguration.items[this.player.currentQuestionNumber - 1];

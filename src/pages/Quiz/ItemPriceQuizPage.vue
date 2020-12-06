@@ -36,8 +36,6 @@ export default class ItemPriceQuizPage extends Mixins(QuizAnswerMixin) {
         }
 
         this.player = { ...this.player, score: this.player.score + score };
-
-        this.onPickNext();
     }
 
     // endregion

@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator';
-import ChampionQuizLayout from 'components/QuizLayout/ChampionQuizLayout.vue';
+import ChampionQuizLayout from 'components/QuizLayout/ChampionImageQuizLayout.vue';
 import { FindChampionWithSplashArtScoreCalculation, findChampionWithSplashArtScoreCalculation } from 'src/models/Quiz';
 import ImageChampion from 'components/Champion/ImageChampion.vue';
 import { ImageTypesChampionLolApi, SkinTypes } from 'src/models/LolApi/ChampionLolApi';

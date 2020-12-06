@@ -15,6 +15,7 @@ import QuizConfigurationRune from 'src/models/QuizConfigurationRune';
 import RuneLolApiStore from 'src/store/modules/LolApi/RuneLolApiStore';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import ChampionSkinLolApi from 'src/models/LolApi/ChampionSkinLolApi';
+import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
 
 @Component({
     filters: {
@@ -121,6 +122,60 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                             if (skin.num > 0) {
                                 answerDescription = skin.name;
                             }
+                        }
+
+                        const quizAnswer = createDefaultQuizAnswer();
+                        quizAnswer.value = c.name;
+
+                        if (answerDescription) {
+                            quizAnswer.description = answerDescription;
+                        }
+
+                        quizAnswers.push(quizAnswer);
+                    });
+
+                    quizConfigurationChampion.answers = quizAnswers;
+                    quizConfigurationChampion.champions = championsPicked;
+                }
+
+                return quizConfigurationChampion;
+            }
+
+            case QuizListInternalName.ChampionSpell: {
+                const quizConfigurationChampion: QuizConfigurationChampion = {
+                    ...quizConfiguration,
+                    champions: [],
+                };
+
+                if (ChampionLolApiStore.champions) {
+                    const quizAnswers: QuizAnswer[] = [];
+
+                    // Construit la liste des champions à deviner.
+                    const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampion.numberQuestions) as ChampionLolApi[];
+
+                    quizConfigurationChampion.spells = [];
+
+                    const abilityKeys = 'PQZER';
+                    championsPicked.forEach((c, index) => {
+                        let answerDescription: string | null = null;
+
+                        if (c.spells && quizConfigurationChampion.spells) {
+                            const spellIndex = randomNumber(0, c.spells.length);
+                            let spell: ChampionSpellLolApi;
+
+                            if (spellIndex === 0) {
+                                spell = c.passive;
+                                spell.isPassive = true;
+                            } else {
+                                spell = c.spells[spellIndex - 1];
+                                spell.isPassive = false;
+                            }
+
+                            const abilityKey = abilityKeys[spellIndex];
+                            spell.abilityKey = abilityKey;
+                            answerDescription = `${abilityKey} - ${spell.name}`;
+
+                            quizConfigurationChampion.spells[index] = spell;
                         }
 
                         const quizAnswer = createDefaultQuizAnswer();
