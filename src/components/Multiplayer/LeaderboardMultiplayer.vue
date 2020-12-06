@@ -20,7 +20,7 @@
 
                     <q-item-section>
                         <q-item-label
-                            :class="{ 'text-green': playerJoinedNextRoom(player), 'text-red': nextRoom && player.hasQuitRoom && !playerJoinedNextRoom(player) }"
+                            :class="{ 'text-green': playerJoinedNextRoom(player), 'text-red': player.hasQuitRoom && !playerJoinedNextRoom(player) }"
                             class="text-bold"
                         >
                             {{ getPseudoById(player.userId) }}
