@@ -114,19 +114,19 @@ export default class QuizStoreMixin extends Mixins(UserMixin) {
         return playerAnswerHistory;
     }
 
-    public get timeElapsed(): Time {
+    public get timeElapsed(): Time | null {
         return QuizStore.timeElapsed;
     }
 
-    public set timeElapsed(value: Time) {
+    public set timeElapsed(value: Time | null) {
         QuizStore.setTimeElapsed(value);
     }
 
-    public get timeRemaining(): Time {
+    public get timeRemaining(): Time | null {
         return QuizStore.timeRemaining;
     }
 
-    public set timeRemaining(value: Time) {
+    public set timeRemaining(value: Time | null) {
         QuizStore.setTimeRemaining(value);
     }
 

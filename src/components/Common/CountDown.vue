@@ -1,6 +1,6 @@
 <template>
     <q-card
-        :class="`${time.totalSeconds < 5 && time.totalSeconds > 0 ? 'bg-negative blink': ''} ${time.totalSeconds <= 0 ? 'bg-negative': ''}`"
+        :class="`${time.totalSeconds <= 5 && time.totalSeconds > 0 ? 'bg-negative blink': ''} ${time.totalSeconds <= 0 ? 'bg-negative': ''}`"
         class="q-pa-sm bg-secondary text-white"
         style="display: flex; align-items: center;"
     >

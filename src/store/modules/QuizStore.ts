@@ -2,7 +2,7 @@ import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 import store from 'src/store';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
-import { createDefaultTime, Time } from 'src/models/Time';
+import { Time } from 'src/models/Time';
 import { ElementToGuess } from 'src/models/ElementToGuess';
 
 @Module({
@@ -40,9 +40,9 @@ class QuizStore extends VuexModule {
      */
     private _quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
 
-    private _timeElapsed: Time = createDefaultTime();
+    private _timeElapsed: Time | null = null;
 
-    private _timeRemaining: Time = createDefaultTime();
+    private _timeRemaining: Time | null = null;
 
     private _displayPlayersAnswersHistories: boolean = false;
 
@@ -79,12 +79,12 @@ class QuizStore extends VuexModule {
     }
 
     @Mutation
-    public setTimeElapsed(timeElapsed: Time) {
+    public setTimeElapsed(timeElapsed: Time | null) {
         this._timeElapsed = timeElapsed;
     }
 
     @Mutation
-    public setTimeRemaining(timeRemaining: Time) {
+    public setTimeRemaining(timeRemaining: Time | null) {
         this._timeRemaining = timeRemaining;
     }
 
@@ -123,11 +123,11 @@ class QuizStore extends VuexModule {
         return this._quizConfiguration;
     }
 
-    public get timeElapsed(): Time {
+    public get timeElapsed(): Time | null {
         return this._timeElapsed;
     }
 
-    public get timeRemaining(): Time {
+    public get timeRemaining(): Time | null {
         return this._timeRemaining;
     }
 

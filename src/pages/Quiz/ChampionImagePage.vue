@@ -5,6 +5,7 @@
         :skin-number="skinNumber"
         @skip="pixelateValue = 50"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
+        v-on:image-champion-loaded="onImageChampionLoaded"
     ></champion-quiz-layout>
 </template>
 
@@ -60,17 +61,25 @@ export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
     // region Event handlers
 
     private onCorrectAnswer() {
-        // Si la réponse est correcte, incrémente le score et passe au prochain champion.
-        const totalSecondsRemaining = this.timeRemaining.totalSeconds;
-        const scoreCalculation = this.getScoreCalculation(totalSecondsRemaining);
+        if (this.timeRemaining) {
+            // Si la réponse est correcte, incrémente le score et passe au prochain champion.
+            const totalSecondsRemaining = this.timeRemaining.totalSeconds;
+            const scoreCalculation = this.getScoreCalculation(totalSecondsRemaining);
 
-        if (this.lastPlayerAnswerHistory) {
-            this.lastPlayerAnswerHistory.score = scoreCalculation.score;
-            this.lastPlayerAnswerHistory.totalScore = findChampionWithSplashArtScoreCalculation[0].score;
+            if (this.lastPlayerAnswerHistory) {
+                this.lastPlayerAnswerHistory.score = scoreCalculation.score;
+                this.lastPlayerAnswerHistory.totalScore = findChampionWithSplashArtScoreCalculation[0].score;
+            }
+
+            const newScore = this.player.score + scoreCalculation.score;
+            this.player = { ...this.player, score: newScore };
         }
+    }
 
-        const newScore = this.player.score + scoreCalculation.score;
-        this.player = { ...this.player, score: newScore };
+    private onImageChampionLoaded() {
+        if (!this.lastPlayerAnswerHistory?.endDate) {
+            this.setDatesToLastPlayerAnswer();
+        }
     }
 
     // endregion

@@ -78,7 +78,7 @@ export const quizList: Quiz[] = [
         scoreBasedOnQuestionNumber: false,
         winnerHasTheLowestScore: false,
         answersAreOnlyNumber: false,
-        secondsPerQuestion: 20,
+        secondsPerQuestion: 21,
         clearAnswerInputAfterVerify: true,
         enableTimeRemaining: true,
         enableTimeElapsed: false,

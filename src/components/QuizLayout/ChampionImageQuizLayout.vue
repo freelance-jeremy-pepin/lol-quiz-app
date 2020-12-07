@@ -13,6 +13,7 @@
                         :pixelate-value="pixelatedValue"
                         :ratio-image="0.7"
                         :skin-number="skinNumber"
+                        v-on:image-loaded="$emit('image-champion-loaded')"
                     ></image-champion>
                 </template>
 

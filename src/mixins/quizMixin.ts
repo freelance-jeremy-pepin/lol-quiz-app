@@ -281,7 +281,7 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             // @ts-ignore
             this.timeRemainingIntervalId = setInterval(() => {
                 this.refreshTimeRemaining();
-            }, 50);
+            }, 10);
         }
 
         if (this.quizConfiguration.quiz.enableTimeElapsed) {
@@ -289,7 +289,7 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             // @ts-ignore
             this.timeElapsedIntervalId = setInterval(() => {
                 this.refreshTimeElapsed();
-            }, 50);
+            }, 10);
         }
     }
 
@@ -325,6 +325,7 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             }
 
             this.onPickNext(addEmptyAnswerToHistory);
+
             this.startIntervals();
         }
     }

@@ -30,8 +30,8 @@
         >
             <card-with-title-and-action
                 :action-color="quizStageStore.isWrong ? 'negative' : 'primary'"
-                :action-disable="quizStageStore.isVerifyingAnswer"
-                :action-label="quizConfiguration.quiz.onlyOneTry ? 'Next' : quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : 'Verify'"
+                :action-disable="quizStageStore.isVerifyingAnswer || outOfTime"
+                :action-label="quizConfiguration.quiz.onlyOneTry ? 'Next' : quizStageStore.isWrong ? 'Wrong' : quizStageStore.isVerifyingAnswer ? 'Verifying...' : outOfTime ? 'Out of time' : 'Verify'"
                 :title="quizConfiguration.quiz.name"
                 @action="$emit('verify-answer')"
             >
@@ -46,6 +46,7 @@
                         v-if="!quizStageStore.isDisplayAnswer"
                         ref="answerInput"
                         v-model="answerGivenByPlayer"
+                        :disable="outOfTime"
                         autofocus
                         borderless
                         class="full-width"
@@ -101,7 +102,7 @@
             position="top-right"
         >
             <count-down
-                v-if="quizConfiguration.quiz.secondsPerQuestion"
+                v-if="timeRemaining && lastPlayerAnswerHistory.endDate"
                 :time="timeRemaining"
                 only-seconds
             ></count-down>
@@ -150,6 +151,18 @@ export default class IconAndInputQuizLayout extends Mixins(QuizMixin) {
     public $refs!: {
         answerInput: HTMLElement;
     };
+
+    // endregion
+
+    // region Computed properties
+
+    private get outOfTime(): boolean {
+        if (this.timeRemaining === null) {
+            return false;
+        }
+
+        return this.timeRemaining.totalSeconds <= 0;
+    }
 
     // endregion
 

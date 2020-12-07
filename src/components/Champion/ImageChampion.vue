@@ -65,10 +65,20 @@ export default class ImageChampion extends Vue {
         if (this.domImg) {
             this.ctx = this.domImg.getContext('2d');
             this.img = new Image();
-            this.img.onload = this.pixelate;
+            this.img.onload = this.onLoadImage;
 
             this.img.src = this.getImageUrl();
         }
+    }
+
+    // endregion
+
+    // region Events handlers
+
+    private onLoadImage() {
+        this.pixelate();
+
+        this.$emit('image-loaded');
     }
 
     // endregion

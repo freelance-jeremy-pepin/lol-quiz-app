@@ -105,7 +105,7 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
             this.lastPlayerAnswerHistory.found = found;
             this.lastPlayerAnswerHistory.skipped = skipped;
 
-            if (found && this.quizConfiguration.quiz.enableTimeElapsed) {
+            if (found && this.quizConfiguration.quiz.enableTimeElapsed && this.timeElapsed) {
                 this.lastPlayerAnswerHistory.timeElapsed = this.timeElapsed;
             }
 
@@ -199,13 +199,20 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
     public addEmptyAnswerToHistory() {
         const emptyAnswer = createDefaultPlayerAnswerHistory();
 
-        if (this.quizConfiguration.quiz.secondsPerQuestion) {
-            const endDate = new Date(emptyAnswer.startDate.getTime());
-            endDate.setSeconds(endDate.getSeconds() + this.quizConfiguration.quiz.secondsPerQuestion);
-            emptyAnswer.endDate = endDate;
-        }
-
         this.player.answersHistory = [...this.player.answersHistory, emptyAnswer];
+    }
+
+    public setDatesToLastPlayerAnswer() {
+        if (this.lastPlayerAnswerHistory) {
+            const startDate = new Date();
+            this.lastPlayerAnswerHistory.startDate = startDate;
+
+            if (this.quizConfiguration.quiz.secondsPerQuestion) {
+                const endDate = new Date(startDate.getTime());
+                endDate.setSeconds(endDate.getSeconds() + this.quizConfiguration.quiz.secondsPerQuestion);
+                this.lastPlayerAnswerHistory.endDate = endDate;
+            }
+        }
     }
 
     /**
