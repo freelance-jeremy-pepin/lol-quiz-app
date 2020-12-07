@@ -21,7 +21,7 @@
             </q-item-label>
 
             <q-item-label v-if="playerAnswerHistory.score !== undefined">
-                <span v-if="playerAnswerHistory.found && playerAnswerHistory.score !== undefined">Score: {{ playerAnswerHistory.score }}</span>
+                <span v-if="playerAnswerHistory.score !== undefined">Score: {{ playerAnswerHistory.score }}</span>
                 <span v-if="playerAnswerHistory.totalScore"> / {{ playerAnswerHistory.totalScore }}</span>
                 <span v-if="answerIsPerfect">
                     <q-badge
