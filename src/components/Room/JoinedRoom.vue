@@ -103,6 +103,20 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
 
     // endregion
 
+    // region Hooks
+
+    // noinspection JSUnusedLocalSymbols
+    private mounted() {
+        window.addEventListener('keydown', this.onKeyPress);
+    }
+
+    // noinspection JSUnusedLocalSymbols
+    private beforeDestroy() {
+        window.removeEventListener('keydown', this.onKeyPress);
+    }
+
+    // endregion
+
     // region Event handlers
 
     private onLeaveRoom() {
@@ -118,6 +132,12 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
             room: this.room,
             display: true,
         };
+    }
+
+    public onKeyPress(e: KeyboardEvent) {
+        if (e.key === 'r') {
+            this.onToggleIsReady();
+        }
     }
 
     // endregion

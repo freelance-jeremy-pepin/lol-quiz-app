@@ -59,6 +59,11 @@ export default class QuizStoreMixin extends Mixins(UserMixin) {
         return QuizStageStore.isQuizFinished;
     }
 
+    // noinspection JSUnusedLocalSymbols
+    private get quizStageIsAnswering(): boolean {
+        return QuizStageStore.isAnswering;
+    }
+
     public get room(): Room | undefined | null {
         if (this.isMultiplayer) {
             return this.roomSocketStore.room;

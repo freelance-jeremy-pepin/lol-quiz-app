@@ -341,6 +341,13 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
         }
     }
 
+    @Watch('quizStageIsAnswering')
+    private onQuizStageIsAnswering(isAnswering: boolean) {
+        if (isAnswering) {
+            this.focusAnswerInput();
+        }
+    }
+
     /**
      * Dès que la salle a été récupérée, initialise le quiz.
      * Dès que la salle change et si l'historique des réponses est ouverte, met à jour l'historique.
