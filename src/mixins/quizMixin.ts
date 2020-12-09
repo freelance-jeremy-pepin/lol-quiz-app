@@ -192,7 +192,7 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
      * Ajoute les raccourcis liés au quiz.
      */
     public onKeyPress(e: KeyboardEvent) {
-        if (QuizStageStore.isAnswering) {
+        if (QuizStageStore.isAnswering || QuizStageStore.isWrong) {
             if (e.shiftKey && e.key === '/') {
                 this.focusAnswerInput();
             }
@@ -200,10 +200,9 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             if (e.key === 'F9') {
                 this.skip();
             }
-        }
 
-        if (QuizStageStore.isAnswering || QuizStageStore.isWrong) {
             if (!this.quizConfiguration.quiz.onlyOneTry && e.key === 'ArrowUp' && this.lastPlayerAnswerHistory?.answers && this.lastPlayerAnswerHistory.answers.length > 0 && this.refQuiz) {
+                e.preventDefault();
                 this.refQuiz.blurAnswerInput();
                 this.answerGivenByPlayer = this.lastPlayerAnswerHistory.answers[this.lastPlayerAnswerHistory.answers.length - 1].value;
                 this.focusAnswerInput();

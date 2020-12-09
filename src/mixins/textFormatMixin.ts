@@ -22,6 +22,10 @@ import { Component, Vue } from 'vue-property-decorator';
         formatMilliseconds(milliseconds: number): string {
             return milliseconds.toString().padStart(3, '0');
         },
+
+        joinArray(array: string[]): string {
+            return array.join(', ').replace(/, ([^,]*)$/, ' and $1');
+        },
     },
 })
 export default class TextFormatMixin extends Vue {

@@ -46,7 +46,6 @@
                         v-if="!quizStageStore.isDisplayAnswer"
                         ref="answerInput"
                         v-model="answerGivenByPlayer"
-                        :disable="outOfTime"
                         autofocus
                         borderless
                         class="full-width"
@@ -114,6 +113,28 @@
             position="top-left"
         >
             <progress-quiz-multiplayer :room="room"></progress-quiz-multiplayer>
+        </q-page-sticky>
+
+        <q-page-sticky
+            v-if="!quizStageStore.isQuizFinished"
+            :offset="[18, 18]"
+            position="bottom-right"
+        >
+            <q-card style="max-width: 400px; max-height: 400px; overflow-y: auto">
+                <q-card-section class="text-bold q-pb-none">
+                    Your answers:
+                </q-card-section>
+
+                <q-card-section v-if="lastPlayerAnswerHistory.answers.length > 0" class="q-pt-none">
+                    <div v-for="answer in lastPlayerAnswerHistory.answers" :key="answer.id">
+                        {{ answer.value }}
+                    </div>
+                </q-card-section>
+
+                <q-card-section v-else class="q-pt-none">
+                    No answer yet.
+                </q-card-section>
+            </q-card>
         </q-page-sticky>
     </div>
 </template>
