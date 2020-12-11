@@ -20,6 +20,7 @@ import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfigur
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import { QuizListInternalName } from 'src/models/Quiz';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
 
 @Component({
     components: { CardWithTitleAndAction, FormQuizConfiguration },
@@ -53,6 +54,11 @@ export default class SinglePlayerPage extends Vue {
             const quizConfiguration: QuizConfigurationChampion = this.internalQuizConfiguration as QuizConfigurationChampion;
             query.imageType = quizConfiguration.imageType;
             query.skins = quizConfiguration.skins;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionSpell) {
+            const quizConfiguration: QuizConfigurationChampionSpell = this.internalQuizConfiguration as QuizConfigurationChampionSpell;
+            query.questionType = quizConfiguration.questionType;
         }
 
         this.$router.push({

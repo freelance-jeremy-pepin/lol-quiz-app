@@ -12,6 +12,7 @@ import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 import { createNewTime } from 'src/models/Time';
 import { uniqueID } from 'src/utils/number';
 import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
 
 @Component
 export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin, QuizAnswerMixin) {
@@ -151,6 +152,11 @@ export default class QuizMixin extends Mixins(QuizConfigurationMixin, UserMixin,
             if (this.$route.query.skins) {
                 const quizConfiguration: QuizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
                 quizConfiguration.skins = this.$route.query.skins.toString();
+            }
+
+            if (this.$route.query.questionType) {
+                const quizConfiguration: QuizConfigurationChampionSpell = this.quizConfiguration as QuizConfigurationChampionSpell;
+                quizConfiguration.questionType = this.$route.query.questionType.toString();
             }
 
             this.startQuiz();

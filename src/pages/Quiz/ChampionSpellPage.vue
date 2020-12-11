@@ -1,6 +1,8 @@
 <template>
     <champion-spell-quiz-layout
         :champion-spell-to-guess="elementToGuess"
+        :question-type="quizConfiguration.questionType"
+        :quiz-answer="currentQuizAnswer"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
     ></champion-spell-quiz-layout>
 </template>

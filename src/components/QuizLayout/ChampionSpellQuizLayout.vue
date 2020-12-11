@@ -6,10 +6,17 @@
                 v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
-                    <spell-icon-champion
-                        v-if="championSpellToGuess"
-                        :champion-spell="championSpellToGuess"
-                    ></spell-icon-champion>
+                    <div v-if="championSpellToGuess">
+                        <spell-icon-champion
+                            v-if="questionType === 'icon'"
+                            :champion-spell="championSpellToGuess"
+                        ></spell-icon-champion>
+
+                        <div
+                            v-if="questionType === 'description' && quizAnswer"
+                            v-html="championSpellToGuess.description.replaceAll(quizAnswer.value, '???')"
+                        ></div>
+                    </div>
                 </template>
 
                 <template v-slot:icon-answer-history="props">
@@ -31,6 +38,8 @@ import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
 import SpellIconChampion from 'components/Champion/SpellIconChampion.vue';
 import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
+import { ChampionSpellQuestionType } from 'src/models/QuizConfigurationChampionSpell';
+import QuizAnswer from 'src/models/QuizAnswer';
 
 @Component({
     components: {
@@ -42,6 +51,10 @@ export default class ChampionSpellQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: true }) championSpellToGuess!: ChampionSpellLolApi;
+
+    @Prop({ required: true }) questionType!: ChampionSpellQuestionType;
+
+    @Prop({ required: true }) quizAnswer!: QuizAnswer;
 
     // endregion
 

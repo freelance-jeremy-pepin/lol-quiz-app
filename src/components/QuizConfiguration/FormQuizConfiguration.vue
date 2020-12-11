@@ -67,6 +67,22 @@
                 @input="onInput"
             />
         </div>
+
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-spell'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Question type</div>
+            <q-btn-toggle
+                v-model="internalQuizConfiguration.questionType"
+                :options="[
+                    { label: 'icon', value: 'icon' },
+                    { label: 'description', value: 'description' },
+                ]"
+                toggle-color="primary"
+                @input="onInput"
+            />
+        </div>
     </div>
 </template>
 
@@ -76,12 +92,13 @@ import Quiz, { quizList, QuizListInternalName } from 'src/models/Quiz';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
     // region Data
 
-    private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion = createDefaultQuizConfiguration();
+    private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationChampionSpell = createDefaultQuizConfiguration();
 
     // noinspection JSMismatchedCollectionQueryUpdate
     private quizList: Quiz[] = quizList;
@@ -151,6 +168,10 @@ export default class FormQuizConfiguration extends Vue {
 
         if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'skins' in this.internalQuizConfiguration) {
             this.internalQuizConfiguration.skins = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionSpell && 'questionType' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.questionType = undefined;
         }
     }
 

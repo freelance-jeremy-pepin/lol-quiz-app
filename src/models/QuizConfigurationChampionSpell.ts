@@ -3,6 +3,7 @@ import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
 
 export default interface QuizConfigurationChampionSpell extends QuizConfiguration {
     spells: ChampionSpellLolApi[];
+    questionType?: ChampionSpellQuestionType | string;
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -11,4 +12,9 @@ export function createDefaultQuizConfigurationChampionSpell(): QuizConfiguration
         ...createDefaultQuizConfiguration(),
         spells: [],
     };
+}
+
+export enum ChampionSpellQuestionType {
+    icon = 'icon',
+    description = 'description',
 }
