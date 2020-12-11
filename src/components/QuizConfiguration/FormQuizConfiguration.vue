@@ -109,7 +109,8 @@ export default class FormQuizConfiguration extends Vue {
 
     // noinspection JSUnusedLocalSymbols
     private mounted() {
-        this.restoreFormLocalStorage();
+        this.restoreQuizSelectedFromLocalStorage();
+        this.restoreQuizConfigurationFromLocalStorage();
         this.internalQuizConfiguration.withStopWatch = false;
     }
 
@@ -120,11 +121,13 @@ export default class FormQuizConfiguration extends Vue {
     private onQuizChanged(quiz: Quiz) {
         this.internalQuizConfiguration.quiz = quiz;
 
-        this.onInput();
+        this.saveQuizSelectedInLocalStorage();
+
+        this.restoreQuizConfigurationFromLocalStorage();
     }
 
     private onInput() {
-        this.saveInLocalStorage();
+        this.saveQuizConfigurationInLocalStorage();
         this.$emit('input', this.internalQuizConfiguration);
     }
 
@@ -132,23 +135,57 @@ export default class FormQuizConfiguration extends Vue {
 
     // region Methods
 
-    private restoreFormLocalStorage() {
-        const quizConfigurationInLocalStorage = this.$q.localStorage.getItem('quiz-configuration') as QuizConfiguration;
+    private restoreQuizSelectedFromLocalStorage() {
+        const quizSelectedInLocalStorage = this.$q.localStorage.getItem('quiz-selected') as string | undefined;
 
-        if (quizConfigurationInLocalStorage) {
-            this.$emit('input', quizConfigurationInLocalStorage);
-            this.internalQuizConfiguration = quizConfigurationInLocalStorage;
+        if (quizSelectedInLocalStorage) {
+            const quizFound = quizList.find(q => q.id === quizSelectedInLocalStorage);
+
+            if (quizFound) {
+                this.internalQuizConfiguration.quiz = quizFound;
+            }
         }
     }
 
-    private saveInLocalStorage() {
+    private restoreQuizConfigurationFromLocalStorage() {
+        const quizConfigurationsInLocalStorage = this.$q.localStorage.getItem('quiz-configurations') as QuizConfiguration[] | undefined;
+
+        if (quizConfigurationsInLocalStorage) {
+            const quizConfigurationInLocalStorage = quizConfigurationsInLocalStorage.find(qc => qc.quiz.id === this.internalQuizConfiguration.quiz.id);
+
+            if (quizConfigurationInLocalStorage) {
+                this.$emit('input', quizConfigurationInLocalStorage);
+                this.internalQuizConfiguration = quizConfigurationInLocalStorage;
+            }
+        }
+    }
+
+    private saveQuizSelectedInLocalStorage() {
+        this.$q.localStorage.set('quiz-selected', this.internalQuizConfiguration.quiz.id);
+
         const quizFound = quizList.find(q => q.internalName === this.internalQuizConfiguration.quiz.internalName);
 
         if (quizFound) {
             this.internalQuizConfiguration.quiz = quizFound;
         }
+    }
 
-        this.$q.localStorage.set('quiz-configuration', this.internalQuizConfiguration);
+    private saveQuizConfigurationInLocalStorage() {
+        let quizConfigurations: QuizConfiguration[] = [];
+
+        const quizConfigurationsInLocalStorage = this.$q.localStorage.getItem('quiz-configurations') as QuizConfiguration[];
+        if (quizConfigurationsInLocalStorage) {
+            quizConfigurations = quizConfigurationsInLocalStorage;
+        }
+
+        const quizConfigurationIndexFound = quizConfigurations.findIndex(qc => qc.quiz.id === this.internalQuizConfiguration.quiz.id);
+        if (quizConfigurationIndexFound > -1) {
+            quizConfigurations[quizConfigurationIndexFound] = { ...this.internalQuizConfiguration };
+        } else {
+            quizConfigurations.push(this.internalQuizConfiguration);
+        }
+
+        this.$q.localStorage.set('quiz-configurations', quizConfigurations);
     }
 
     // endregion
