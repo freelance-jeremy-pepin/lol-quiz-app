@@ -14,8 +14,8 @@
 
                 <template v-slot:icon-answer-history="props">
                     <spell-icon-champion
-                        v-if="quizConfiguration.champions"
-                        :champion-spell="getChampionSpell(props.index)"
+                        v-if="quizConfiguration.spells"
+                        :champion-spell="quizConfiguration.spells[props.index]"
                         with-tooltip
                     ></spell-icon-champion>
                 </template>
@@ -31,7 +31,6 @@ import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
 import SpellIconChampion from 'components/Champion/SpellIconChampion.vue';
 import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
-import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 
 @Component({
     components: {
@@ -39,7 +38,7 @@ import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
         IconAndInputQuizLayout,
     },
 })
-export default class ItemQuizLayout extends Vue {
+export default class ChampionSpellQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: true }) championSpellToGuess!: ChampionSpellLolApi;
@@ -59,20 +58,6 @@ export default class ItemQuizLayout extends Vue {
     // noinspection JSUnusedLocalSymbols
     private mounted() {
         QuizStore.setRefQuiz(this.$refs.quiz);
-    }
-
-    // endregion
-
-    // region Methods
-
-    private getChampionSpell(questionIndex: number): ChampionSpellLolApi | null {
-        const quizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
-
-        if (quizConfigurationChampion.spells) {
-            return quizConfigurationChampion.spells[questionIndex];
-        }
-
-        return null;
     }
 
     // endregion

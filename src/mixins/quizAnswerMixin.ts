@@ -12,6 +12,8 @@ import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import { copyToClipboard } from 'quasar';
 import { createDefaultPlayerAnswerHistory } from 'src/models/PlayerAnswerHistory';
 import { createNewTime } from 'src/models/Time';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
+import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
 
 @Component
 export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
@@ -133,7 +135,7 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
      * Sélectionne le prochain élément.
      * @public
      */
-    public pickNext(quizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune, addEmptyAnswerToHistory: boolean = true): ItemLolApi | ChampionLolApi | RuneLolApi | null {
+    public pickNext(quizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune | QuizConfigurationChampionSpell, addEmptyAnswerToHistory: boolean = true): ItemLolApi | ChampionLolApi | RuneLolApi | ChampionSpellLolApi | null {
         // Si la question actuelle du joueur dépasse le nombre total de questions du quiz,
         // cela veut dire qu'il a terminé le quiz.
         // Sinon, sélectionne le prochain objet.
@@ -157,7 +159,7 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
             currentQuestionNumber: this.player.currentQuestionNumber + 1,
         };
 
-        let elementToGuess: ItemLolApi | ChampionLolApi | RuneLolApi | null = null;
+        let elementToGuess: ItemLolApi | ChampionLolApi | RuneLolApi | ChampionSpellLolApi | null = null;
 
         if ('items' in quizConfiguration) {
             elementToGuess = quizConfiguration.items[this.player.currentQuestionNumber - 1];
@@ -165,6 +167,9 @@ export default class QuizAnswerMixin extends Mixins(QuizStoreMixin) {
             elementToGuess = quizConfiguration.champions[this.player.currentQuestionNumber - 1];
         } else if ('runes' in quizConfiguration) {
             elementToGuess = quizConfiguration.runes[this.player.currentQuestionNumber - 1];
+        }
+        if ('spells' in quizConfiguration) {
+            elementToGuess = quizConfiguration.spells[this.player.currentQuestionNumber - 1];
         }
 
         if (addEmptyAnswerToHistory) {

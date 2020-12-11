@@ -1,6 +1,6 @@
 <template>
     <champion-spell-quiz-layout
-        :champion-spell-to-guess="championSpellToGuess"
+        :champion-spell-to-guess="elementToGuess"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
     ></champion-spell-quiz-layout>
 </template>
@@ -11,8 +11,6 @@ import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
 import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
 import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
 import ChampionSpellQuizLayout from 'components/QuizLayout/ChampionSpellQuizLayout.vue';
-import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
-import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 
 @Component({
     components: {
@@ -22,20 +20,6 @@ import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
     },
 })
 export default class ChampionSpellPage extends Mixins(QuizAnswerMixin) {
-    // region Computed properties
-
-    private get championSpellToGuess(): ChampionSpellLolApi | null {
-        const quizConfigurationChampion = this.quizConfiguration as QuizConfigurationChampion;
-
-        if (quizConfigurationChampion.spells) {
-            return quizConfigurationChampion.spells[this.player.currentQuestionNumber - 1];
-        }
-
-        return null;
-    }
-
-    // endregion
-
     // region Event handlers
 
     private onCorrectAnswer() {

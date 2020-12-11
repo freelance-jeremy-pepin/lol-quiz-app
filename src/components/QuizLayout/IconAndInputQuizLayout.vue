@@ -125,7 +125,10 @@
                     Your answers:
                 </q-card-section>
 
-                <q-card-section v-if="lastPlayerAnswerHistory.answers.length > 0" class="q-pt-none">
+                <q-card-section
+                    v-if="lastPlayerAnswerHistory && lastPlayerAnswerHistory.answers.length > 0"
+                    class="q-pt-none"
+                >
                     <div v-for="answer in lastPlayerAnswerHistory.answers" :key="answer.id">
                         {{ answer.value }}
                     </div>

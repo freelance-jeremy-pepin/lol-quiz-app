@@ -16,6 +16,7 @@ import RuneLolApiStore from 'src/store/modules/LolApi/RuneLolApiStore';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import ChampionSkinLolApi from 'src/models/LolApi/ChampionSkinLolApi';
 import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
 
 @Component({
     filters: {
@@ -25,7 +26,7 @@ import ChampionSpellLolApi from 'src/models/LolApi/ChampionSpellLolApi';
     },
 })
 export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
-    public specialiseQuizConfiguration(quizConfiguration: QuizConfiguration): QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune {
+    public specialiseQuizConfiguration(quizConfiguration: QuizConfiguration): QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationRune | QuizConfigurationChampionSpell {
         switch (quizConfiguration.quiz.internalName) {
             case QuizListInternalName.ItemName:
             case QuizListInternalName.ItemPrice: {
@@ -142,41 +143,39 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
             }
 
             case QuizListInternalName.ChampionSpell: {
-                const quizConfigurationChampion: QuizConfigurationChampion = {
+                const quizConfigurationChampionSpell: QuizConfigurationChampionSpell = {
                     ...quizConfiguration,
-                    champions: [],
+                    spells: [],
                 };
 
                 if (ChampionLolApiStore.champions) {
                     const quizAnswers: QuizAnswer[] = [];
 
                     // Construit la liste des champions à deviner.
-                    const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampion.numberQuestions) as ChampionLolApi[];
+                    const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampionSpell.numberQuestions) as ChampionLolApi[];
 
-                    quizConfigurationChampion.spells = [];
+                    quizConfigurationChampionSpell.spells = [];
 
                     const abilityKeys = 'PQZER';
                     championsPicked.forEach((c, index) => {
                         let answerDescription: string | null = null;
 
-                        if (c.spells && quizConfigurationChampion.spells) {
-                            const spellIndex = randomNumber(0, c.spells.length);
-                            let spell: ChampionSpellLolApi;
+                        const spellIndex = randomNumber(0, c.spells.length);
+                        let spell: ChampionSpellLolApi;
 
-                            if (spellIndex === 0) {
-                                spell = c.passive;
-                                spell.isPassive = true;
-                            } else {
-                                spell = c.spells[spellIndex - 1];
-                                spell.isPassive = false;
-                            }
-
-                            const abilityKey = abilityKeys[spellIndex];
-                            spell.abilityKey = abilityKey;
-                            answerDescription = `${abilityKey} - ${spell.name}`;
-
-                            quizConfigurationChampion.spells[index] = spell;
+                        if (spellIndex === 0) {
+                            spell = c.passive;
+                            spell.isPassive = true;
+                        } else {
+                            spell = c.spells[spellIndex - 1];
+                            spell.isPassive = false;
                         }
+
+                        const abilityKey = abilityKeys[spellIndex];
+                        spell.abilityKey = abilityKey;
+                        answerDescription = `${abilityKey} - ${spell.name}`;
+
+                        quizConfigurationChampionSpell.spells[index] = spell;
 
                         const quizAnswer = createDefaultQuizAnswer();
                         quizAnswer.value = c.name;
@@ -188,11 +187,10 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                         quizAnswers.push(quizAnswer);
                     });
 
-                    quizConfigurationChampion.answers = quizAnswers;
-                    quizConfigurationChampion.champions = championsPicked;
+                    quizConfigurationChampionSpell.answers = quizAnswers;
                 }
 
-                return quizConfigurationChampion;
+                return quizConfigurationChampionSpell;
             }
 
             case QuizListInternalName.RuneName: {

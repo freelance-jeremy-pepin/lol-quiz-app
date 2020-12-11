@@ -24,7 +24,7 @@ export default interface ChampionLolApi {
     lore?: string;
     allytips?: string[];
     enemytips?: string[];
-    spells?: ChampionSpellLolApi[];
+    spells: ChampionSpellLolApi[];
     passive: ChampionSpellLolApi;
 }
 
