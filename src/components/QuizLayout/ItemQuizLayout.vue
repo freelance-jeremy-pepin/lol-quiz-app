@@ -6,11 +6,18 @@
                 v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
-                    <icon-item
-                        v-if="itemToGuess"
-                        :item="itemToGuess"
-                        :with-tooltip="!quizStageStore.isAnswering"
-                    ></icon-item>
+                    <div v-if="itemToGuess">
+                        <icon-item
+                            v-if="questionType === 'icon'"
+                            :item="itemToGuess"
+                            :with-tooltip="!quizStageStore.isAnswering"
+                        ></icon-item>
+
+                        <div
+                            v-if="questionType === 'description' && quizAnswer"
+                            v-html="itemToGuess.description.replaceAll(quizAnswer.value, '???')"
+                        ></div>
+                    </div>
                 </template>
 
                 <template v-slot:icon-answer-history="props">
@@ -32,6 +39,8 @@ import ItemLolApi from 'src/models/LolApi/ItemLolApi';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
 import QuizStageStore from 'src/store/modules/QuizStageStore';
+import QuizAnswer from 'src/models/QuizAnswer';
+import { RuneQuestionType } from 'src/models/QuizConfigurationRune';
 
 @Component({
     components: {
@@ -43,6 +52,10 @@ export default class ItemQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: true }) itemToGuess!: ItemLolApi;
+
+    @Prop({ required: true }) questionType!: RuneQuestionType;
+
+    @Prop({ required: true }) quizAnswer!: QuizAnswer;
 
     // endregion
 

@@ -56,7 +56,7 @@ export default class SinglePlayerPage extends Vue {
             query.skins = quizConfiguration.skins;
         }
 
-        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionSpell || this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.RuneName) {
+        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionSpell || this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.RuneName || this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ItemName) {
             const quizConfiguration: QuizConfigurationChampionSpell = this.internalQuizConfiguration as QuizConfigurationChampionSpell;
             query.questionType = quizConfiguration.questionType;
         }

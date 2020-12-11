@@ -14,7 +14,7 @@
 
                         <div
                             v-if="questionType === 'description' && quizAnswer"
-                            v-html="runeToGuess.shortDesc"
+                            v-html="runeToGuess.shortDesc.replaceAll(quizAnswer.value, '???')"
                         ></div>
                     </div>
 
@@ -38,8 +38,8 @@ import IconRune from 'components/Rune/IconRune.vue';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
-import { ChampionSpellQuestionType } from 'src/models/QuizConfigurationChampionSpell';
 import QuizAnswer from 'src/models/QuizAnswer';
+import { RuneQuestionType } from 'src/models/QuizConfigurationRune';
 
 @Component({
     components: {
@@ -52,7 +52,7 @@ export default class RuneQuizLayout extends Vue {
 
     @Prop({ required: true }) runeToGuess!: RuneLolApi;
 
-    @Prop({ required: true }) questionType!: ChampionSpellQuestionType;
+    @Prop({ required: true }) questionType!: RuneQuestionType;
 
     @Prop({ required: true }) quizAnswer!: QuizAnswer;
 

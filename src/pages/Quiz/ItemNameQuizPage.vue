@@ -1,6 +1,8 @@
 <template>
     <item-quiz-layout
         :item-to-guess="elementToGuess"
+        :question-type="quizConfiguration.questionType"
+        :quiz-answer="currentQuizAnswer"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
     ></item-quiz-layout>
 </template>
