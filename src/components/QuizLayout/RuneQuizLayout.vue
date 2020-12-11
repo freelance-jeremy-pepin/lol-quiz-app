@@ -6,10 +6,18 @@
                 v-on:verify-answer="$emit('verify-answer')"
             >
                 <template v-slot:image>
-                    <icon-rune
-                        v-if="runeToGuess"
-                        :rune="runeToGuess"
-                    ></icon-rune>
+                    <div v-if="runeToGuess">
+                        <icon-rune
+                            v-if="questionType === 'icon'"
+                            :rune="runeToGuess"
+                        ></icon-rune>
+
+                        <div
+                            v-if="questionType === 'description' && quizAnswer"
+                            v-html="runeToGuess.shortDesc"
+                        ></div>
+                    </div>
+
                 </template>
 
                 <template v-slot:icon-answer-history="props">
@@ -30,6 +38,8 @@ import IconRune from 'components/Rune/IconRune.vue';
 import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 import QuizConfiguration from 'src/models/QuizConfiguration';
 import QuizStore from 'src/store/modules/QuizStore';
+import { ChampionSpellQuestionType } from 'src/models/QuizConfigurationChampionSpell';
+import QuizAnswer from 'src/models/QuizAnswer';
 
 @Component({
     components: {
@@ -41,6 +51,10 @@ export default class RuneQuizLayout extends Vue {
     // region Props
 
     @Prop({ required: true }) runeToGuess!: RuneLolApi;
+
+    @Prop({ required: true }) questionType!: ChampionSpellQuestionType;
+
+    @Prop({ required: true }) quizAnswer!: QuizAnswer;
 
     // endregion
 

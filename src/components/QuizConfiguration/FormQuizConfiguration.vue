@@ -69,7 +69,7 @@
         </div>
 
         <div
-            v-if="internalQuizConfiguration.quiz.internalName === 'champion-spell'"
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-spell' || internalQuizConfiguration.quiz.internalName === 'rune-name'"
             class="q-pt-md"
         >
             <div class="text-bold">Question type</div>
@@ -170,7 +170,7 @@ export default class FormQuizConfiguration extends Vue {
             this.internalQuizConfiguration.skins = undefined;
         }
 
-        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionSpell && 'questionType' in this.internalQuizConfiguration) {
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionSpell && this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.RuneName && 'questionType' in this.internalQuizConfiguration) {
             this.internalQuizConfiguration.questionType = undefined;
         }
     }

@@ -1,5 +1,7 @@
 <template>
     <rune-quiz-layout
+        :question-type="quizConfiguration.questionType"
+        :quiz-answer="currentQuizAnswer"
         :rune-to-guess="elementToGuess"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
     ></rune-quiz-layout>

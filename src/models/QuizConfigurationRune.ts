@@ -3,6 +3,7 @@ import RuneLolApi from 'src/models/LolApi/RuneLolApi';
 
 export default interface QuizConfigurationRune extends QuizConfiguration {
     runes: RuneLolApi[];
+    questionType?: RuneQuestionType | string;
 }
 
 export function createDefaultQuizConfigurationRune(): QuizConfigurationRune {
@@ -10,4 +11,9 @@ export function createDefaultQuizConfigurationRune(): QuizConfigurationRune {
         ...createDefaultQuizConfiguration(),
         runes: [],
     };
+}
+
+export enum RuneQuestionType {
+    icon = 'icon',
+    description = 'description',
 }
