@@ -52,6 +52,10 @@ export default class ChampionLolApiRepository extends LolApiRepository {
         return this.getImageUrl(champion, skinNum, ImageTypesChampionLolApi.loading);
     }
 
+    public getPortraitImageUrl(champion: ChampionLolApi) {
+        return this.getImageUrl(champion, 0, ImageTypesChampionLolApi.portrait);
+    }
+
     public getPassiveImageUrl(spellImageFull: string) {
         return `${this.baseUrl}/img/passive/${spellImageFull}`;
     }
@@ -71,10 +75,23 @@ export default class ChampionLolApiRepository extends LolApiRepository {
 
     private getImageUrl(champion: ChampionLolApi, skinNum: number, imgType: ImageTypesChampionLolApi) {
         if (champion.image?.full) {
-            const championName = champion.image.full.split('.')[0];
-            const extension = 'jpg';
+            const championNameWithExtension = champion.image.full;
+            const championName = championNameWithExtension.split('.')[0];
+            let extension = championNameWithExtension.split('.')[1];
 
-            return `${this.baseUrlWithoutVersion}/img/champion/${imgType}/${championName}_${skinNum}.${extension}`;
+            switch (imgType) {
+                case ImageTypesChampionLolApi.loading:
+                case ImageTypesChampionLolApi.splash:
+                    extension = 'jpg';
+
+                    return `${this.baseUrlWithoutVersion}/img/champion/${imgType}/${championName}_${skinNum}.${extension}`;
+
+                case ImageTypesChampionLolApi.portrait:
+                    return `${this.baseUrl}/img/champion/${championNameWithExtension}`;
+
+                default:
+                    return '';
+            }
         }
 
         return '';

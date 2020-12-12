@@ -142,6 +142,36 @@ export default class QuizConfigurationMixin extends Mixins(SocketMixin) {
                 return quizConfigurationChampion;
             }
 
+            case QuizListInternalName.ChampionLore: {
+                const quizConfigurationChampion: QuizConfigurationChampion = {
+                    ...quizConfiguration,
+                    champions: [],
+                };
+
+                if (ChampionLolApiStore.champions) {
+                    const quizAnswers: QuizAnswer[] = [];
+
+                    // Construit la liste des champions à deviner.
+                    const championsPicked = this.pickRandoms(ChampionLolApiStore.champions, quizConfigurationChampion.numberQuestions) as ChampionLolApi[];
+
+                    if (quizConfigurationChampion.skins) {
+                        quizConfigurationChampion.skinsIndex = [];
+                    }
+
+                    championsPicked.forEach((c) => {
+                        const quizAnswer = createDefaultQuizAnswer();
+                        quizAnswer.value = c.name;
+
+                        quizAnswers.push(quizAnswer);
+                    });
+
+                    quizConfigurationChampion.answers = quizAnswers;
+                    quizConfigurationChampion.champions = championsPicked;
+                }
+
+                return quizConfigurationChampion;
+            }
+
             case QuizListInternalName.ChampionSpell: {
                 const quizConfigurationChampionSpell: QuizConfigurationChampionSpell = {
                     ...quizConfiguration,

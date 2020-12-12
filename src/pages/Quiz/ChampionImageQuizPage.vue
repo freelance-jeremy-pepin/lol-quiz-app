@@ -1,30 +1,30 @@
 <template>
-    <champion-quiz-layout
+    <champion-image-quiz-layout
         :champion-to-guess="elementToGuess"
         :pixelated-value="pixelateValue"
         :skin-number="skinNumber"
         @skip="pixelateValue = 50"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
         v-on:image-champion-loaded="onImageChampionLoaded"
-    ></champion-quiz-layout>
+    ></champion-image-quiz-layout>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator';
-import ChampionQuizLayout from 'components/QuizLayout/ChampionImageQuizLayout.vue';
 import { FindChampionWithSplashArtScoreCalculation, findChampionWithSplashArtScoreCalculation } from 'src/models/Quiz';
 import ImageChampion from 'components/Champion/ImageChampion.vue';
 import { ImageTypesChampionLolApi, SkinTypes } from 'src/models/LolApi/ChampionLolApi';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
+import ChampionImageQuizLayout from 'components/QuizLayout/ChampionImageQuizLayout.vue';
 
 @Component({
     components: {
+        ChampionImageQuizLayout,
         ImageChampion,
-        ChampionQuizLayout,
     },
 })
-export default class ChampionImagePage extends Mixins(QuizAnswerMixin) {
+export default class ChampionImageQuizPage extends Mixins(QuizAnswerMixin) {
     // region Data
 
     private pixelateValue: number = 999;

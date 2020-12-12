@@ -31,7 +31,7 @@ const routes: RouteConfig[] = [
         path: '/quiz/champion-image',
         component: () => import('layouts/QuizLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Quiz/ChampionImagePage.vue') },
+            { path: '', component: () => import('pages/Quiz/ChampionImageQuizPage.vue') },
         ],
         props: true,
     },
@@ -40,7 +40,7 @@ const routes: RouteConfig[] = [
         path: '/quiz/champion-spell',
         component: () => import('layouts/QuizLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/Quiz/ChampionSpellPage.vue') },
+            { path: '', component: () => import('pages/Quiz/ChampionSpellQuizPage.vue') },
         ],
         props: true,
     },
@@ -50,6 +50,15 @@ const routes: RouteConfig[] = [
         component: () => import('layouts/QuizLayout.vue'),
         children: [
             { path: '', component: () => import('pages/Quiz/RuneNameQuizPage.vue') },
+        ],
+        props: true,
+    },
+
+    {
+        path: '/quiz/champion-lore',
+        component: () => import('layouts/QuizLayout.vue'),
+        children: [
+            { path: '', component: () => import('pages/Quiz/ChampionLoreQuizPage.vue') },
         ],
         props: true,
     },

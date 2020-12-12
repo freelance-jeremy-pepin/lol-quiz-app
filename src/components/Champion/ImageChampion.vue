@@ -3,7 +3,16 @@
         :id="canvassId"
         :height="size.height * ratioImage"
         :width="size.width * ratioImage"
-    ></canvas>
+    >
+        <q-tooltip
+            v-if="loreAsTooltip && champion.lore"
+            content-class="bg-black"
+            content-style="font-size: 16px;"
+            max-width="400px"
+        >
+            <div v-html="champion.lore"></div>
+        </q-tooltip>
+    </canvas>
 </template>
 
 <script lang="ts">
@@ -19,13 +28,15 @@ export default class ImageChampion extends Vue {
 
     @Prop({ required: true }) imageType!: ImageTypesChampionLolApi;
 
-    @Prop({ required: true }) skinNumber!: number;
-
     @Prop({ required: true }) champion!: ChampionLolApi;
+
+    @Prop({ required: false, default: 0 }) skinNumber!: number;
 
     @Prop({ required: false, default: 1 }) ratioImage!: number;
 
     @Prop({ required: false, default: 1 }) pixelateValue!: number;
+
+    @Prop({ required: false, default: false, type: Boolean }) loreAsTooltip!: boolean;
 
     // endregion
 
@@ -37,6 +48,8 @@ export default class ImageChampion extends Vue {
                 return { height: 560, width: 308 };
             case ImageTypesChampionLolApi.splash:
                 return { height: 717, width: 1215 };
+            case ImageTypesChampionLolApi.portrait:
+                return { height: 120, width: 120 };
             default:
                 return { height: 0, width: 0 };
         }
@@ -135,6 +148,8 @@ export default class ImageChampion extends Vue {
                 return new ChampionLolApiRepository().getLoadingImageUrl(this.champion, this.skinNumber);
             case ImageTypesChampionLolApi.splash:
                 return new ChampionLolApiRepository().getSplashImageUrl(this.champion, this.skinNumber);
+            case ImageTypesChampionLolApi.portrait:
+                return new ChampionLolApiRepository().getPortraitImageUrl(this.champion);
             default:
                 return '';
         }

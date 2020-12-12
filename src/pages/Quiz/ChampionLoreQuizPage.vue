@@ -1,27 +1,26 @@
 <template>
-    <champion-spell-quiz-layout
-        :champion-spell-to-guess="elementToGuess"
-        :question-type="quizConfiguration.questionType"
+    <champion-lore-quiz-layout
+        :champion-to-guess="elementToGuess"
         :quiz-answer="currentQuizAnswer"
         v-on:verify-answer="onVerifyAnswer(onCorrectAnswer)"
-    ></champion-spell-quiz-layout>
+    ></champion-lore-quiz-layout>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator';
-import ResultQuiz from 'components/Quiz/ResultQuiz.vue';
-import IconAndInputQuizLayout from 'components/QuizLayout/IconAndInputQuizLayout.vue';
+import ChampionQuizLayout from 'components/QuizLayout/ChampionImageQuizLayout.vue';
+import ImageChampion from 'components/Champion/ImageChampion.vue';
 import QuizAnswerMixin from 'src/mixins/quizAnswerMixin';
-import ChampionSpellQuizLayout from 'components/QuizLayout/ChampionSpellQuizLayout.vue';
+import ChampionLoreQuizLayout from 'components/QuizLayout/ChampionLoreQuizLayout.vue';
 
 @Component({
     components: {
-        ChampionSpellQuizLayout,
-        IconAndInputQuizLayout,
-        ResultQuiz,
+        ChampionLoreQuizLayout,
+        ImageChampion,
+        ChampionQuizLayout,
     },
 })
-export default class ChampionSpellPage extends Mixins(QuizAnswerMixin) {
+export default class ChampionLoreQuizPage extends Mixins(QuizAnswerMixin) {
     // region Event handlers
 
     private onCorrectAnswer() {

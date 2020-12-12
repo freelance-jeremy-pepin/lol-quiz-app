@@ -31,6 +31,7 @@ export default interface ChampionLolApi {
 export enum ImageTypesChampionLolApi {
     splash = 'splash',
     loading = 'loading',
+    portrait = 'portrait',
 }
 
 export enum SkinTypes {
