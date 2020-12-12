@@ -9,42 +9,32 @@
             style="max-width: 500px;"
             @action="onToggleIsReady"
         >
-            <q-card-section>
-                <div class="text-bold text-h6">
-                    Quiz:
-                </div>
-
-                <ul class="q-mt-none">
-                    <li> {{ room.quizConfiguration.quiz.name }}</li>
-                    <li> {{ room.quizConfiguration.numberQuestions }} questions</li>
-                    <li> {{ room.quizConfiguration.withStopWatch | formatWithStopWatch }}</li>
-                    <li v-if="room.quizConfiguration.imageType"> Image type: {{ room.quizConfiguration.imageType }}</li>
-                    <li v-if="room.quizConfiguration.skins"> Skins: {{ room.quizConfiguration.skins }}</li>
-                </ul>
+            <q-card-section align="center" class="q-pb-lg">
+                <form-quiz-configuration
+                    v-model="room.quizConfiguration"
+                    :read-only="room.ownerId !== me.id"
+                    v-on:form-changed="onFormQuizConfigurationChanged"
+                ></form-quiz-configuration>
             </q-card-section>
 
-            <q-card-section class="q-pt-none">
+            <q-separator></q-separator>
+
+            <q-card-section class="text-center">
                 <div class="text-bold text-h6">
                     Players ({{ room.players.length }}):
                 </div>
 
-                <div v-for="player in room.players" :key="player.id">
+                <div
+                    v-for="player in room.players"
+                    :key="player.id"
+                    :class="`text-bold text-${$options.filters.transformIsReadyIntoColor(player.isReady)}`"
+                >
                     {{ getPseudoById(player.userId) }}
-                    <span
-                        :class="`text-${$options.filters.transformIsReadyIntoColor(player.isReady)}`"
-                        class="text-bold"
-                    >
-                        ({{ player.isReady | transformIsReadyIntoLabel }})
-                    </span>
                 </div>
             </q-card-section>
         </card-with-title-and-action>
 
         <q-btn class="full-width" color="grey" flat @click="onLeaveRoom">Leave room</q-btn>
-
-        <q-page-sticky v-if="room.ownerId === me.id" :offset="[18, 18]" position="bottom-right">
-            <q-btn color="accent" fab icon="edit" @click="onEditRoom" />
-        </q-page-sticky>
 
         <form-room v-model="formRoom.display" :room="formRoom.room" edit-mode></form-room>
     </div>
@@ -60,9 +50,10 @@ import Player from 'src/models/Player';
 import CardWithTitleAndAction from 'components/Common/CardWithTitleAndAction.vue';
 import PlayerMixin from 'src/mixins/playerMixin';
 import FormRoom from 'components/Room/FormRoom.vue';
+import FormQuizConfiguration from 'components/QuizConfiguration/FormQuizConfiguration.vue';
 
 @Component({
-    components: { FormRoom, CardWithTitleAndAction },
+    components: { FormQuizConfiguration, FormRoom, CardWithTitleAndAction },
 })
 export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfigurationMixin, PlayerMixin) {
     // region Props
@@ -127,17 +118,16 @@ export default class JoinedRoom extends Mixins(SocketMixin, UserMixin, QuizConfi
         this.toggleIsReady();
     }
 
-    private onEditRoom() {
-        this.formRoom = {
-            room: this.room,
-            display: true,
-        };
-    }
-
     public onKeyPress(e: KeyboardEvent) {
         if (e.key === 'r') {
             this.onToggleIsReady();
         }
+    }
+
+    private onFormQuizConfigurationChanged() {
+        this.room.quizConfiguration = this.specialiseQuizConfiguration(this.room.quizConfiguration);
+
+        this.roomSocketStore.createOrUpdateRoom(this.room);
     }
 
     // endregion

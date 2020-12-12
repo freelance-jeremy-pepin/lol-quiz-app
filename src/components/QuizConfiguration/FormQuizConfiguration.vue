@@ -3,7 +3,7 @@
         <div>
             <div class="text-bold">Quiz</div>
 
-            <q-btn color="primary" icon-right="keyboard_arrow_down">
+            <q-btn :disable="readOnly" color="primary">
                 <q-menu fit>
                     <q-list style="min-width: 100px">
                         <div v-for="(quiz, index) in quizList" :key="quiz.id">
@@ -22,6 +22,7 @@
             <div class="text-bold">Number of questions</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.numberQuestions"
+                :disable="readOnly"
                 :options="[
                     { label: '1', value: 1 },
                     { label: '5', value: 5 },
@@ -42,6 +43,7 @@
             <div class="text-bold">Image type</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.imageType"
+                :disable="readOnly"
                 :options="[
                     { label: 'splash', value: 'splash' },
                     { label: 'loading', value: 'loading' },
@@ -59,6 +61,7 @@
             <div class="text-bold">Skins</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.skins"
+                :disable="readOnly"
                 :options="[
                     { label: 'only default', value: 'only default' },
                     { label: 'all without default', value: 'all without default' },
@@ -76,6 +79,7 @@
             <div class="text-bold">Question type</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.questionType"
+                :disable="readOnly"
                 :options="[
                     { label: 'icon', value: 'icon' },
                     { label: 'description', value: 'description' },
@@ -88,7 +92,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import Quiz, { quizList, QuizListInternalName } from 'src/models/Quiz';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
@@ -98,6 +102,12 @@ import { ImageTypesChampionLolApi } from 'src/models/LolApi/ChampionLolApi';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
+    // region Props
+
+    @Prop({ required: false, default: false, type: Boolean }) readOnly!: boolean;
+
+    // endregion
+
     // region Data
 
     private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationChampionSpell = createDefaultQuizConfiguration();
@@ -126,11 +136,14 @@ export default class FormQuizConfiguration extends Vue {
         this.saveQuizSelectedInLocalStorage();
 
         this.restoreQuizConfigurationFromLocalStorage();
+
+        this.$emit('form-changed');
     }
 
     private onInput() {
         this.saveQuizConfigurationInLocalStorage();
         this.$emit('input', this.internalQuizConfiguration);
+        this.$emit('form-changed');
     }
 
     // endregion
