@@ -130,6 +130,7 @@ export const quizList: Quiz[] = [
 
 export interface FindChampionWithSplashArtScoreCalculation {
     secondMin: number;
+    pixelateValuePortrait: number;
     pixelateValueSplashDefaultSkin: number;
     pixelateValueLoadingDefaultSkin: number;
     pixelateValueSplashAllSkins: number;
@@ -140,6 +141,7 @@ export interface FindChampionWithSplashArtScoreCalculation {
 export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashArtScoreCalculation[] = [
     {
         secondMin: 15,
+        pixelateValuePortrait: 20,
         pixelateValueSplashDefaultSkin: 90,
         pixelateValueLoadingDefaultSkin: 40,
         pixelateValueSplashAllSkins: 25,
@@ -148,6 +150,7 @@ export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashAr
     },
     {
         secondMin: 10,
+        pixelateValuePortrait: 15,
         pixelateValueSplashDefaultSkin: 75,
         pixelateValueLoadingDefaultSkin: 30,
         pixelateValueSplashAllSkins: 20,
@@ -156,6 +159,7 @@ export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashAr
     },
     {
         secondMin: 5,
+        pixelateValuePortrait: 10,
         pixelateValueSplashDefaultSkin: 60,
         pixelateValueLoadingDefaultSkin: 20,
         pixelateValueSplashAllSkins: 15,
@@ -164,6 +168,7 @@ export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashAr
     },
     {
         secondMin: 0,
+        pixelateValuePortrait: 5,
         pixelateValueSplashDefaultSkin: 45,
         pixelateValueLoadingDefaultSkin: 10,
         pixelateValueSplashAllSkins: 10,
@@ -172,6 +177,7 @@ export const findChampionWithSplashArtScoreCalculation: FindChampionWithSplashAr
     },
     {
         secondMin: -1,
+        pixelateValuePortrait: 1,
         pixelateValueSplashDefaultSkin: 1,
         pixelateValueLoadingDefaultSkin: 1,
         pixelateValueSplashAllSkins: 1,

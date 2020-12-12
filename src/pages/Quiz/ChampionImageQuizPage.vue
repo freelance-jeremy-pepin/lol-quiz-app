@@ -118,6 +118,9 @@ export default class ChampionImageQuizPage extends Mixins(QuizAnswerMixin) {
                 }
 
                 break;
+            case ImageTypesChampionLolApi.portrait:
+                return scoreCalculation.pixelateValuePortrait;
+
             default:
                 return 999;
         }
@@ -133,6 +136,7 @@ export default class ChampionImageQuizPage extends Mixins(QuizAnswerMixin) {
         }
 
         return {
+            pixelateValuePortrait: 1,
             pixelateValueSplashDefaultSkin: 1,
             pixelateValueLoadingDefaultSkin: 1,
             pixelateValueLoadingAllSkins: 1,

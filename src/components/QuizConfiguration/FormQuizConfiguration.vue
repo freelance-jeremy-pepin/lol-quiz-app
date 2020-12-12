@@ -45,6 +45,7 @@
                 :options="[
                     { label: 'splash', value: 'splash' },
                     { label: 'loading', value: 'loading' },
+                    { label: 'portrait', value: 'portrait' },
                 ]"
                 toggle-color="primary"
                 @input="onInput"
@@ -52,7 +53,7 @@
         </div>
 
         <div
-            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image'"
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image' && internalQuizConfiguration.imageType !== 'portrait'"
             class="q-pt-md"
         >
             <div class="text-bold">Skins</div>
@@ -93,6 +94,7 @@ import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/Qu
 import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
 import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
 import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
+import { ImageTypesChampionLolApi } from 'src/models/LolApi/ChampionLolApi';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
@@ -209,6 +211,10 @@ export default class FormQuizConfiguration extends Vue {
 
         if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionSpell && this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.RuneName && this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ItemName && 'questionType' in this.internalQuizConfiguration) {
             this.internalQuizConfiguration.questionType = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionImage && this.internalQuizConfiguration.imageType === ImageTypesChampionLolApi.portrait) {
+            this.internalQuizConfiguration.skins = 'only default';
         }
     }
 

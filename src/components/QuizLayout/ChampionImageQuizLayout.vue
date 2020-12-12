@@ -11,7 +11,7 @@
                         :champion="championToGuess"
                         :image-type="quizConfiguration.imageType"
                         :pixelate-value="pixelatedValue"
-                        :ratio-image="0.7"
+                        :ratio-image="quizConfiguration.imageType === 'portrait' ? 1 : 0.7"
                         :skin-number="skinNumber"
                         v-on:image-loaded="$emit('image-champion-loaded')"
                     ></image-champion>
@@ -22,7 +22,7 @@
                         v-if="quizConfiguration.champions"
                         :champion="quizConfiguration.champions[props.index]"
                         :image-type="quizConfiguration.imageType"
-                        :ratio-image="0.2"
+                        :ratio-image="quizConfiguration.imageType === 'portrait' ? 0.7 : 0.2"
                         :skin-number="quizConfiguration.skinsIndex[props.index]"
                     ></image-champion>
                 </template>
