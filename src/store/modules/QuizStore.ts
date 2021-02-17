@@ -2,6 +2,8 @@ import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 import store from 'src/store';
 import Player, { createDefaultPlayer } from 'src/models/Player';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
+import { Time } from 'src/models/Time';
+import { ElementToGuess } from 'src/models/ElementToGuess';
 
 @Module({
     dynamic: true,
@@ -12,11 +14,13 @@ import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/Qu
 class QuizStore extends VuexModule {
     // region State
 
+    private _elementToGuess: ElementToGuess | null = null;
+
     /**
      * Réponse donnée par le joueur.
-     * @public
+     * @private
      */
-    public _answerGivenByPlayer: string = '';
+    private _answerGivenByPlayer: string = '';
 
     /**
      * Joueur du quiz.
@@ -32,13 +36,27 @@ class QuizStore extends VuexModule {
 
     /**
      * Configuration du quiz.
-     * @public
+     * @private
      */
-    public _quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+    private _quizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+
+    private _timeElapsed: Time | null = null;
+
+    private _timeRemaining: Time | null = null;
+
+    private _displayPlayersAnswersHistories: boolean = false;
+
+    // eslint-disable-next-line
+    private _refQuiz: any | null = null;
 
     // endregion
 
     // region Mutations
+
+    @Mutation
+    public setElementToGuess(elementToGuess: ElementToGuess | null) {
+        this._elementToGuess = elementToGuess;
+    }
 
     @Mutation
     public setAnswerGivenByPlayer(answerGivenByPlayer: string) {
@@ -60,9 +78,34 @@ class QuizStore extends VuexModule {
         this._quizConfiguration = quizConfiguration;
     }
 
+    @Mutation
+    public setTimeElapsed(timeElapsed: Time | null) {
+        this._timeElapsed = timeElapsed;
+    }
+
+    @Mutation
+    public setTimeRemaining(timeRemaining: Time | null) {
+        this._timeRemaining = timeRemaining;
+    }
+
+    @Mutation
+    public setDisplayPlayersAnswersHistories(displayPlayersAnswersHistories: boolean) {
+        this._displayPlayersAnswersHistories = displayPlayersAnswersHistories;
+    }
+
+    @Mutation
+    // eslint-disable-next-line
+    public setRefQuiz(refAnswerInput: any) {
+        this._refQuiz = refAnswerInput;
+    }
+
     // endregion
 
     // region Getters
+
+    public get elementToGuess(): ElementToGuess | null {
+        return this._elementToGuess;
+    }
 
     public get answerGivenByPlayer(): string {
         return this._answerGivenByPlayer;
@@ -78,6 +121,24 @@ class QuizStore extends VuexModule {
 
     public get quizConfiguration(): QuizConfiguration {
         return this._quizConfiguration;
+    }
+
+    public get timeElapsed(): Time | null {
+        return this._timeElapsed;
+    }
+
+    public get timeRemaining(): Time | null {
+        return this._timeRemaining;
+    }
+
+    public get displayPlayersAnswersHistories(): boolean {
+        return this._displayPlayersAnswersHistories;
+    }
+
+    // eslint-disable-next-line
+    public get refQuiz(): any | null {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._refQuiz;
     }
 
     // endregion

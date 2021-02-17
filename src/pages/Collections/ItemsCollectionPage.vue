@@ -27,6 +27,7 @@ export default class ItemsCollectionPage extends Vue {
     // region Events handlers
 
     private onItemClick(item: ItemLolApi) {
+        // eslint-disable-next-line no-console
         console.log(item);
     }
 

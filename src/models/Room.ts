@@ -9,6 +9,8 @@ export default interface Room extends Model {
     ownerId: string; // ID d'un User.
     players: Player[];
     inGame: boolean;
+    nextRoomId?: string;
+    expiresAt: Date;
 }
 
 export function createDefaultRoom(): Room {
@@ -19,5 +21,6 @@ export function createDefaultRoom(): Room {
         ownerId: '',
         players: [],
         inGame: false,
+        expiresAt: new Date(new Date().getTime() + 3600000),
     };
 }

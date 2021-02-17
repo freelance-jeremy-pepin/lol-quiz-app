@@ -56,6 +56,26 @@ export default class RoomSocketStore extends VuexModule {
 
     @Mutation
     public SOCKET_ROOM_BY_ID(room: Room | null) {
+        if (room?.players) {
+            room.players = room.players.map(p => {
+                p.answersHistory.map(ah => {
+                    // noinspection SuspiciousTypeOfGuard
+                    if (typeof ah.startDate === 'string') {
+                        ah.startDate = new Date(ah.startDate);
+                    }
+
+                    // noinspection SuspiciousTypeOfGuard
+                    if (typeof ah.endDate === 'string') {
+                        ah.endDate = new Date(ah.endDate);
+                    }
+
+                    return ah;
+                });
+
+                return p;
+            });
+        }
+
         this._room = room;
     }
 

@@ -3,11 +3,18 @@ import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/Qu
 
 export default interface QuizConfigurationItem extends QuizConfiguration {
     items: ItemLolApi[];
+    questionType?: ItemQuestionType | string;
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function createDefaultQuizConfigurationItem(): QuizConfigurationItem {
     return {
         ...createDefaultQuizConfiguration(),
         items: [],
     };
+}
+
+export enum ItemQuestionType {
+    icon = 'icon',
+    description = 'description',
 }

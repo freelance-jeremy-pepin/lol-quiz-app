@@ -26,7 +26,8 @@
                         color="primary"
                         flat
                         @click="onJoinRoom(room)"
-                    >Join room
+                    >
+                        Join room
                     </q-btn>
                     <q-btn
                         v-if="room.ownerId === me.id"
@@ -42,7 +43,8 @@
                                     <q-item-section
                                         class="text-negative"
                                         @click="onDeleteRoom(room)"
-                                    >Delete room
+                                    >
+                                        Delete room
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -94,7 +96,7 @@ export default class ListRoom extends Mixins(SocketMixin, UserMixin, QuizConfigu
 
     // region Methods
 
-    private joinRoom(roomToJoin: Room) {
+    public joinRoom(roomToJoin: Room) {
         if (this.user) {
             let player = createDefaultPlayer();
 

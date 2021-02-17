@@ -1,7 +1,7 @@
 <template>
     <q-card
         :align="centerContent ? 'center' : ''"
-        :style="`max-width: ${maxWidth}px !important; width: 100% !important;`"
+        class="full-width"
     >
         <q-card-section v-if="title" align="center" class="bg-primary text-white">
             <div class="text-h4">{{ title }}</div>
@@ -18,7 +18,8 @@
                 size="lg"
                 style="border-top-left-radius: 0; border-top-right-radius: 0;"
                 @click="$emit('action')"
-            >{{ actionLabel }}
+            >
+                {{ actionLabel }}
             </q-btn>
         </q-card-actions>
     </q-card>
@@ -42,8 +43,6 @@ export default class CardWithTitleAndAction extends Vue {
     @Prop({ required: false, default: true, type: Boolean }) centerContent!: boolean;
 
     @Prop({ required: false, default: false, type: Boolean }) actionDisable!: boolean;
-
-    @Prop({ required: false, default: 400 }) maxWidth!: number;
 
     // endregion
 }

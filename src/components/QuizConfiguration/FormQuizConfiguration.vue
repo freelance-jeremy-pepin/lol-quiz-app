@@ -3,7 +3,7 @@
         <div>
             <div class="text-bold">Quiz</div>
 
-            <q-btn color="primary" icon-right="keyboard_arrow_down">
+            <q-btn :disable="readOnly" color="primary">
                 <q-menu fit>
                     <q-list style="min-width: 100px">
                         <div v-for="(quiz, index) in quizList" :key="quiz.id">
@@ -22,6 +22,7 @@
             <div class="text-bold">Number of questions</div>
             <q-btn-toggle
                 v-model="internalQuizConfiguration.numberQuestions"
+                :disable="readOnly"
                 :options="[
                     { label: '1', value: 1 },
                     { label: '5', value: 5 },
@@ -35,14 +36,54 @@
             />
         </div>
 
-        <div class="q-pt-md">
-            <div class="text-bold">With stopwatch</div>
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Image type</div>
             <q-btn-toggle
-                v-model="internalQuizConfiguration.withStopWatch"
+                v-model="internalQuizConfiguration.imageType"
+                :disable="readOnly"
                 :options="[
-                    {label: 'Yes', value: true},
-                    {label: 'No', value: false},
-                  ]"
+                    { label: 'splash', value: 'splash' },
+                    { label: 'loading', value: 'loading' },
+                    { label: 'portrait', value: 'portrait' },
+                ]"
+                toggle-color="primary"
+                @input="onInput"
+            />
+        </div>
+
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-image' && internalQuizConfiguration.imageType !== 'portrait'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Skins</div>
+            <q-btn-toggle
+                v-model="internalQuizConfiguration.skins"
+                :disable="readOnly"
+                :options="[
+                    { label: 'only default', value: 'only default' },
+                    { label: 'all without default', value: 'all without default' },
+                    { label: 'all', value: 'all' },
+                ]"
+                toggle-color="primary"
+                @input="onInput"
+            />
+        </div>
+
+        <div
+            v-if="internalQuizConfiguration.quiz.internalName === 'champion-spell' || internalQuizConfiguration.quiz.internalName === 'rune-name' || internalQuizConfiguration.quiz.internalName === 'item-name'"
+            class="q-pt-md"
+        >
+            <div class="text-bold">Question type</div>
+            <q-btn-toggle
+                v-model="internalQuizConfiguration.questionType"
+                :disable="readOnly"
+                :options="[
+                    { label: 'icon', value: 'icon' },
+                    { label: 'description', value: 'description' },
+                ]"
                 toggle-color="primary"
                 @input="onInput"
             />
@@ -51,16 +92,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import Quiz, { quizList } from 'src/models/Quiz';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import Quiz, { quizList, QuizListInternalName } from 'src/models/Quiz';
 import QuizConfiguration, { createDefaultQuizConfiguration } from 'src/models/QuizConfiguration';
+import QuizConfigurationChampion from 'src/models/QuizConfigurationChampion';
+import QuizConfigurationItem from 'src/models/QuizConfigurationItem';
+import QuizConfigurationChampionSpell from 'src/models/QuizConfigurationChampionSpell';
+import { ImageTypesChampionLolApi } from 'src/models/LolApi/ChampionLolApi';
 
 @Component
 export default class FormQuizConfiguration extends Vue {
+    // region Props
+
+    @Prop({ required: false, default: false, type: Boolean }) readOnly!: boolean;
+
+    // endregion
+
     // region Data
 
-    private internalQuizConfiguration: QuizConfiguration = createDefaultQuizConfiguration();
+    private internalQuizConfiguration: QuizConfiguration | QuizConfigurationItem | QuizConfigurationChampion | QuizConfigurationChampionSpell = createDefaultQuizConfiguration();
 
+    // noinspection JSMismatchedCollectionQueryUpdate
     private quizList: Quiz[] = quizList;
 
     // endregion
@@ -69,7 +121,9 @@ export default class FormQuizConfiguration extends Vue {
 
     // noinspection JSUnusedLocalSymbols
     private mounted() {
-        this.restoreFormLocalStorage();
+        this.restoreQuizSelectedFromLocalStorage();
+        this.restoreQuizConfigurationFromLocalStorage();
+        this.internalQuizConfiguration.withStopWatch = false;
     }
 
     // endregion
@@ -79,35 +133,74 @@ export default class FormQuizConfiguration extends Vue {
     private onQuizChanged(quiz: Quiz) {
         this.internalQuizConfiguration.quiz = quiz;
 
-        this.onInput();
+        this.saveQuizSelectedInLocalStorage();
+
+        this.restoreQuizConfigurationFromLocalStorage();
+
+        this.$emit('form-changed');
     }
 
     private onInput() {
-        this.saveInLocalStorage();
+        this.saveQuizConfigurationInLocalStorage();
         this.$emit('input', this.internalQuizConfiguration);
+        this.$emit('form-changed');
     }
 
     // endregion
 
     // region Methods
 
-    private restoreFormLocalStorage() {
-        const quizConfigurationInLocalStorage = this.$q.localStorage.getItem('quiz-configuration') as QuizConfiguration;
+    private restoreQuizSelectedFromLocalStorage() {
+        const quizSelectedInLocalStorage = this.$q.localStorage.getItem('quiz-selected') as string | undefined;
 
-        if (quizConfigurationInLocalStorage) {
-            this.$emit('input', quizConfigurationInLocalStorage);
-            this.internalQuizConfiguration = quizConfigurationInLocalStorage;
+        if (quizSelectedInLocalStorage) {
+            const quizFound = quizList.find(q => q.id === quizSelectedInLocalStorage);
+
+            if (quizFound) {
+                this.internalQuizConfiguration.quiz = quizFound;
+            }
         }
     }
 
-    private saveInLocalStorage() {
+    private restoreQuizConfigurationFromLocalStorage() {
+        const quizConfigurationsInLocalStorage = this.$q.localStorage.getItem('quiz-configurations') as QuizConfiguration[] | undefined;
+
+        if (quizConfigurationsInLocalStorage) {
+            const quizConfigurationInLocalStorage = quizConfigurationsInLocalStorage.find(qc => qc.quiz.id === this.internalQuizConfiguration.quiz.id);
+
+            if (quizConfigurationInLocalStorage) {
+                this.$emit('input', quizConfigurationInLocalStorage);
+                this.internalQuizConfiguration = quizConfigurationInLocalStorage;
+            }
+        }
+    }
+
+    private saveQuizSelectedInLocalStorage() {
+        this.$q.localStorage.set('quiz-selected', this.internalQuizConfiguration.quiz.id);
+
         const quizFound = quizList.find(q => q.internalName === this.internalQuizConfiguration.quiz.internalName);
 
         if (quizFound) {
             this.internalQuizConfiguration.quiz = quizFound;
         }
+    }
 
-        this.$q.localStorage.set('quiz-configuration', this.internalQuizConfiguration);
+    private saveQuizConfigurationInLocalStorage() {
+        let quizConfigurations: QuizConfiguration[] = [];
+
+        const quizConfigurationsInLocalStorage = this.$q.localStorage.getItem('quiz-configurations') as QuizConfiguration[];
+        if (quizConfigurationsInLocalStorage) {
+            quizConfigurations = quizConfigurationsInLocalStorage;
+        }
+
+        const quizConfigurationIndexFound = quizConfigurations.findIndex(qc => qc.quiz.id === this.internalQuizConfiguration.quiz.id);
+        if (quizConfigurationIndexFound > -1) {
+            quizConfigurations[quizConfigurationIndexFound] = { ...this.internalQuizConfiguration };
+        } else {
+            quizConfigurations.push(this.internalQuizConfiguration);
+        }
+
+        this.$q.localStorage.set('quiz-configurations', quizConfigurations);
     }
 
     // endregion
@@ -117,6 +210,25 @@ export default class FormQuizConfiguration extends Vue {
     @Watch('$attrs.value', { deep: true })
     public onValueChanged(value: QuizConfiguration): void {
         this.internalQuizConfiguration = value;
+    }
+
+    @Watch('internalQuizConfiguration', { deep: true, immediate: true })
+    public onInternalQuizConfiguration(): void {
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'imageType' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.imageType = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionImage && 'skins' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.skins = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ChampionSpell && this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.RuneName && this.internalQuizConfiguration.quiz.internalName !== QuizListInternalName.ItemName && 'questionType' in this.internalQuizConfiguration) {
+            this.internalQuizConfiguration.questionType = undefined;
+        }
+
+        if (this.internalQuizConfiguration.quiz.internalName === QuizListInternalName.ChampionImage && this.internalQuizConfiguration.imageType === ImageTypesChampionLolApi.portrait) {
+            this.internalQuizConfiguration.skins = 'only default';
+        }
     }
 
     // endregion

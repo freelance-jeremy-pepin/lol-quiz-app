@@ -64,6 +64,7 @@ export default class ShortcutsQuiz extends Vue {
 
     // region Data
 
+    // noinspection JSMismatchedCollectionQueryUpdate
     private shortcutsInQuizFinishedStage: Shortcut[] = [
         {
             shortcut: 'H',
@@ -85,15 +86,23 @@ export default class ShortcutsQuiz extends Vue {
 
     private get shortcutsInAnsweringStage(): Shortcut[] {
         const shortcuts = [];
+
         shortcuts.push({
             shortcut: 'SHIFT + /',
             description: 'Focus answer input.',
         });
 
+        if (!this.quiz.onlyOneTry) {
+            shortcuts.push({
+                shortcut: '↑',
+                description: 'Last answer.',
+            });
+        }
+
         if (this.quiz.canSkipQuestion) {
             shortcuts.push({
                 shortcut: 'F9',
-                description: 'Skip item.',
+                description: 'Skip.',
             });
         }
 

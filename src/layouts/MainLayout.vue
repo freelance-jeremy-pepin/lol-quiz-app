@@ -29,13 +29,14 @@
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator';
 import VersionLolApiStore from 'src/store/modules/LolApi/VersionLolApiStore';
-import LoLApiItemsModule from 'src/store/modules/LolApi/ItemLolApiStore';
 import ChampionLolApiStore from 'src/store/modules/LolApi/ChampionLolApiStore';
 import UserStore from 'src/store/modules/UserStore';
 import SocketMixin from 'src/mixins/socketMixin';
 import PseudoUser from 'components/User/PseudoUser.vue';
 import UserMixin from 'src/mixins/userMixin';
 import User from 'src/models/User';
+import ItemLolApiStore from 'src/store/modules/LolApi/ItemLolApiStore';
+import RuneLolApiStore from 'src/store/modules/LolApi/RuneLolApiStore';
 
 @Component({
     components: { PseudoUser },
@@ -46,11 +47,12 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
     /**
      * Chargements des différents éléments nécessaires à l'affichage de la page.
      */
-    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean } = {
+    private loadings: { me: boolean, version: boolean, items: boolean, champions: boolean, runes: boolean } = {
         me: true,
         version: true,
         items: true,
         champions: true,
+        runes: true,
     };
 
     // TODO: traiter et tester cas d'erreur.
@@ -79,7 +81,7 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
      * Lorsque que le composant est monté, récupère tous les éléments nécessaires à l'affichage de la page.
      */
     private mounted() {
-        this.loadings = { me: true, version: true, items: true, champions: true };
+        this.loadings = { me: true, version: true, items: true, champions: true, runes: true };
         this.isError = false;
 
         this.userSocketStore.getAllUsers();
@@ -144,6 +146,7 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             .then(() => {
                 this.fetchItemsLolApi();
                 this.fetchChampionsLolApi();
+                this.fetchRunesLolApi();
             })
             .catch((e) => {
                 this.isError = true;
@@ -158,7 +161,7 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
      * Récupère les objets de l'API LoL.
      */
     private fetchItemsLolApi() {
-        LoLApiItemsModule.fetchItems()
+        ItemLolApiStore.fetchItems()
             .catch((e) => {
                 this.isError = true;
                 throw new Error(e);
@@ -179,6 +182,20 @@ export default class MainLayout extends Mixins(UserMixin, SocketMixin) {
             })
             .finally(() => {
                 this.loadings.champions = false;
+            });
+    }
+
+    /**
+     * Récupère les runes de l'API LoL.
+     */
+    private fetchRunesLolApi() {
+        RuneLolApiStore.fetchRunes()
+            .catch((e) => {
+                this.isError = true;
+                throw new Error(e);
+            })
+            .finally(() => {
+                this.loadings.runes = false;
             });
     }
 
